@@ -73,7 +73,7 @@ registry.decl(SetsNodeName, nodes.NodeName, {
             
             this.arch.setNode(node);
             
-            parent && this.arch.addParent(node, parent);
+            parent && this.arch.addParents(node, parent);
             children && this.arch.addChildren(node, children);
             
             return node.getId();
@@ -83,13 +83,8 @@ registry.decl(SetsNodeName, nodes.NodeName, {
     },
     
     getSets : function() {
-        
         // noop
-        
-        return {
-            'desktop' : ['desktop.blocks']
-        };
-        
+        return { };
     }
     
 }, {
@@ -308,7 +303,7 @@ registry.decl(SetsLevelNodeName, GeneratedLevelNodeName, {
     scanSources : function() {
         
         return this.getSources()
-            .map(this.scanSourceLevel)
+            .map(this.scanSourceLevel.bind(this))
             .reduce(function(decls, item) {
                 return decls.concat(item);
             }, []);
@@ -318,7 +313,7 @@ registry.decl(SetsLevelNodeName, GeneratedLevelNodeName, {
     scanSourceLevel : function(level) {
         
         var relativize = PATH.relative.bind(null, this.root),
-            techs = this.getSourceTechs();
+            techs = this.getSourceItemTechs();
         
         return level.getItemsByIntrospection()
             .filter(function(item) {
