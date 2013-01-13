@@ -5,7 +5,9 @@ var BEM = require('bem');
 
 exports.getTechs = function() {
     
-    return BEM.util.extend({ 'title.txt' : '' }, 
-            require('./bundles.js').getTechs());
+    return {
+        'title.txt'  : '',
+        'bemjson.js' : ''
+    };
     
 };
