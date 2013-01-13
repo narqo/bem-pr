@@ -420,7 +420,7 @@ registry.decl(ExamplesLevelNodeName, GeneratedLevelNodeName, {
                 }, _t);
                 
                 // (XXX,debug): final arch struct
-                LOGGER.info(arch.toString());
+                //LOGGER.info(arch.toString());
                 
                 return _t.takeSnapshot('After ExamplesLevelNode alterArch ' + _t.getId());;
                 
