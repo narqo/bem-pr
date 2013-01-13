@@ -1,3 +1,15 @@
+/**
+ * @fileOverview Узлы для сборки наборов БЭМ-сущностей (sets)
+ * 
+ * TODO
+ * корневые узлы для сборки *всего* набора
+ * 
+ *     › bem make sets
+ *     › bem make examples      ← как определить примеры какого набора собрать?      
+ *     
+ * узлы для сборки тестов
+ */
+
 var BEM = require('bem'),
     PATH = require('path'),
     FS = require('fs'),
@@ -9,7 +21,7 @@ var BEM = require('bem'),
     registry = BEM.require('./nodesregistry'),
     nodes = BEM.require('./nodes/node'),
     magicNodes = BEM.require('./nodes/magic'),
-    levelNodes = BEM.require('./nodes/level'),
+//    levelNodes = BEM.require('./nodes/level'),
     blockNodes = BEM.require('./nodes/block'),
     bundleNodes = BEM.require('./nodes/bundle'),
     createNodes = BEM.require('./nodes/create'),
@@ -20,6 +32,9 @@ var BEM = require('bem'),
     ExamplesLevelNodeName = exports.ExamplesLevelNodeName = 'ExamplesLevelNode',
     ExampleSourceNodeName = exports.ExampleSourceNodeName = 'ExampleSourceNode',
     ExampleNodeName = exports.ExampleNodeName = 'ExampleNode',
+    
+    /** Id главного узла сборки наборов */
+    SETS_NODE_ID = 'sets',
     
     createLevel = BEM.createLevel;
 
@@ -50,16 +65,32 @@ registry.decl(SetsNodeName, nodes.NodeName, {
 
         return Q.step(
                 function() {
-                    return Q.call(_t.createSetsLevelNodes, _t, parent, children);
+                    return Q.call(_t.createCommonSetsNode, _t, parent);
+                },
+                function(common) {
+                    return [
+                        common,
+                        Q.call(_t.createSetsLevelNodes, _t, [common].concat(parent), children)
+                    ];
                 })
                 .then(function() {
-//                    LOGGER.info(arch.toString());
+                    LOGGER.info(arch.toString());
                     return arch;
-                });
+                })
+                .fail(console.log);
         
     },
     
-    createSetsLevelNodes : function(parent, children) {
+    createCommonSetsNode : function(parent) {
+        
+        var node = new nodes.Node(SETS_NODE_ID);
+        this.arch.setNode(node, parent);
+        
+        return node.getId();
+        
+    },
+    
+    createSetsLevelNodes : function(parents, children) {
         
         var sets = this.getSets();
         return Object.keys(sets).map(function(name) {
@@ -67,13 +98,13 @@ registry.decl(SetsNodeName, nodes.NodeName, {
             var node = registry.getNodeClass(SetsLevelNodeName).create({
                 root    : this.root,
                 level   : this.rootLevel,
-                item    : { block : name },
+                item    : { block : name, tech : 'sets' },
                 sources : sets[name]
             });
             
             this.arch.setNode(node);
             
-            parent && this.arch.addParents(node, parent);
+            parents && this.arch.addParents(node, parents);
             children && this.arch.addChildren(node, children);
             
             return node.getId();
@@ -82,8 +113,11 @@ registry.decl(SetsNodeName, nodes.NodeName, {
         
     },
     
+    /**
+     * TODO: Придумать формат описания набора
+     * @returns {Object} Описание наборов `{ name : [level1, level2] }`
+     */
     getSets : function() {
-        // noop
         return { };
     }
     
@@ -113,7 +147,7 @@ registry.decl(GeneratedLevelNodeName, magicNodes.MagicNodeName, {
         
         this._level = o.level;
         this.item = o.item;
-        this.techName = o.techName;
+        this.techName = o.techName || o.item.tech;
 
         this.__base(U.extend({ path : this.__self.createPath(o) }, o));
 
@@ -176,7 +210,7 @@ registry.decl(GeneratedLevelNodeName, magicNodes.MagicNodeName, {
             o.level;
 
         return level
-            .getTech(o.techName)
+            .getTech(o.techName || o.item.tech)
             .getPath(this.createNodePrefix(U.extend({}, o, { level: level })));
 
     },
@@ -198,16 +232,9 @@ registry.decl(GeneratedLevelNodeName, magicNodes.MagicNodeName, {
 
 registry.decl(SetsLevelNodeName, GeneratedLevelNodeName, {
     
-    __constructor : function(args) {
+    __constructor : function(o) {
         
-        var o = U.extend(this.getDefaults(), args);
-        
-        /**
-         * Список уровней из которых состоит набор (set)
-         * @type Array
-         */
         this.sources = o.sources;
-        
         this.__base(o);
         
     },
@@ -237,8 +264,8 @@ registry.decl(SetsLevelNodeName, GeneratedLevelNodeName, {
                             .getNodeClass(ExamplesLevelNodeName)
                             .create(o);
                         
-                        arch.setNode(exampleNode)
-                            .addChildren(exampleNode, [this, levelNode]);
+                        arch.setNode(exampleNode, arch.getNode(SETS_NODE_ID))
+                            .addChildren(exampleNode, [levelNode]);
                         
                         // TODO: move to method
                         o = {
@@ -269,12 +296,6 @@ registry.decl(SetsLevelNodeName, GeneratedLevelNodeName, {
             
         };
         
-    },
-    
-    getDefaults : function() {
-        return {
-            techName : 'sets'
-        };
     },
     
     getSourceItemTechs : function() {
@@ -355,8 +376,7 @@ registry.decl(ExamplesLevelNodeName, GeneratedLevelNodeName, {
                 arch = _t.ctx.arch;
             return Q.when(base.call(_t), function(levelNode) {
                 
-                var decls = _t.scanSourceLevel(),
-                    id = '';
+                var decls = _t.scanSourceLevel();
                 
                 decls.forEach(function(item) {
                     
@@ -371,8 +391,10 @@ registry.decl(ExamplesLevelNodeName, GeneratedLevelNodeName, {
                             source : source
                         });
                     
-                    arch.setNode(srcNode).addChildren(srcNode, [this, levelNode, _t._blockNode]);
+                    arch.setNode(srcNode)
+                        .addChildren(srcNode, [this, levelNode, _t._blockNode]);
                     
+                    // TODO: source node should be block, not any BEM-item
                     var sourceNode;
                     if(arch.hasNode(source)) {
                         sourceNode = arch.getNode(source);
@@ -392,11 +414,13 @@ registry.decl(ExamplesLevelNodeName, GeneratedLevelNodeName, {
                         item   : item
                     });
                     
-                    arch.setNode(bundleNode).addChildren(bundleNode, [this, srcNode]);
+                    arch.setNode(bundleNode)
+                        .addChildren(bundleNode, [this, srcNode]);
                     
                 }, _t);
                 
-//                LOGGER.info(arch.toString());
+                // (XXX,debug): final arch struct
+                LOGGER.info(arch.toString());
                 
                 return _t.takeSnapshot('After ExamplesLevelNode alterArch ' + _t.getId());;
                 
@@ -405,7 +429,6 @@ registry.decl(ExamplesLevelNodeName, GeneratedLevelNodeName, {
         };
         
     },
-    
     
     getSourceItemTechs : function() {
         return ['bemjson.js'];
@@ -494,7 +517,7 @@ registry.decl(ExampleNodeName, bundleNodes.BundleNodeName, {
         
         this.__base(o);
         
-        this.source = o.source; // TODO source -> sourceLevel
+        this.source = o.source; // TODO: source -> sourceLevel
         this.rootLevel = createLevel(this.root);
         
     },
