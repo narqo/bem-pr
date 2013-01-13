@@ -1,0 +1,17 @@
+{
+  "name": "bem-pr",
+  "description": "A set of bem-make extenstions to wrap common infrastructure tasks",
+  "version": "0.0.0",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/narqo/bem-pr.git"
+  },
+  "keywords": [
+    "bem",
+    "bem-make"
+  ],
+  "author": "Vladimir Varankin <varankinv@yandex-team.ru> (http://github.com/narqo)",
+  "readmeFilename": "README.md",
+  "license": "MIT",
+  "private": true
+}
