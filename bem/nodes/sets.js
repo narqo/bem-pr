@@ -352,7 +352,7 @@ registry.decl(SetsLevelNodeName, GeneratedLevelNodeName, {
 
         return level.getItemsByIntrospection()
             .filter(function(item) {
-                return ~techs.indexOf(item.tech) && item.block === 'button';
+                return ~techs.indexOf(item.tech);
             })
             .map(function(item) {
                 item.level = relativize(level.dir);
