@@ -27,6 +27,9 @@ var BEM = require('bem'),
     createNodes = BEM.require('./nodes/create'),
     fileNodes = BEM.require('./nodes/file'),
 
+    // XXX: monkey-patching
+    monkeyNodes = require('./monkey'),
+
     SetsNodeName = exports.SetsNodeName = 'SetsNode',
     SetsLevelNodeName = exports.SetsLevelNodeName = 'SetsLevelNode',
     ExamplesLevelNodeName = exports.ExamplesLevelNodeName = 'ExamplesLevelNode',
@@ -157,6 +160,9 @@ registry.decl(GeneratedLevelNodeName, magicNodes.MagicNodeName, {
         return this.ctx.arch.withLock(this.alterArch(), this);
     },
 
+    /**
+     * @returns {Function}
+     */
     alterArch : function() {
 
         var ctx = this.ctx;
@@ -245,6 +251,9 @@ registry.decl(SetsLevelNodeName, GeneratedLevelNodeName, {
 
     },
 
+    /**
+     * @returns {Function}
+     */
     alterArch : function() {
 
         var base = this.__base();
@@ -372,6 +381,9 @@ registry.decl(ExamplesLevelNodeName, GeneratedLevelNodeName, {
 
     },
 
+    /**
+     * @returns {Function}
+     */
     alterArch : function() {
 
         var base = this.__base();
@@ -381,8 +393,7 @@ registry.decl(ExamplesLevelNodeName, GeneratedLevelNodeName, {
                 arch = _t.ctx.arch;
             return Q.when(base.call(_t), function(levelNode) {
 
-                //var decls = _t.scanSourceLevel();
-                var decls = _t.scanSourceLevel().splice(0, 1);
+                var decls = _t.scanSourceLevel();
 
                 decls.forEach(function(item) {
 
