@@ -1,45 +1,22 @@
 BEM-PR ⥗
-======
+========
 
 bem-pr ( */'bʌmpə/, Бампер* ), набор узлов
 [bem-make(1)](http://github.com/bem/bem-tools), для решения задач инфраструктуры
-библиотек блоков™.
+библиотек блоков ™
 
 Задачи
 ------
 
-  * Сборка примеров
+  * сборка примеров
   * сборка и запуск тестов (?)
-  * сборка документацит (?)
+  * сборка документации (?)
 
 Как пользоваться
 ----------------
 
-**TODO** Написать про _скачать, встроить, запустить сервер, радоваться жизни_.
-
-### Пример
-
-См. ветку `feature/bem-pr` в проекте [bl-controls](http://github.com/narqo/bl-controls).
-
-    ## Используем ветку `feature/bem-pr` в библиотеке bl-controls
-    › git clone http://github.com/narqo/bl-controls.git -b feature/bem-pr
-    › cd bl-controls
-
-    ## Устанавливаем bem-tools с зависимостями
-    › npm install
-
-    ## Устанавлием bem-pr в проект
-    ## NOTE: библиотека bem-pr должна быть установлена _до запуска сборки_
-    › bem make bem-pr
-
-    ## Запускаем bem-server
-    › bem server
-
-Открываем в браузере 
-[localhost:8080/desktop.sets/button.examples/10-simple/10-simple.html](http://localhost:8080/desktop.sets/button.examples/10-simple/10-simple.html)
-
-Разрабатываем блок, редактируем пример в `desktop.blocks/button.examples/10-simple.bemjson.js`,
-обновляем страницу в браузере.
+Описание того, как начать использовать библиотеку находится
+[тут](/narqo/bem-pr/blob/master/docs/howto.ru.md).
 
 ---
 
