@@ -73,7 +73,8 @@ registry.decl(SetsNodeName, nodes.NodeName, {
                 function(common) {
                     return [
                         common,
-                        Q.call(_t.createSetsLevelNodes, _t, [common].concat(parent), children)
+                        Q.call(_t.createSetsLevelNodes, _t,
+                                parent? [common].concat(parent) : common, children)
                     ];
                 })
                 .then(function() {
