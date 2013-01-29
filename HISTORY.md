@@ -1,4 +1,5 @@
 0.0.3 / 2013-01-26
+==================
 
   * adding parent node for "sets" node should be option
   * howto guide improved
