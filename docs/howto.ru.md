@@ -16,9 +16,9 @@
     // Arch#getLibraries
 
     'bem-pr' : {
-      type : 'git',
-      url  : 'git://github.com/narqo/bem-pr.git',
-      npmPackages : false
+        type : 'git',
+        url  : 'git://github.com/narqo/bem-pr.git',
+        npmPackages : false
     }
 
 **NOTE** Рекомендуется на этом же этапе «скачать» библиотеку, выполнив
