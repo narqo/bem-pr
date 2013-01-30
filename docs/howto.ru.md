@@ -4,7 +4,7 @@
 Для корректной работы библиотеки требуются
 
   - Node.js >= 0.8.x,
-  - bem-tools, ветка `introspect` (github.com/bem/bem-tools.git#introspect)
+  - bem-tools, ветка `introspect` (git://github.com/bem/bem-tools.git#introspect)
 
 Для того чтобы собирать примеры блоков в своей библиотеки, достаточно выполнить «несколько условий».
 
