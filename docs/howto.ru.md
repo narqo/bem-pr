@@ -168,7 +168,6 @@ bem-pr расширяет стандартный класс `Arch`, добавл
                 'bem-bl/blocks-desktop',
                 'lego/blocks-common',
                 'lego/blocks-desktop',
-                'bl-controls/desktop.blocks',
                 'desktop.blocks'
             ]
             .concat([this.rootLevel.getTech('blocks').getPath(this.getSourceNodePrefix())])     // у каждого примера может быть дополнительно свой уровень переопределения
