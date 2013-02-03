@@ -4,7 +4,7 @@
 Для корректной работы библиотеки требуются
 
   - Node.js >= 0.8.x,
-  - bem-tools, ветка `introspect` (github.com/bem/bem-tools.git#introspect)
+  - bem-tools, ветка `introspect` (git://github.com/bem/bem-tools.git#introspect)
 
 Для того чтобы собирать примеры блоков в своей библиотеки, достаточно выполнить «несколько условий».
 
@@ -16,9 +16,9 @@
     // Arch#getLibraries
 
     'bem-pr' : {
-      type : 'git',
-      url  : 'git://github.com/narqo/bem-pr.git',
-      npmPackages : false
+        type : 'git',
+        url  : 'git://github.com/narqo/bem-pr.git',
+        npmPackages : false
     }
 
 **NOTE** Рекомендуется на этом же этапе «скачать» библиотеку, выполнив
@@ -151,7 +151,7 @@ bem-pr расширяет стандартный класс `Arch`, добавл
                 'deps.js',
                 'css',
                 'js',
-                'bemhtml.js',
+                'bemhtml',
                 'html'
             ];
 
@@ -168,7 +168,6 @@ bem-pr расширяет стандартный класс `Arch`, добавл
                 'bem-bl/blocks-desktop',
                 'lego/blocks-common',
                 'lego/blocks-desktop',
-                'bl-controls/desktop.blocks',
                 'desktop.blocks'
             ]
             .concat([this.rootLevel.getTech('blocks').getPath(this.getSourceNodePrefix())])     // у каждого примера может быть дополнительно свой уровень переопределения
@@ -251,7 +250,7 @@ _Осталось немного_ :)
 
     block.examples/
       ├── .bem/
-           └── level.js             // exports.baseLevelPath = require.resolve('bem/lib/levels/simple);
+           └── level.js             // exports.baseLevelPath = require.resolve('bem/lib/levels/simple');
       ├── 10-simple.bemjson.js
       ├── 10-simple.title.txt
       ├── 20-complex.bemjson.js
