@@ -250,7 +250,7 @@ _Осталось немного_ :)
 
     block.examples/
       ├── .bem/
-           └── level.js             // exports.baseLevelPath = require.resolve('bem/lib/levels/simple);
+           └── level.js             // exports.baseLevelPath = require.resolve('bem/lib/levels/simple');
       ├── 10-simple.bemjson.js
       ├── 10-simple.title.txt
       ├── 20-complex.bemjson.js
