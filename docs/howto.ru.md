@@ -151,7 +151,7 @@ bem-pr расширяет стандартный класс `Arch`, добавл
                 'deps.js',
                 'css',
                 'js',
-                'bemhtml.js',
+                'bemhtml',
                 'html'
             ];
 
