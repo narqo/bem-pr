@@ -399,9 +399,10 @@ registry.decl(ExamplesLevelNodeName, GeneratedLevelNodeName, {
                 decls.forEach(function(item) {
 
                     // TODO: meta node
-                    var source = PATH.relative(this.root, createLevel(
+                    var sourceLevel = createLevel(
                             this._blockNode.level.getPathByObj(
-                                    this.item, this.item.tech)).getPathByObj(item, item.tech)),
+                                    this.item, this.item.tech)),
+                        source = PATH.relative(this.root, sourceLevel.getPathByObj(item, item.tech)),
                         srcNode = registry.getNodeClass(ExampleSourceNodeName).create({
                             root   : this.root,
                             level  : this.path,
@@ -427,7 +428,7 @@ registry.decl(ExamplesLevelNodeName, GeneratedLevelNodeName, {
 
                     var bundleNode = registry.getNodeClass(ExampleNodeName).create({
                         root   : this.root,
-                        source : PATH.dirname(source),   // FIXME: hack
+                        source : PATH.relative(this.root, sourceLevel.dir),   // FIXME: hack
                         level  : this.path,
                         item   : item
                     });
