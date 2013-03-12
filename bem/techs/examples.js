@@ -1,1 +1,1 @@
-exports.baseTechPath = require.resolve('./sets.js');
+exports.baseTechName = 'sets';
