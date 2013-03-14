@@ -228,13 +228,20 @@ _Осталось немного_ :)
 
     // PRJ/desktop.sets/.bem/level.js
 
+    exports.baseLevelPath = require.resolve('../../bem-pr/bem/levels/sets.js');
+
     exports.getTechs = function() {
 
-        return {
+        return require('bem').util.extend(this.__base() || {}, {
             'examples' : '../../.bem/techs/examples.js'
-        };
+        });
 
     };
+
+**UPDATE, bem-pr@0.0.4**
+
+Рекомендуется _доопределять_ список технологий, через вызов `bem.util.extend(this.__base(), {...})`,
+чтобы конфиги проекта могли наследовать изменения базовых конфигов bem-pr.
 
 Примеры это обычные страницы, которые собираются на специальном уровне `desktop.sets/<block-name>.examples/`.
 
