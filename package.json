@@ -6,6 +6,9 @@
     "type": "git",
     "url": "git://github.com/narqo/bem-pr.git"
   },
+  "dependencies": {
+    "mkdirp": "~0.3.5"
+  },
   "keywords": [
     "bem",
     "bem-make"
