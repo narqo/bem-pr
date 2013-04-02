@@ -13,9 +13,9 @@
 var BEM = require('bem'),
     PATH = require('path'),
     FS = require('fs'),
+    MKDIRP = require('mkdirp'),
 
     Q = BEM.require('qq'),
-    MKDIRP = BEM.require('mkdirp'),
     LOGGER = BEM.require('./logger'),
     U = BEM.require('./util'),
     registry = BEM.require('./nodesregistry'),
