@@ -1,13 +1,16 @@
 {
   "name": "bem-pr",
   "description": "A set of bem-make extenstions to wrap common infrastructure tasks",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "repository": {
     "type": "git",
     "url": "git://github.com/narqo/bem-pr.git"
   },
   "dependencies": {
     "mkdirp": "~0.3.5"
+  },
+  "devDependencies": {
+    "bem": "~0.5.30"
   },
   "keywords": [
     "bem",
