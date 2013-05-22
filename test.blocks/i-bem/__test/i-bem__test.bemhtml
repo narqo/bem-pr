@@ -1,0 +1,9 @@
+block i-bem, elem test {
+
+    js: {
+        tests: this.ctx.content || null
+    },
+
+    content: ''
+
+}
