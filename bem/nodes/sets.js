@@ -544,8 +544,8 @@ registry.decl(TestsLevelNodeName, ExamplesLevelNodeName, {
                         source : PATH.relative(_t.root, sourceLevelPath)
                     }));
 
-                arch.setNode(srcNode, arch.getParents(_t), [levelNode, _t._blockNode]);
-                arch.setNode(bundleNode, arch.getParents(_t), srcNode);
+                arch.setNode(srcNode, arch.getParents(_t), [levelNode, _t._blockNode])
+                    .setNode(bundleNode, arch.getParents(_t), srcNode);
             })
         }
     },
