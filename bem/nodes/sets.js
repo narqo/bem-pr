@@ -13,7 +13,7 @@
 var BEM = require('bem'),
     PATH = require('path'),
     FS = require('fs'),
-    MKDIRP = require('mkdirp'),
+    QFS = require("q-io/fs"),
 
     Q = BEM.require('qq'),
     LOGGER = BEM.require('./logger'),
@@ -602,15 +602,13 @@ registry.decl(ExampleSourceNodeName, fileNodes.GeneratedFileNodeName, {
         var _t = this,
             data = this.data || FS.readFileSync(PATH.resolve(this.root, this.source), 'utf8');
 
-        return Q.call(function() {
-
-            MKDIRP.sync(PATH.dirname(_t.getPath()));
-
-            return U.writeFileIfDiffers(_t.getPath(), data).then(function() {
+        return QFS.makeTree(PATH.dirname(_t.getPath()))
+            .then(function() {
+                U.writeFileIfDiffers(_t.getPath(), data);
+            })
+            .then(function() {
                 return _t.path;
-            });
-
-        });
+            })
     }
 
 }, {
