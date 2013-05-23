@@ -40,7 +40,7 @@ BEM.TEST = {
 
         var rslt = '';
 
-        if($.type(desc) === "string") {
+        if(typeof desc === 'string') {
             rslt = desc;
         }
         else {
