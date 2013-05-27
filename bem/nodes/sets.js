@@ -13,9 +13,9 @@
 var BEM = require('bem'),
     PATH = require('path'),
     FS = require('fs'),
-    QFS = require("q-io/fs"),
 
     Q = BEM.require('qq'),
+    QFS = BEM.require('q-fs'),
     LOGGER = BEM.require('./logger'),
     U = BEM.require('./util'),
     registry = BEM.require('./nodesregistry'),

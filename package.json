@@ -6,9 +6,6 @@
     "type": "git",
     "url": "git://github.com/narqo/bem-pr.git"
   },
-  "dependencies": {
-    "q-io": "~1.6.6"
-  },
   "devDependencies": {
     "bem": "~0.5.30"
   },
