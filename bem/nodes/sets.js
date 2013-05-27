@@ -18,7 +18,6 @@ var BEM = require('bem'),
     Q = BEM.require('qq'),
     LOGGER = BEM.require('./logger'),
     U = BEM.require('./util'),
-    template = BEM.require('./template'),
     registry = BEM.require('./nodesregistry'),
 
     nodes = BEM.require('./nodes/node'),
