@@ -36,6 +36,7 @@ var BEM = require('bem'),
     ExamplesLevelNodeName = exports.ExamplesLevelNodeName = 'ExamplesLevelNode',
     TestsLevelNodeName = exports.TestsLevelNodeName = 'TestsLevelNode',
     ExampleSourceNodeName = exports.ExampleSourceNodeName = 'ExampleSourceNode',
+    AutogenTestSourceNodeName = exports.AutogenTestSourceNodeName = 'AutogenTestSourceNode',
     ExampleNodeName = exports.ExampleNodeName = 'ExampleNode',
     TestNodeName = exports.TestNodeName = 'TestNode',
 
@@ -528,15 +529,7 @@ registry.decl(TestsLevelNodeName, ExamplesLevelNodeName, {
                         return obj;
                     }, {}),
 
-                    srcNode = registry.getNodeClass(ExampleSourceNodeName).create(U.extend({}, o, {
-                        data : template.process(_t.autogenTestTmpl,
-                            {
-                                Content : JSON.stringify(autogenTestContent),
-                                BundleName : _t.autogenTestBundleName,
-                                TestsTechName : _t.testsTechName
-                            }
-                        )
-                    })),
+                    srcNode = registry.getNodeClass(AutogenTestSourceNodeName).create(o),
 
                     sourceLevelPath = _t._blockNode.level.getPathByObj(_t.item, _t.item.tech),
 
@@ -544,30 +537,18 @@ registry.decl(TestsLevelNodeName, ExamplesLevelNodeName, {
                         source : PATH.relative(_t.root, sourceLevelPath)
                     }));
 
+                /* Таким способом передаются данные в технологию test-tmpl */
+                process.env.testTmplVars = JSON.stringify({
+                    Content : JSON.stringify(autogenTestContent),
+                    BundleName : _t.autogenTestBundleName,
+                    TestsTechName : _t.testsTechName
+                });
+
                 arch.setNode(srcNode, arch.getParents(_t), [levelNode, _t._blockNode])
                     .setNode(bundleNode, arch.getParents(_t), srcNode);
             })
         }
     },
-
-    autogenTestTmpl: [
-        '({',
-        '    block: "b-page",',
-        '    head: [',
-        '        { block: "i-jquery", elem: "core" },',
-        '        { elem: "css", url: "_{{bemBundleName}}.css", ie: false },',
-        '        { elem: "js", url: "_{{bemBundleName}}.js" },',
-        '        { elem: "js", url: "_{{bemBundleName}}.{{bemTestsTechName}}" }',
-        '    ],',
-        '    content: {',
-        '        block: "i-bem",',
-        '        elem: "test",',
-        '        content: [',
-        '            {{bemContent}}',
-        '        ]',
-        '    }',
-        '})'
-    ],
 
     autogenTestBundleName: 'default',
     testsLevelTechName: 'tests',
@@ -579,7 +560,7 @@ registry.decl(TestsLevelNodeName, ExamplesLevelNodeName, {
     create: function(o) {
         return new this(o);
     }
-})
+});
 
 
 registry.decl(ExampleSourceNodeName, fileNodes.GeneratedFileNodeName, {
@@ -591,7 +572,6 @@ registry.decl(ExampleSourceNodeName, fileNodes.GeneratedFileNodeName, {
             o.level;
         this.item = o.item;
         this.source = o.source;
-        this.data = o.data;
 
         this.__base(U.extend({ path: this.__self.createPath(o) }, o));
 
@@ -600,11 +580,11 @@ registry.decl(ExampleSourceNodeName, fileNodes.GeneratedFileNodeName, {
     make : function() {
 
         var _t = this,
-            data = this.data || FS.readFileSync(PATH.resolve(this.root, this.source), 'utf8');
+            content = FS.readFileSync(PATH.resolve(this.root, this.source), 'utf8');
 
         return QFS.makeTree(PATH.dirname(_t.getPath()))
             .then(function() {
-                U.writeFileIfDiffers(_t.getPath(), data);
+                U.writeFileIfDiffers(_t.getPath(), content);
             })
             .then(function() {
                 return _t.path;
@@ -638,6 +618,33 @@ registry.decl(ExampleSourceNodeName, fileNodes.GeneratedFileNodeName, {
 
         return PATH.relative(o.root, level.getByObj(o.item));
 
+    }
+
+});
+
+
+registry.decl(AutogenTestSourceNodeName, ExampleSourceNodeName, {
+
+    __constructor : function(o) {
+        this.__base(o);
+    },
+
+    make: function() {
+
+        var levelPath = typeof this.level === 'string' ? this.level : this.level.dir;
+
+        return BEM.api.create.block({
+            forceTech: createLevel(levelPath).getTech(this.autogenTestTechName).getTechPath(),
+            level: levelPath
+        }, { names: this.item.block });
+    },
+
+    autogenTestTechName: 'test-tmpl'
+
+}, {
+
+    create : function(o) {
+        return new this(o);
     }
 
 });
