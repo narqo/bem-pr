@@ -1,8 +1,9 @@
-var tmpl = require('bem/lib/template');
+var PATH = require('path'),
+    tmpl = require('bem/lib/template');
 
 exports.getCreateResult = function(path, suffix, vars) {
 
-    var tmplVars = JSON.parse(process.env.testTmplVars || '{}');
+    var envProps = JSON.parse(process.env.__tests || '{}')[PATH.dirname(path)] || {};
 
     return tmpl.process([
         '({',
@@ -17,11 +18,15 @@ exports.getCreateResult = function(path, suffix, vars) {
         '        block: "i-bem",',
         '        elem: "test",',
         '        content: [',
-        '            {{bemContent}}',
+        '            {{bemTmplContent}}',
         '        ]',
         '    }',
         '})'
-    ], tmplVars);
+    ], {
+        BundleName: envProps.BundleName || vars.BlockName,
+        TestsTechName: envProps.TestsTechName || 'test.js',
+        TmplContent: envProps.TmplContent || ''
+    });
 };
 
 exports.getCreateSuffixes = function() {

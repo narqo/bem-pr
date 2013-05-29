@@ -6,6 +6,9 @@
     "type": "git",
     "url": "git://github.com/narqo/bem-pr.git"
   },
+  "dependencies": {
+    "phantomjs": "~1.9.0"
+  },
   "devDependencies": {
     "bem": "~0.5.30"
   },

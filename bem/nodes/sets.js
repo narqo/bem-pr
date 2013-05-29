@@ -533,15 +533,13 @@ registry.decl(TestsLevelNodeName, ExamplesLevelNodeName, {
                     sourceLevelPath = _t._blockNode.level.getPathByObj(_t.item, _t.item.tech),
 
                     bundleNode = registry.getNodeClass(TestNodeName).create(U.extend({}, o, {
-                        source : PATH.relative(_t.root, sourceLevelPath)
+                        source : PATH.relative(_t.root, sourceLevelPath),
+                        envData: {
+                            BundleName: _t.autogenTestBundleName,
+                            TestsTechName: _t.testsTechName,
+                            TmplContent: JSON.stringify(autogenTestContent),
+                        }
                     }));
-
-                /* Таким способом передаются данные в технологию test-tmpl */
-                process.env.testTmplVars = JSON.stringify({
-                    Content : JSON.stringify(autogenTestContent),
-                    BundleName : _t.autogenTestBundleName,
-                    TestsTechName : _t.testsTechName
-                });
 
                 arch.setNode(srcNode, arch.getParents(_t), [levelNode, _t._blockNode])
                     .setNode(bundleNode, arch.getParents(_t), srcNode);
@@ -722,6 +720,26 @@ registry.decl(ExampleNodeName, bundleNodes.BundleNodeName, {
 registry.decl(TestNodeName, ExampleNodeName, {
 
     __constructor: function(o) {
+
+        var testsEnv = JSON.parse(process.env.__tests || '{}'),
+            testId = PATH.join(o.root, o.level, o.item.block),
+            pageRelPath = PATH.join(o.level, o.item.block, o.item.block + '.html'),
+            pageURL;
+
+        if(this.webRoot) {
+            pageURL = this.webRoot + pageRelPath;
+        }
+        else {
+            pageURL = PATH.join(o.root, pageRelPath);
+        }
+
+        testsEnv[testId] = U.extend(testsEnv[testId] || {}, {
+            pageURL: pageURL
+        }, o.envData);
+
+        // Data for 'test-tmpl' and 'phantom.js' technologies
+        process.env.__tests = JSON.stringify(testsEnv);
+
         this.__base(o);
     }
 
