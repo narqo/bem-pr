@@ -536,7 +536,6 @@ registry.decl(TestsLevelNodeName, ExamplesLevelNodeName, {
                         source : PATH.relative(_t.root, sourceLevelPath),
                         envData: {
                             BundleName: _t.autogenTestBundleName,
-                            TestsTechName: _t.testsTechName,
                             TmplContent: JSON.stringify(autogenTestContent),
                         }
                     }));
@@ -549,7 +548,6 @@ registry.decl(TestsLevelNodeName, ExamplesLevelNodeName, {
 
     autogenTestBundleName: 'default',
     testsLevelTechName: 'tests',
-    testsTechName: 'test.js',
 
     bundleNodeCls: TestNodeName
 

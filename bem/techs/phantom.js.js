@@ -70,7 +70,7 @@ exports.getBuildResult = function(prefixes, suffix, outputDir, outputName) {
 };
 
 exports.getDependencies = function() {
-    return ['html'];
+    return ['html', 'test.js'];
 };
 
 exports.storeBuildResult = function(path, suffix, res) {

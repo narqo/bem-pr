@@ -12,7 +12,7 @@ exports.getCreateResult = function(path, suffix, vars) {
         '        { elem: "css", url: "_{{bemBundleName}}.css", ie: false },',
         '        { elem: "js", url: "http://yandex.st/jquery/1.7.2/jquery.min.js" },',
         '        { elem: "js", url: "_{{bemBundleName}}.js" },',
-        '        { elem: "js", url: "_{{bemBundleName}}.{{bemTestsTechName}}" }',
+        '        { elem: "js", url: "_{{bemBundleName}}.test.js" }',
         '    ],',
         '    content: {',
         '        block: "i-bem",',
@@ -24,7 +24,6 @@ exports.getCreateResult = function(path, suffix, vars) {
         '})'
     ], {
         BundleName: envProps.BundleName || vars.BlockName,
-        TestsTechName: envProps.TestsTechName || 'test.js',
         TmplContent: envProps.TmplContent || ''
     });
 };
