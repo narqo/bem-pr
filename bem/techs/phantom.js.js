@@ -1,9 +1,10 @@
-var Q = require('bem').require('qq'),
+var BEM = require('bem'),
+    Q = BEM.require('qq'),
     CP = require('child_process'),
     PATH = require('path'),
-    tmpl = require('bem/lib/template'),
-    logger = require('bem/lib/logger'),
-    phantom = require('phantomjs').path;
+    tmpl = BEM.require('./template'),
+    logger = BEM.require('./logger'),
+    phantom = require('phantomjs');
 
 exports.getBuildResult = function(prefixes, suffix, outputDir, outputName) {
 
@@ -78,7 +79,7 @@ exports.storeBuildResult = function(path, suffix, res) {
 
         var defer = Q.defer();
 
-        CP.exec(phantom + ' ' + path, function (error, stdout, stderr) {
+        CP.exec(phantom.path + ' ' + path, function (error, stdout, stderr) {
 
             console.log([
                 '------------------------------',
