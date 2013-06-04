@@ -1,3 +1,10 @@
+0.0.9 / 2013-06-05
+==================
+
+  * tests assembly added (@mishaberezin) #8
+  * documentation for tests assembly added in russian
+  * mkdirp npm-dependency removed
+
 0.0.5 / 2013-04-05
 ==================
 
