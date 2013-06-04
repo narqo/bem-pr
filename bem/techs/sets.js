@@ -1,20 +1,20 @@
-var BEM = require('bem'),
-    PATH = require('path');
+var PATH = require('path'),
+    BEM = require('bem');
 
 exports.techMixin = {
         
     getBaseLevel : function() {
-        return PATH.resolve(__dirname, '../levels/' + this.getTechName() + '.js');
+        return PATH.resolve(__dirname, '../levels/', this.getTechName() + '.js');
     },
 
     createByDecl : function(item, level, opts) {
-        
-        return this.createLevel({
+        var params = {
                 outputDir : level.dir,
                 force : opts.force,
                 level : this.getBaseLevel()
-            }, [this.getPath(level.getRelByObj(item))]);
-
+            },
+            name = this.getPath(level.getRelByObj(item));
+        return this.createLevel(params, [name]);
     },
 
     createLevel : function(opts, names) {
