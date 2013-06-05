@@ -1,9 +1,10 @@
 block i-bem, elem test {
 
+    default: applyCtx([this.ctx, { block: 'mocha' }]),
+
     js: {
         tests: this.ctx.content || null
     },
 
     content: ''
-
 }
