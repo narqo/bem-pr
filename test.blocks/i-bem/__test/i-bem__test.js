@@ -4,7 +4,7 @@ BEM.TEST = {
      * Declares a test.
      *
      * @param {String|Object} desc Block name (simple syntax) or description
-     * @param {Function} test Test description in jasmine format
+     * @param {Function} test Test description in mocha+chai format
      */
     decl: function(desc, test) {
 
@@ -16,11 +16,11 @@ BEM.TEST = {
     _decls: {},
 
     /**
-     * Adds tests to the "test runner".
+     * Create test suites.
      *
      * @param {Array} blocks
      */
-    _run: function(blocks) {
+    _create: function(blocks) {
 
         blocks = blocks ? $.makeArray(blocks) : Object.keys(this._decls);
 
@@ -59,7 +59,11 @@ BEM.DOM.decl('i-bem__test', {
 
         'js' : function() {
 
-            BEM.TEST._run(this.params.tests);
+            mocha.ui('bdd');
+
+            BEM.TEST._create(this.params.tests);
+
+            window.mochaPhantomJS ? mochaPhantomJS.run() : mocha.run();
 
         }
     }
