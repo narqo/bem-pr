@@ -23,12 +23,17 @@
 
 Тестовые бандлы оформляются по полной аналогии с примерами, в папке `block.tests`.
 
+У каждого тестового бандла может быть свой дополнительный уровень переопределения.
+
 Наборы тестов пишутся в технологии `test.js`.
 
-Набор тестов можно сделать как для отдельной bem-сущности (блок, элемент и т.д.), так и для конкретного тестового бандла.
+Набор тестов можно сделать для любой bem-сущности (блок, элемент и т.д.).
 
-Для тестирования используется фреймворк [mocha](http://visionmedia.github.io/mocha/).
-Для ассертов используется библиотека [chai](http://chaijs.com/).
+Для тестирования используется фреймворк [mocha](http://visionmedia.github.io/mocha/) в режиме `bdd`.
+
+Для ассертов используется библиотека [chai](http://chaijs.com/). Можно считать, что на момент запуска тестов метод chai.should() уже выполнен (http://chaijs.com/guide/styles/).
+
+Для моков используется библиотека [sinon](http://sinonjs.org/).
 
 ### Варианты оформления тестов
 
@@ -70,7 +75,7 @@
 
 Здесь мы гораздо лучше контролируем процесс. В `testbundle.bemjson.js` можно задать bem-дерево для полноценной страницы, указать тесты каких конкретно блоков запускать.
 
-Более того, для этого конкретного бандла можно задать свой дополнительный уровень переопределения:
+Для этого конкретного бандла можно задать свой дополнительный уровень переопределения:
 
     common.blocks/block/
     ├── __elem
@@ -88,30 +93,29 @@
 ### Оформление файла `block.test.js`
 
 Тесты пишутся под фреймворк mocha с использованием библиотеки ассертов chai.
-Единственная специфическая вещь это то, что вместо `describe` используется декларация `BEM.TEST.decl`.
+
+Для запуска тестов используется [модульная система](https://github.com/ymaps/modules).
+Каждый тест декларируется под именем `test` и провайдит `undefined`.
+
 Пример:
 
-    BEM.TEST.decl('block', function() {
+    modules.define('test', function(provide) {
 
-        var expect = chai.expect;
-
-        it('Два умножить на два должно равняться четырем', function() {
-            expect(2*2).to.equal(4);
+        describe('block', function() {
+            it('Два умножить на два должно равняться четырем', function() {
+                (2*2).should.to.equal(4);
+            });
         });
+
+        provide();
     });
-
-Первым параметром передается идентификатор набора тестов. Это может быть строка или хеш такого вида:
-
-    { block: 'block', elem: 'elem', modName: 'modName', modVal: 'modVal' }
-
-Вторым параметром функция, в теле которой собственно тесты.
 
 
 ### Оформление файла `block.tests/testbundle.bemjson.js`
 
 В `testbundle.bemjson.js` пишется произвольный bemjson плюс:
-- Подключение `testbundle.test.js`, по аналогии с подключением обычного js;
-- Нужно задекларировать элемент `i-bem__test`.
+- Подключение `testbundle.test.js` (должно идти после подключения обычного js);
+- Нужно задекларировать блок `test`.
 
 Пример:
 
@@ -123,9 +127,8 @@
             { elem: 'js', url: '_testbundle.js' },
             { elem: 'js', url: '_testbundle.test.js' }
         ],
-        mods: { theme: 'normal' },
         content: [
-            { block: 'i-bem', elem: 'test' },
+            { block: 'test' },
             { block: 'header' },
             { block: 'content' },
             { block: 'footer' }
@@ -133,24 +136,22 @@
     })
 
 
-### Оформление элемента `i-bem__test`
+### Оформление блока `test`
 
-`i-bem__test` это специальный элемент, который поставляется с библиотекой `bem-pr`. Он умеет хранить и запускать тесты.
-Делает три простые вещи:
-- Предоставляет метод для декларации тестового набора: `BEM.TEST.decl`;
-- Дает возможность прогнать конкретные наборы тестов из тех, что по зависимостям приехали на страницу;
-- Подтягивает за собой тестовый фреймворк (mocha) и библиотеку ассертов (chai).
+`test` это специальный блок, который поставляется с библиотекой `bem-pr`. Он умеет запускать тесты.
+Делает две простые вещи:
+- Дает возможность прогнать тесты конкретных блоков;
+- Подтягивает за собой тестовый фреймворк (mocha), библиотеку ассертов (chai) и пр.
 
-Есть два способа оформления элемента `i-bem__test` в `testbundle.bemjson.js`.
+Есть два способа оформления блока `test` в `testbundle.bemjson.js`.
 Запустить все тесты, какие приехали по зависимостям:
 
-    { block: 'i-bem', elem: 'test' }
+    { block: 'test' }
 
 Запустить тесты конкретных блоков:
 
     {
-        block: 'i-bem',
-        elem: 'test',
+        block: 'test',
         content: [
             { block: 'block' },
             { block: 'block', elem: 'elem' },
@@ -173,7 +174,7 @@
 - Добавляем путь до технологии `tests.js` в конфиги уровней `*.sets`
 
 В файле `.bem/levels/bundles.js`:
-- Указываем пути до технологий `test.js`, `test-tmpl` и `phantomjs`.
+- Указываем пути до технологий `test.js`, `test-tmpl`, `phantomjs`, `browser.js` и `vanilla.js`.
 
 
 #### Расширяем класс TestNode
@@ -183,8 +184,8 @@
 За сборку тестовых бандлов отвечает класс `TestNode` (он расширяет класс `ExampleNode`).
 
 Расширяем этот класс:
-- Добавляем уровень переопределения `bem-pr/test.blocks` (там лежит элемент `i-bem__test`);
-- Добавляем технологии `test.js` и `phantomjs` (последний опционально);
+- Добавляем уровень переопределения `bem-pr/test.blocks` (там лежит блок `test`);
+- Указываем технологии, в которых будет собираться тестовый бандл;
 - Указываем web-адрес, который смотрит на корень проекта (тоже опционально).
 
     MAKE.decl('TestNode', {
@@ -196,16 +197,24 @@
         },
 
         getTechs : function() {
-            return this.__base().concat([
+
+            return [
+                'bemjson.js',
+                'bemdecl.js',
+                'deps.js',
+                'bemhtml',
+                'browser.js',
+                'css',
+                'html',
                 'test.js',
-                'phantomjs'
-            ]);
+                'phantomjs',
+            ];
         },
 
         webRoot: 'http://islands-page.dev/'
     })
 
-Выше я предполагаю, что полный набор уровней и технологий уже указан для класса `ExampleNode`, здесь я лишь расриряю эти наборы специфичными для тестовых бандлов уровнем и технологиями.
+Выше я предполагаю, что полный набор уровней уже указан для класса `ExampleNode`, поэтому просто расриряю этот набор уровнем 'bem-pr/test.blocks'.
 
 `webRoot` должен быть таким, чтобы от него можно было отложить путь до тестового бандла: `http://islands-page.dev/smth.sets/block.tests/test-bundle/test-bundle.html`.
 
@@ -214,14 +223,19 @@
 
 #### Настраиваем сборку `_testbundle.test.js`
 
-Файл `testbundle.test.js` представляет из себя список борщиковых инклудов с путями до всех файлов *.test.js, пришедших по зависимостям.
-Чтобы собирался `_testbundle.test.js` расширяем класс `BundleNode`
+Технологии `test.js` и `browser.js` продуцируют js-файлы, содержащие борщиковые инклуды.
+Нужно расширить класс `BundleNode`, чтобы получить соответствующие `_testbundle.test.js` и `_testbundle.js`:
 
     MAKE.decl('BundleNode', {
         'create-test.js-optimizer-node': function(tech, sourceNode, bundleNode) {
             return this.createBorschikOptimizerNode('js', sourceNode, bundleNode);
+        },
+        'create-browser.js-optimizer-node': function(tech, sourceNode, bundleNode) {
+            return this.createBorschikOptimizerNode('js', sourceNode, bundleNode);
         }
     });
+
+`browser.js` расширяет технологию `js`, которая, как правило, продуцирует js-файлы, содержащие борщиковые инклуды. Если в вашем случае файлы сразу создаются раскрытыми, `create-browser.js-optimizer-node` указывать не нужно.
 
 
 #### Добавляем в проект модуль технологии `tests.js`
@@ -257,9 +271,9 @@
     };
 
 
-#### Указываем пути до технологий `test.js`, `test-tmpl` и `phantomjs`
+#### Указываем пути до технологий в `.bem/levels/bundles.js`.
 
-В файле `.bem/levels/bundles.js` должны быть указаны пути до технологий `test.js`, `test-tmpl` и `phantomjs`, которые потребуются при сборке тестов.
+В файле `.bem/levels/bundles.js` должны быть указаны пути до технологий `test.js`, `test-tmpl`, `phantomjs`, `browser.js` и `vanilla.js`, которые потребуются при сборке тестов.
 
     ...
     exports.getTechs = function() {
@@ -268,6 +282,8 @@
             'test.js'       : PATH.join(PRJ_ROOT, 'bem-pr/bem/techs/test.js.js'),
             'test-tmpl'     : PATH.join(PRJ_ROOT, 'bem-pr/bem/techs/test-tmpl.js'),
             'phantomjs'     : PATH.join(PRJ_ROOT, 'bem-pr/bem/techs/phantomjs.js'),
+            'browser.js'    : PATH.join(PRJ_ROOT, 'bem-core/.bem/techs/browser.js.js'),
+            'vanilla.js'    : PATH.join(PRJ_ROOT, 'bem-core/.bem/techs/vanilla.js.js'),
 
             'bemjson.js'    : PATH.join(PRJ_TECHS, 'bemjson.js'),
             'bemdecl.js'    : 'bemdecl.js',
