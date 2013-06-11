@@ -27,7 +27,7 @@ exports.storeBuildResult = function(path, suffix, res) {
         ].filter(Boolean).join('\n'));
 
         if(error !== null) {
-            defer.reject();
+            defer.reject('Tests failed');
         }
         else {
             defer.resolve();

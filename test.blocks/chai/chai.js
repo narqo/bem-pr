@@ -1,4 +1,4 @@
-;(function(){
+modules.define('chai', function(provide) {
 
 /**
  * Require the given path.
@@ -4248,4 +4248,7 @@ if (typeof exports == "object") {
   define(function(){ return require("chai"); });
 } else {
   this["chai"] = require("chai");
-}})();
+}
+
+provide();
+});
