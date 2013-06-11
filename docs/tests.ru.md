@@ -10,10 +10,10 @@
 - [Оформление элемента `i-bem__test`](#--i-bem__test)
 - [Проектные настройки](#--2)
 	- [Расширяем класс TestNode](#--testnode)
-	- [Настраиваем сборку `_testbundle.test.js`](#--_testbundletestjs)
+	- [Настраиваем сборку `_testbundle.test.js` и `_testbundle.js`](#--_testbundletestjs--_testbundlejs)
 	- [Добавляем в проект модуль технологии `tests.js`](#-----testsjs)
 	- [Добавляем путь до технологии `tests.js` в конфиги уровней `*.sets`](#----testsjs----sets)
-	- [Указываем пути до технологий `test.js`, `test-tmpl` и `phantom.js`](#----testjs-test-tmpl--phantomjs)
+	- [Указываем пути до технологий в `.bem/levels/bundles.js`](#-----bemlevelsbundlesjs)
 - [Сборка и запуск тетов](#---)
 - [Демонстрация](#-1)
 
@@ -221,7 +221,7 @@
 `webRoot` указывается со слешом на конце.
 
 
-#### Настраиваем сборку `_testbundle.test.js`
+#### Настраиваем сборку `_testbundle.test.js` и `_testbundle.js`
 
 Технологии `test.js` и `browser.js` продуцируют js-файлы, содержащие борщиковые инклуды.
 Нужно расширить класс `BundleNode`, чтобы получить соответствующие `_testbundle.test.js` и `_testbundle.js`:
