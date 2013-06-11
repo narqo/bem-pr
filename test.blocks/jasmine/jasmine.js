@@ -1,3 +1,5 @@
+modules.define('jasmine', function(provide) {
+
 var isCommonJS = typeof window == "undefined" && typeof exports == "object";
 
 /**
@@ -2598,3 +2600,6 @@ jasmine.version_= {
   "build": 1,
   "revision": 1354556913
 };
+
+provide();
+});

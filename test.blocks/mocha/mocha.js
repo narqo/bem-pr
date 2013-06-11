@@ -2,7 +2,7 @@
  * NOTE: mocha 1.9.0 because of https://github.com/metaskills/mocha-phantomjs/issues/58
  */
 
-;(function(){
+modules.define('mocha', function(provide) {
 
 // CommonJS require()
 
@@ -5339,4 +5339,6 @@ process.on = function(e, fn){
     });
   };
 })();
-})();
+
+provide();
+});
