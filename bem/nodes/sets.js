@@ -735,7 +735,7 @@ registry.decl(TestNodeName, ExampleNodeName, {
             pageURL: pageURL
         }, o.envData);
 
-        // Data for 'test-tmpl' and 'phantom.js' technologies
+        // Data for 'test-tmpl' and 'phantomjs' technologies
         process.env.__tests = JSON.stringify(testsEnv);
 
         this.__base(o);
