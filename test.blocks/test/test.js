@@ -1,9 +1,21 @@
-modules.require(['mocha', 'chai', 'sinon'], function() {
+(function(w) {
 
-    mocha.ui('bdd');
-    chai.should();
+    if(w.addEventListener) {
+        w.addEventListener('load', runTests, false);
+    }
+    else if(w.attachEvent) {
+        w.attachEvent('onload', runTests);
+    }
 
-    modules.require(['test'], function() {
-        window.mochaPhantomJS ? mochaPhantomJS.run() : mocha.run();
-    });
-});
+    function runTests() {
+        modules.require(['mocha', 'chai', 'sinon'], function() {
+
+            mocha.ui('bdd');
+            chai.should();
+
+            modules.require(['test'], function() {
+                w.mochaPhantomJS ? mochaPhantomJS.run() : mocha.run();
+            });
+        });
+    }
+})(window);
