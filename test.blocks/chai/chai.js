@@ -4242,8 +4242,6 @@ module.exports = function (obj) {
 });
 require.alias("chai/index.js", "chai/index.js");
 
-var chai
-
 if (typeof exports == "object") {
   module.exports = require("chai");
 } else if (typeof define == "function" && define.amd) {
