@@ -4300,5 +4300,5 @@ if (typeof module == "object" && typeof require == "function") {
 
 return sinon;}.call(typeof window != 'undefined' && window || {}));
 
-provide();
+provide(this.sinon);
 });

@@ -5340,5 +5340,5 @@ process.on = function(e, fn){
   };
 })();
 
-provide();
+provide(window.mocha);
 });
