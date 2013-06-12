@@ -728,7 +728,7 @@ registry.decl(TestNodeName, ExampleNodeName, {
             pageURL = this.webRoot + pageRelPath;
         }
         else {
-            pageURL = PATH.join(o.root, pageRelPath);
+            pageURL = 'file://' + PATH.join(o.root, pageRelPath);
         }
 
         testsEnv[testId] = U.extend(testsEnv[testId] || {}, {
