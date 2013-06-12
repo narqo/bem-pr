@@ -34,7 +34,7 @@ exports.storeBuildResult = function(path, suffix, res) {
         }
     });
 
-    LOGGER.info('[i] Page was sent to Phantom (' + path + ')');
+    LOGGER.info('[i] Page was sent to Phantom (' + URL + ')');
 
     return defer.promise;
 };
