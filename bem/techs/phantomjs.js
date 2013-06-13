@@ -12,10 +12,11 @@ exports.getDependencies = function() {
 exports.storeBuildResult = function(path, suffix, res) {
 
     var envProps = JSON.parse(process.env.__tests || '{}')[PATH.dirname(path)] || {},
+        consoleReporter = envProps.consoleReporter ? '--reporter ' + envProps.consoleReporter : '',
         URL = envProps.pageURL || (PATH.join(PATH.dirname(path), PATH.basename(path, '.phantomjs')) + '.html'),
         defer = Q.defer();
 
-    CP.exec(mochaPhantomjsPath + ' ' + URL, function (error, stdout, stderr) {
+    CP.exec([mochaPhantomjsPath, consoleReporter, URL].join(' '), function (error, stdout, stderr) {
 
         console.log([
             '------------------------------',

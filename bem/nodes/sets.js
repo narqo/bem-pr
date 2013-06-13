@@ -722,6 +722,7 @@ registry.decl(TestNodeName, ExampleNodeName, {
         var testsEnv = JSON.parse(process.env.__tests || '{}'),
             testId = PATH.join(o.root, o.level, o.item.block),
             pageRelPath = PATH.join(o.level, o.item.block, o.item.block + '.html'),
+            consoleReporter = this.consoleReporter || '',
             pageURL;
 
         if(this.webRoot) {
@@ -732,6 +733,7 @@ registry.decl(TestNodeName, ExampleNodeName, {
         }
 
         testsEnv[testId] = U.extend(testsEnv[testId] || {}, {
+            consoleReporter: consoleReporter,
             pageURL: pageURL
         }, o.envData);
 

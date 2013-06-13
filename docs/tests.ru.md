@@ -186,8 +186,10 @@
 Расширяем этот класс:
 - Добавляем уровень переопределения `bem-pr/test.blocks` (там лежит блок `test`);
 - Указываем технологии, в которых будет собираться тестовый бандл;
-- Указываем web-адрес, который смотрит на корень проекта (тоже опционально).
+- Указываем web-адрес, который смотрит на корень проекта (опционально);
+- Указываем название репортера, который будет выводить результаты тестов в консоли (опционально).
 
+```
     MAKE.decl('TestNode', {
 
         getLevels : function() {
@@ -211,14 +213,19 @@
             ];
         },
 
-        webRoot: 'http://islands-page.dev/'
+        webRoot: 'http://islands-page.dev/',
+
+        consoleReporter: 'teamcity'
     })
+```
 
 Выше я предполагаю, что полный набор уровней уже указан для класса `ExampleNode`, поэтому просто расриряю этот набор уровнем 'bem-pr/test.blocks'.
 
 `webRoot` должен быть таким, чтобы от него можно было отложить путь до тестового бандла: `http://islands-page.dev/smth.sets/block.tests/test-bundle/test-bundle.html`.
 
 `webRoot` указывается со слешом на конце.
+
+Возможные значения поля `consoleReporter` смотри в [документации к mocha-phantomjs](https://github.com/metaskills/mocha-phantomjs#supported-reporters). По умолчанию используется репортер `spec`.
 
 
 #### Настраиваем сборку `_testbundle.test.js` и `_testbundle.js`
