@@ -32,7 +32,7 @@
 Для тестирования используется фреймворк [mocha](http://visionmedia.github.io/mocha/) в режиме `bdd`.
 
 Для ассертов используется библиотека [chai](http://chaijs.com/) с плагином [sinon-chai](https://github.com/domenic/sinon-chai).
-На момент запуска тестов метод chai.should() уже выполнен (http://chaijs.com/guide/styles/).
+На момент запуска тестов метод `chai.should` уже выполнен (http://chaijs.com/guide/styles/).
 
 Для моков используется библиотека [sinon](http://sinonjs.org/).
 
