@@ -9,8 +9,8 @@ modules.require(['mocha', 'chai', 'sinon', 'sinon-chai'], function(mocha, chai, 
 
 (function() {
     onload(function() {
-        modules.require(['test'], function() {
-            w.mochaPhantomJS ? mochaPhantomJS.run() : mocha.run();
+        modules.require(['mocha', 'test'], function(mocha) {
+            window.mochaPhantomJS ? window.mochaPhantomJS.run() : mocha.run();
         });
     });
 
