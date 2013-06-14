@@ -4250,5 +4250,5 @@ if (typeof exports == "object") {
   this["chai"] = require("chai");
 }
 
-provide();
+provide(require("chai"));
 });

@@ -8,7 +8,7 @@
     }
 
     function runTests() {
-        modules.require(['mocha', 'chai', 'sinon'], function() {
+        modules.require(['mocha', 'chai', 'sinon'], function(mocha, chai, sinon) {
 
             mocha.ui('bdd');
             chai.should();
