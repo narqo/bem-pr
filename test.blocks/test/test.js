@@ -1,21 +1,21 @@
-(function(w) {
+modules.require(['mocha', 'chai', 'sinon', 'sinon-chai'], function(mocha, chai, sinon, sinonChai) {
 
-    if(w.addEventListener) {
-        w.addEventListener('load', runTests, false);
-    }
-    else if(w.attachEvent) {
-        w.attachEvent('onload', runTests);
-    }
+    mocha.ui('bdd');
 
-    function runTests() {
-        modules.require(['mocha', 'chai', 'sinon'], function(mocha, chai, sinon) {
+    chai.use(sinonChai);
+    chai.should();
 
-            mocha.ui('bdd');
-            chai.should();
+});
 
-            modules.require(['test'], function() {
-                w.mochaPhantomJS ? mochaPhantomJS.run() : mocha.run();
-            });
+(function() {
+    onload(function() {
+        modules.require(['mocha', 'test'], function(mocha) {
+            window.mochaPhantomJS ? window.mochaPhantomJS.run() : mocha.run();
         });
+    });
+
+    function onload(fn) {
+        if(window.addEventListener) { window.addEventListener('load', fn, false) }
+        else if(window.attachEvent) { window.attachEvent('onload', fn) }
     }
-})(window);
+})();
