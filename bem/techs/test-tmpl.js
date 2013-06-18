@@ -16,9 +16,7 @@ exports.getCreateResult = function(path, suffix, vars) {
         '    ],',
         '    content: {',
         '        block: "test",',
-        '        content: [',
-        '            {{bemTmplContent}}',
-        '        ]',
+        '        content: {{bemTmplContent}}',
         '    }',
         '})'
     ], {

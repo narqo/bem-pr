@@ -34,6 +34,7 @@ var BEM = require('bem'),
     SetsLevelNodeName = exports.SetsLevelNodeName = 'SetsLevelNode',
     ExamplesLevelNodeName = exports.ExamplesLevelNodeName = 'ExamplesLevelNode',
     TestsLevelNodeName = exports.TestsLevelNodeName = 'TestsLevelNode',
+    AllTestsLevelNodeName = exports.AllTestsLevelNodeName = 'AllTestsLevelNode',
     ExampleSourceNodeName = exports.ExampleSourceNodeName = 'ExampleSourceNode',
     AutogenTestSourceNodeName = exports.AutogenTestSourceNodeName = 'AutogenTestSourceNode',
     ExampleNodeName = exports.ExampleNodeName = 'ExampleNode',
@@ -311,6 +312,12 @@ registry.decl(SetsLevelNodeName, GeneratedLevelNodeName, {
 
                     }, _t);
 
+                    arch.setNode(registry.getNodeClass(AllTestsLevelNodeName).create({
+                        root : _t.root,
+                        level : _t.path,
+                        sources : _t.sources
+                    }), arch.getParents(_t), levelNode);
+
                     return _t.takeSnapshot('After SetsLevelNode alterArch ' + _t.getId());
 
                 });
@@ -542,6 +549,8 @@ registry.decl(TestsLevelNodeName, ExamplesLevelNodeName, {
 
                 arch.setNode(srcNode, arch.getParents(_t), [levelNode, _t._blockNode])
                     .setNode(bundleNode, arch.getParents(_t), srcNode);
+
+                return _t.takeSnapshot('After TestsLevelNode alterArch ' + _t.getId());
             })
         }
     },
@@ -550,6 +559,98 @@ registry.decl(TestsLevelNodeName, ExamplesLevelNodeName, {
     testsLevelTechName: 'tests',
 
     bundleNodeCls: TestNodeName
+
+}, {
+    create: function(o) {
+        return new this(o);
+    }
+});
+
+// XXX: Много дублирования. Придумать другой способ.
+registry.decl(AllTestsLevelNodeName, GeneratedLevelNodeName, {
+
+    __constructor: function(o) {
+
+        this.root = o.root;
+        this.sources = o.sources;
+
+        this.__base(U.extend(o, {
+            item: { block: this.allTestsLevelName, tech: 'tests' }
+        }));
+    },
+
+    alterArch: function() {
+
+        var base = this.__base();
+
+        return function() {
+
+            var _t = this,
+                arch = this.ctx.arch;
+
+            return Q.when(base.call(this), function(levelNode) {
+
+                var o = {
+                        root : _t.root,
+                        level : _t.path,
+                        item : { block: _t.autogenTestBundleName, tech: 'bemjson.js' }
+                    },
+
+                    autogenTestContent = _t.getBemjsonDecl(_t.getSourcesItems('test.js')),
+
+                    srcNode = registry.getNodeClass(AutogenTestSourceNodeName).create(o),
+
+                    bundleNode = registry.getNodeClass(TestNodeName).create(U.extend({}, o, {
+                        source : _t.root,
+                        envData: {
+                            BundleName: _t.autogenTestBundleName,
+                            TmplContent: JSON.stringify(autogenTestContent, null, 4),
+                        }
+                    }));
+
+                arch.setNode(srcNode, arch.getParents(_t), levelNode)
+                    .setNode(bundleNode, arch.getParents(_t), srcNode);
+
+                return _t.takeSnapshot('After AllTestsLevelNode alterArch ' + _t.getId());
+            })
+        }
+    },
+
+    getBemjsonDecl: function(items) {
+
+        return items.map(function(item) {
+            return ['block', 'elem', 'mod', 'val'].reduce(function(obj, key) {
+                obj[key] = item[key];
+                return obj;
+            }, {})
+        });
+    },
+
+    getSourcesItems: function(tech) {
+
+        var absolutivize = PATH.resolve.bind(null, this.root),
+            rslt = [];
+
+        this.sources.map(function(source) {
+            if(typeof source === 'string') {
+                source = createLevel(absolutivize(source));
+            }
+            return this.getSourceItems(source, tech);
+        }, this).forEach(function (item) {
+            rslt = rslt.concat(item);
+        })
+
+        return rslt;
+    },
+
+    getSourceItems: function(level, tech) {
+        return level.getItemsByIntrospection().filter(function(item) {
+            return item.tech == tech;
+        })
+    },
+
+    allTestsLevelName: 'all',
+    autogenTestBundleName: 'default'
 
 }, {
     create: function(o) {
