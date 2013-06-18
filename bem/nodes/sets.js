@@ -566,7 +566,7 @@ registry.decl(TestsLevelNodeName, ExamplesLevelNodeName, {
     }
 });
 
-
+// XXX: Много дублирования. Придумать другой способ.
 registry.decl(AllTestsLevelNodeName, GeneratedLevelNodeName, {
 
     __constructor: function(o) {
