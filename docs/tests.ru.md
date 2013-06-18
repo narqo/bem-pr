@@ -100,16 +100,18 @@
 
 Пример:
 
-    modules.define('test', function(provide) {
+```js
+modules.define('test', function(provide) {
 
-        describe('block', function() {
-            it('Два умножить на два должно равняться четырем', function() {
-                (2*2).should.to.equal(4);
-            });
+    describe('block', function() {
+        it('Два умножить на два должно равняться четырем', function() {
+            (2*2).should.to.equal(4);
         });
-
-        provide();
     });
+
+    provide();
+});
+```
 
 
 ### Оформление файла `block.tests/testbundle.bemjson.js`
@@ -120,22 +122,23 @@
 
 Пример:
 
-    ({
-        block: 'b-page',
-        head: [
-            { elem: 'js', url: 'http://yandex.st/jquery/1.7.2/jquery.min.js' },
-            { elem: 'css', url: '_testbundle.css', ie: false },
-            { elem: 'js', url: '_testbundle.js' },
-            { elem: 'js', url: '_testbundle.test.js' }
-        ],
-        content: [
-            { block: 'test' },
-            { block: 'header' },
-            { block: 'content' },
-            { block: 'footer' }
-        ]
-    })
-
+```js
+({
+    block: 'b-page',
+    head: [
+        { elem: 'js', url: 'http://yandex.st/jquery/1.7.2/jquery.min.js' },
+        { elem: 'css', url: '_testbundle.css', ie: false },
+        { elem: 'js', url: '_testbundle.js' },
+        { elem: 'js', url: '_testbundle.test.js' }
+    ],
+    content: [
+        { block: 'test' },
+        { block: 'header' },
+        { block: 'content' },
+        { block: 'footer' }
+    ]
+})
+```
 
 ### Оформление блока `test`
 
@@ -147,20 +150,23 @@
 Есть два способа оформления блока `test` в `testbundle.bemjson.js`.
 Запустить все тесты, какие приехали по зависимостям:
 
-    { block: 'test' }
+```js
+{ block: 'test' }
+```
 
 Запустить тесты конкретных блоков:
 
-    {
-        block: 'test',
-        content: [
-            { block: 'block' },
-            { block: 'block', elem: 'elem' },
-            { block: 'another-block'},
-            ...
-        ]
-    }
-
+```js
+{
+    block: 'test',
+    content: [
+        { block: 'block' },
+        { block: 'block', elem: 'elem' },
+        { block: 'another-block'},
+        ...
+    ]
+}
+```
 
 ### Проектные настройки
 
@@ -190,37 +196,37 @@
 - Указываем web-адрес, который смотрит на корень проекта (опционально);
 - Указываем название репортера, который будет выводить результаты тестов в консоли (опционально).
 
+```js
+MAKE.decl('TestNode', {
+
+    getLevels : function() {
+        return this.__base().concat([
+            'bem-pr/test.blocks'
+        ]);
+    },
+
+    getTechs : function() {
+
+        return [
+            'bemjson.js',
+            'bemdecl.js',
+            'deps.js',
+            'bemhtml',
+            'browser.js',
+            'css',
+            'html',
+            'test.js',
+            'phantomjs',
+        ];
+    },
+
+    webRoot: 'http://islands-page.dev/',
+
+    consoleReporter: 'teamcity'
+})
 ```
-    MAKE.decl('TestNode', {
 
-        getLevels : function() {
-            return this.__base().concat([
-                'bem-pr/test.blocks'
-            ]);
-        },
-
-        getTechs : function() {
-
-            return [
-                'bemjson.js',
-                'bemdecl.js',
-                'deps.js',
-                'bemhtml',
-                'browser.js',
-                'css',
-                'html',
-                'test.js',
-                'phantomjs',
-            ];
-        },
-
-        webRoot: 'http://islands-page.dev/',
-
-        consoleReporter: 'teamcity'
-    })
-```
-
-Выше я предполагаю, что полный набор уровней уже указан для класса `ExampleNode`, поэтому просто расриряю этот набор уровнем 'bem-pr/test.blocks'.
+Выше я предполагаю, что полный набор уровней уже указан для класса `ExampleNode`, поэтому просто расширяю этот набор уровнем `bem-pr/test.blocks`.
 
 `webRoot` должен быть таким, чтобы от него можно было отложить путь до тестового бандла: `http://islands-page.dev/smth.sets/block.tests/test-bundle/test-bundle.html`.
 
@@ -234,14 +240,19 @@
 Технологии `test.js` и `browser.js` продуцируют js-файлы, содержащие борщиковые инклуды.
 Нужно расширить класс `BundleNode`, чтобы получить соответствующие `_testbundle.test.js` и `_testbundle.js`:
 
-    MAKE.decl('BundleNode', {
-        'create-test.js-optimizer-node': function(tech, sourceNode, bundleNode) {
-            return this.createBorschikOptimizerNode('js', sourceNode, bundleNode);
-        },
-        'create-browser.js-optimizer-node': function(tech, sourceNode, bundleNode) {
-            return this.createBorschikOptimizerNode('js', sourceNode, bundleNode);
-        }
-    });
+```js
+MAKE.decl('BundleNode', {
+
+    'create-test.js-optimizer-node': function(tech, sourceNode, bundleNode) {
+        return this.createBorschikOptimizerNode('js', sourceNode, bundleNode);
+    },
+
+    'create-browser.js-optimizer-node': function(tech, sourceNode, bundleNode) {
+        return this.createBorschikOptimizerNode('js', sourceNode, bundleNode);
+    }
+
+});
+```
 
 `browser.js` расширяет технологию `js`, которая, как правило, продуцирует js-файлы, содержащие борщиковые инклуды. Если в вашем случае файлы сразу создаются раскрытыми, `create-browser.js-optimizer-node` указывать не нужно.
 
@@ -254,59 +265,62 @@
 
 Содержимое файла:
 
-    var PATH = require('path');
+```js
+var PATH = require('path');
 
-    exports.baseTechPath = require.resolve('../../bem-pr/bem/techs/tests.js');
+exports.baseTechPath = require.resolve('../../bem-pr/bem/techs/tests.js');
 
-    exports.getBaseLevel = function() {
-        return PATH.resolve(__dirname, '../levels/bundles.js');
-    };
-
+exports.getBaseLevel = function() {
+    return PATH.resolve(__dirname, '../levels/bundles.js');
+};
+```
 
 #### Добавляем путь до технологии `tests.js` в конфиги уровней `*.sets`
 
 В конфигах `*.sets/.bem/level.js` должен быть указан путь до проектного модуля `tests.js`.
 
-    exports.baseLevelPath = require.resolve('../../bem-pr/bem/levels/sets.js');
+```js
+exports.baseLevelPath = require.resolve('../../bem-pr/bem/levels/sets.js');
 
-    exports.getTechs = function() {
+exports.getTechs = function() {
 
-        return require('bem').util.extend(this.__base() || {}, {
-            'examples' : '../../.bem/techs/examples.js',
-            'tests' : '../../.bem/techs/tests.js'
-        });
+    return require('bem').util.extend(this.__base() || {}, {
+        'examples' : '../../.bem/techs/examples.js',
+        'tests' : '../../.bem/techs/tests.js'
+    });
 
-    };
-
+};
+```
 
 #### Указываем пути до технологий в `.bem/levels/bundles.js`.
 
 В файле `.bem/levels/bundles.js` должны быть указаны пути до технологий `test.js`, `test-tmpl`, `phantomjs`, `browser.js` и `vanilla.js`, которые потребуются при сборке тестов.
 
-    ...
-    exports.getTechs = function() {
+```js
+...
+exports.getTechs = function() {
 
-        return {
-            'test.js'       : PATH.join(PRJ_ROOT, 'bem-pr/bem/techs/test.js.js'),
-            'test-tmpl'     : PATH.join(PRJ_ROOT, 'bem-pr/bem/techs/test-tmpl.js'),
-            'phantomjs'     : PATH.join(PRJ_ROOT, 'bem-pr/bem/techs/phantomjs.js'),
-            'browser.js'    : PATH.join(PRJ_ROOT, 'bem-core/.bem/techs/browser.js.js'),
-            'vanilla.js'    : PATH.join(PRJ_ROOT, 'bem-core/.bem/techs/vanilla.js.js'),
+    return {
+        'test.js'       : PATH.join(PRJ_ROOT, 'bem-pr/bem/techs/test.js.js'),
+        'test-tmpl'     : PATH.join(PRJ_ROOT, 'bem-pr/bem/techs/test-tmpl.js'),
+        'phantomjs'     : PATH.join(PRJ_ROOT, 'bem-pr/bem/techs/phantomjs.js'),
+        'browser.js'    : PATH.join(PRJ_ROOT, 'bem-core/.bem/techs/browser.js.js'),
+        'vanilla.js'    : PATH.join(PRJ_ROOT, 'bem-core/.bem/techs/vanilla.js.js'),
 
-            'bemjson.js'    : PATH.join(PRJ_TECHS, 'bemjson.js'),
-            'bemdecl.js'    : 'bemdecl.js',
-            'deps.js'       : 'deps.js',
-            'js'            : 'js-i',
-            'css'           : 'css',
-            'ie.css'        : 'ie.css',
-            ...
-        };
-
+        'bemjson.js'    : PATH.join(PRJ_TECHS, 'bemjson.js'),
+        'bemdecl.js'    : 'bemdecl.js',
+        'deps.js'       : 'deps.js',
+        'js'            : 'js-i',
+        'css'           : 'css',
+        'ie.css'        : 'ie.css',
+        ...
     };
-    ...
 
+};
+...
+```
 
-### Сборка и запуск тетов
+### Сборка и запуск тестов
 
 Дефолтный тестовый бандл для отдельной бем-сущности:
 
