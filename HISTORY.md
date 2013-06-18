@@ -1,3 +1,13 @@
+0.0.10 / 2013-06-18
+==================
+
+  * Switch to the framework Mocha using the assert library Chai
+  * Switch to the module system [ym](https://github.com/ymaps/modules)
+  * Renaming the technology phantom.js -> phantomjs
+  * The possibility to redefine the console reporter (parameter `consoleReporter`)
+  * Added plugin sinon-chai
+  * Added the goal to run all tests: all.tests
+
 0.0.9 / 2013-06-05
 ==================
 
