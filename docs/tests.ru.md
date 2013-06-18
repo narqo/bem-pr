@@ -308,11 +308,15 @@
 
 ### Сборка и запуск тетов
 
-Дефолтный тестовый бандл:
+Дефолтный тестовый бандл для отдельной бем-сущности:
 
     $ bem make smth.tests/block.tests/default
 
     $ bem make smth.tests/block__elem.tests/default
+
+Дефолтный тестовый бандл для всех бем-сущностей в рамках уровня `smth.sets`:
+
+    $ bem make smth.tests/all.tests/default
 
 Рукотворный тестовый бандл:
 
