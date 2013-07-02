@@ -1,4 +1,6 @@
 modules.define('chai', function(provide) {
+  
+(function() {
 
 /**
  * Require the given path.
@@ -4251,4 +4253,7 @@ if (typeof exports == "object") {
 }
 
 provide(require("chai"));
+
+})(this.global);
+
 });
