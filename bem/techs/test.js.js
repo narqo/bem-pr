@@ -1,13 +1,16 @@
-var QFS = require('bem/node_modules/q-fs');
+var QFS = require('bem/node_modules/q-fs'),
+    PATH = require('path');
 
 /**
  * Если в testbundle.bemjson.js есть декларация блока test, и в поле content этого блока
  * перечислены конкретные bem-сущности, то строим декларацию таким образом,
  * чтобы в файл testbundle.test.js попали только тесты этих bem-сущностей.
  */
-exports.buildByDecl = function(decl, levels, output) {
+exports.transformBuildDecl = function(decl) {
+    var opts = this.context.opts,
+        output = PATH.resolve(opts.outputDir, opts.outputName);
 
-    var testDecl = QFS.read(output + '.bemjson.js', { charset: 'utf-8' }).then(function(bemjson) {
+    return QFS.read(output + '.bemjson.js', { charset: 'utf-8' }).then(function(bemjson) {
 
         var tests = [];
 
@@ -20,9 +23,7 @@ exports.buildByDecl = function(decl, levels, output) {
 
         return tests.length ? { deps: tests } : decl;
     });
-
-    return this.__base.call(this, testDecl, levels, output);
-}
+};
 
 exports.getBuildResultChunk = function(relPath, path, suffix) {
     return '/*borschik:include:' + relPath + '*/;\n';

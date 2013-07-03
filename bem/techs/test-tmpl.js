@@ -7,11 +7,9 @@ exports.getCreateResult = function(path, suffix, vars) {
 
     return tmpl.process([
         '({',
-        '    block: "b-page",',
+        '    block: "page",',
         '    head: [',
         '        { elem: "css", url: "_{{bemBundleName}}.css", ie: false },',
-        '        { elem: "js", url: "http://yandex.st/jquery/1.7.2/jquery.min.js" },',
-        '        { elem: "js", url: "_{{bemBundleName}}.js" },',
         '        { elem: "js", url: "_{{bemBundleName}}.test.js" }',
         '    ],',
         '    content: {',
