@@ -127,11 +127,9 @@ modules.define('test', function(provide) {
 
 ```js
 ({
-    block: 'b-page',
+    block: 'page',
     head: [
-        { elem: 'js', url: 'http://yandex.st/jquery/1.7.2/jquery.min.js' },
         { elem: 'css', url: '_testbundle.css', ie: false },
-        { elem: 'js', url: '_testbundle.js' },
         { elem: 'js', url: '_testbundle.test.js' }
     ],
     content: [
@@ -184,7 +182,7 @@ modules.define('test', function(provide) {
 - Добавляем путь до технологии `tests.js` в конфиги уровней `*.sets`
 
 В файле `.bem/levels/bundles.js`:
-- Указываем пути до технологий `test.js`, `test-tmpl`, `phantomjs`, `browser.js` и `vanilla.js`.
+- Указываем пути до технологий `test.js+browser.js+bemhtml`, `test.js`, `test-tmpl`, `phantomjs`, `browser.js` и `bemhtml`.
 
 
 #### Расширяем класс TestNode
@@ -215,11 +213,10 @@ MAKE.decl('TestNode', {
             'bemdecl.js',
             'deps.js',
             'bemhtml',
-            'browser.js',
+            'test.js+browser.js+bemhtml',
             'css',
             'html',
-            'test.js',
-            'phantomjs',
+            'phantomjs'
         ];
     },
 
@@ -238,27 +235,20 @@ MAKE.decl('TestNode', {
 Возможные значения поля `consoleReporter` смотри в [документации к mocha-phantomjs](https://github.com/metaskills/mocha-phantomjs#supported-reporters). По умолчанию используется репортер `spec`.
 
 
-#### Настраиваем сборку `_testbundle.test.js` и `_testbundle.js`
+#### Настраиваем сборку `_testbundle.test.js`
 
-Технологии `test.js` и `browser.js` продуцируют js-файлы, содержащие борщиковые инклуды.
-Нужно расширить класс `BundleNode`, чтобы получить соответствующие `_testbundle.test.js` и `_testbundle.js`:
+Технология `test.js+browser.js+bemhtml` продуцирует js-файл, содержащий борщиковые инклуды.
+Нужно расширить класс `BundleNode`, чтобы получить соответствующий `_testbundle.test.js`.
 
 ```js
 MAKE.decl('BundleNode', {
 
-    'create-test.js-optimizer-node': function(tech, sourceNode, bundleNode) {
-        return this.createBorschikOptimizerNode('js', sourceNode, bundleNode);
-    },
-
-    'create-browser.js-optimizer-node': function(tech, sourceNode, bundleNode) {
+    'create-test.js+browser.js+bemhtml-optimizer-node': function(tech, sourceNode, bundleNode) {
         return this.createBorschikOptimizerNode('js', sourceNode, bundleNode);
     }
 
 });
 ```
-
-`browser.js` расширяет технологию `js`, которая, как правило, продуцирует js-файлы, содержащие борщиковые инклуды. Если в вашем случае файлы сразу создаются раскрытыми, `create-browser.js-optimizer-node` указывать не нужно.
-
 
 #### Добавляем в проект модуль технологии `tests.js`
 
@@ -297,25 +287,26 @@ exports.getTechs = function() {
 
 #### Указываем пути до технологий в `.bem/levels/bundles.js`.
 
-В файле `.bem/levels/bundles.js` должны быть указаны пути до технологий `test.js`, `test-tmpl`, `phantomjs`, `browser.js` и `vanilla.js`, которые потребуются при сборке тестов.
+В файле `.bem/levels/bundles.js` должны быть указаны пути до технологий `test.js+browser.js+bemhtml`, `test.js`, `test-tmpl`, `phantomjs`, `browser.js` и `bemhtml`, которые потребуются при сборке тестов.
 
 ```js
 ...
 exports.getTechs = function() {
 
     return {
-        'test.js'       : PATH.join(PRJ_ROOT, 'bem-pr/bem/techs/test.js.js'),
-        'test-tmpl'     : PATH.join(PRJ_ROOT, 'bem-pr/bem/techs/test-tmpl.js'),
-        'phantomjs'     : PATH.join(PRJ_ROOT, 'bem-pr/bem/techs/phantomjs.js'),
-        'browser.js'    : PATH.join(PRJ_ROOT, 'bem-core/.bem/techs/browser.js.js'),
-        'vanilla.js'    : PATH.join(PRJ_ROOT, 'bem-core/.bem/techs/vanilla.js.js'),
+        'test.js+browser.js+bemhtml' : PATH.join(PRJ_ROOT, 'bem-pr/bem/techs/test.js.js'),
+        'test.js'                    : PATH.join(PRJ_ROOT, 'bem-pr/bem/techs/test.js.js'),
+        'bemhtml'                    : PATH.join(PRJ_ROOT, 'bem-core/.bem/techs/bemhtml.js'),
+        'browser.js'                 : PATH.join(PRJ_ROOT, 'bem-core/.bem/techs/browser.js.js'),
+        'test-tmpl'                  : PATH.join(PRJ_ROOT, 'bem-pr/bem/techs/test-tmpl.js'),
+        'phantomjs'                  : PATH.join(PRJ_ROOT, 'bem-pr/bem/techs/phantomjs.js'),
 
-        'bemjson.js'    : PATH.join(PRJ_TECHS, 'bemjson.js'),
-        'bemdecl.js'    : 'bemdecl.js',
-        'deps.js'       : 'deps.js',
-        'js'            : 'js-i',
-        'css'           : 'css',
-        'ie.css'        : 'ie.css',
+        'bemjson.js'                 : PATH.join(PRJ_TECHS, 'bemjson.js'),
+        'bemdecl.js'                 : 'bemdecl.js',
+        'deps.js'                    : 'deps.js',
+        'js'                         : 'js-i',
+        'css'                        : 'css',
+        'ie.css'                     : 'ie.css',
         ...
     };
 
