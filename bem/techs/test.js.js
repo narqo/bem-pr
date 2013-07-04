@@ -7,8 +7,13 @@ var QFS = require('bem/node_modules/q-fs'),
  * чтобы в файл testbundle.test.js попали только тесты этих bem-сущностей.
  */
 exports.transformBuildDecl = function(decl) {
-    var opts = this.context.opts,
-        output = PATH.resolve(opts.outputDir, opts.outputName);
+    var opts = this.context.opts;
+
+    // XXX: костыль, т.к. иногда transformBuildDecl вызывается в контексте, где нет outputDir и outputName,
+    // например из bem/lib/nodes/build.js
+    if(!opts.outputDir || !opts.outputName) return decl;
+
+    var output = PATH.resolve(opts.outputDir, opts.outputName);
 
     return QFS.read(output + '.bemjson.js', { charset: 'utf-8' }).then(function(bemjson) {
 
