@@ -6,7 +6,6 @@ exports.getTechs = function() {
     var techs = {
         'blocks' : '',
         'bundles' : '',
-        'examples' : '',
         'bemjson.js' : '',
 
         'bemdecl.js' : 'bemdecl.js',
@@ -20,8 +19,8 @@ exports.getTechs = function() {
         'ie9.css' : 'ie9.css'
     };
 
-    ['sets', 'examples', 'tests.js'].forEach(function(name) {
-        techs[name] = join(BEMPR_TECHS, name);
+    ['sets', 'examples', 'tests'].forEach(function(name) {
+        techs[name] = join(BEMPR_TECHS, name + '.js');
     });
 
     return techs;
