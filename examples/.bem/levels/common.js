@@ -19,7 +19,7 @@ exports.getTechs = function() {
         'ie9.css' : 'ie9.css'
     };
 
-    ['sets', 'examples', 'tests'].forEach(function(name) {
+    ['sets', 'examples', 'tests', 'test-tmpl', 'phantomjs'].forEach(function(name) {
         techs[name] = join(BEMPR_TECHS, name + '.js');
     });
 
