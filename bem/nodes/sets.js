@@ -743,20 +743,32 @@ registry.decl(ExampleSourceNodeName, fileNodes.GeneratedFileNodeName, {
 registry.decl(AutogenTestSourceNodeName, ExampleSourceNodeName, {
 
     __constructor : function(o) {
+
         this.__base(o);
+
+        var techName = this.getAutogenTechName(),
+            techPath = this.level.resolveTech(techName);
+
+        this.tech = this.level.getTech(techName, techPath);
+
+    },
+
+    getAutogenTechName : function() {
+        return 'test-tmpl';
     },
 
     make: function() {
 
-        var levelPath = typeof this.level === 'string' ? this.level : this.level.dir;
+        var opts = {
+                forceTech: this.tech.getTechPath(),
+                level: this.level.dir
+            },
+            // FIXME: hardcode
+            args = { names: this.item.block };
 
-        return BEM.api.create.block({
-            forceTech: createLevel(levelPath).getTech(this.autogenTestTechName).getTechPath(),
-            level: levelPath
-        }, { names: this.item.block });
-    },
+        return BEM.api.create.block(opts, args);
 
-    autogenTestTechName: 'test-tmpl'
+    }
 
 }, {
 
