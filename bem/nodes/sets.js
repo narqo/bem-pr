@@ -1,13 +1,5 @@
 /**
  * @fileOverview Узлы для сборки наборов БЭМ-сущностей (sets)
- *
- * TODO
- * корневые узлы для сборки *всего* набора
- *
- *     › bem make sets
- *     › bem make examples      ← как определить примеры какого набора собрать?
- *
- * узлы для сборки тестов
  */
 
 var BEM = require('bem'),
@@ -47,9 +39,7 @@ var BEM = require('bem'),
 
 
 Object.defineProperty(exports, SetsNodeName, {
-    get : function() {
-        return registry.getNodeClass(SetsNodeName);
-    }
+    get : function() { return registry.getNodeClass(SetsNodeName) }
 });
 
 
@@ -122,7 +112,6 @@ registry.decl(SetsNodeName, nodes.NodeName, {
     },
 
     /**
-     * TODO: Придумать формат описания набора
      * @returns {Object} Описание наборов `{ name : [level1, level2] }`
      */
     getSets : function() {
@@ -312,11 +301,14 @@ registry.decl(SetsLevelNodeName, GeneratedLevelNodeName, {
 
                     }, _t);
 
-                    arch.setNode(registry.getNodeClass(AllTestsLevelNodeName).create({
-                        root : _t.root,
-                        level : _t.path,
-                        sources : _t.sources
-                    }), arch.getParents(_t), levelNode);
+                    arch.setNode(
+                        registry.getNodeClass(AllTestsLevelNodeName).create({
+                            root : _t.root,
+                            level : _t.path,
+                            sources : _t.sources
+                        }),
+                        arch.getParents(_t),
+                        levelNode);
 
                     return _t.takeSnapshot('After SetsLevelNode alterArch ' + _t.getId());
 
@@ -339,7 +331,7 @@ registry.decl(SetsLevelNodeName, GeneratedLevelNodeName, {
             'examples' : ExamplesLevelNodeName,
             'tests' : TestsLevelNodeName,
             'test.js' : TestsLevelNodeName
-        }
+        };
     },
 
     getSources : function() {
@@ -459,9 +451,6 @@ registry.decl(ExamplesLevelNodeName, GeneratedLevelNodeName, {
 
                 }, _t);
 
-                // (XXX,debug): final arch struct
-                // LOGGER.info(String(arch));
-
                 return Q.when(_t.takeSnapshot('After ExamplesLevelNode alterArch ' + _t.getId()), function() {
                     return levelNode;
                 });
@@ -494,6 +483,7 @@ registry.decl(ExamplesLevelNodeName, GeneratedLevelNodeName, {
 
 });
 
+
 registry.decl(TestsLevelNodeName, ExamplesLevelNodeName, {
 
     __constructor: function(o) {
@@ -510,7 +500,7 @@ registry.decl(TestsLevelNodeName, ExamplesLevelNodeName, {
                 suffix: '.' + tech,
                 tech: tech
             })
-        })
+        });
     },
 
     alterArch: function() {
@@ -612,8 +602,9 @@ registry.decl(AllTestsLevelNodeName, GeneratedLevelNodeName, {
                     .setNode(bundleNode, arch.getParents(_t), srcNode);
 
                 return _t.takeSnapshot('After AllTestsLevelNode alterArch ' + _t.getId());
-            })
-        }
+            });
+
+        };
     },
 
     getBemjsonDecl: function(items) {
@@ -622,7 +613,7 @@ registry.decl(AllTestsLevelNodeName, GeneratedLevelNodeName, {
             return ['block', 'elem', 'mod', 'val'].reduce(function(obj, key) {
                 obj[key] = item[key];
                 return obj;
-            }, {})
+            }, {});
         });
     },
 
@@ -708,7 +699,6 @@ registry.decl(ExampleSourceNodeName, fileNodes.GeneratedFileNodeName, {
 
     createNodePrefix : function(o) {
 
-//        return serializeBemItem(PATH.relative(o.root, o.level), o.item);
         var level = typeof o.level === 'string'?
                 createLevel(PATH.resolve(o.root, o.level)) :
                 o.level;
@@ -807,7 +797,7 @@ registry.decl(ExampleNodeName, bundleNodes.BundleNodeName, {
 
         return this.__base.apply(this, arguments);
 
-    },
+    }
 
 }, {
 
@@ -816,6 +806,7 @@ registry.decl(ExampleNodeName, bundleNodes.BundleNodeName, {
     }
 
 });
+
 
 registry.decl(TestNodeName, ExampleNodeName, {
 
