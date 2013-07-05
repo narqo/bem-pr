@@ -680,6 +680,20 @@ registry.decl(ExampleSourceNodeName, fileNodes.GeneratedFileNodeName, {
 
     },
 
+    clean : function() {
+        var _t = this;
+        return this.__base()
+            .then(function() {
+
+                return U.removePath(PATH.dirname(_t.getPath()))
+                    .then(function() {
+                        LOGGER.fverbose('[-] Removed %j', _t.getId());
+                    })
+                    .fail(function() {});
+
+            });
+    },
+
     make : function() {
 
         var _t = this,
