@@ -1,8 +1,9 @@
 var PATH = require('path'),
-    BEM = require('bem');
+    BEM = require('bem'),
+    API = BEM.api;
 
 exports.techMixin = {
-        
+
     getBaseLevel : function() {
         return PATH.resolve(__dirname, '../levels/', this.getTechName() + '.js');
     },
@@ -18,7 +19,7 @@ exports.techMixin = {
     },
 
     createLevel : function(opts, names) {
-        return BEM.api.create.level(opts, { names: names });
+        return API.create.level(opts, { names: names });
     }
 
 };
