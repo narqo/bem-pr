@@ -492,7 +492,7 @@ registry.decl(TestsLevelNodeName, ExamplesLevelNodeName, {
 
     makeTestsLevelDecl: function(decl) {
 
-        var tech = this.testsLevelTechName;
+        var tech = this.getTestsLevelTechName();
 
         return U.extend({}, decl, {
             techName: tech,
@@ -517,7 +517,7 @@ registry.decl(TestsLevelNodeName, ExamplesLevelNodeName, {
                 var o = {
                         root : _t.root,
                         level : _t.path,
-                        item : { block: _t.autogenTestBundleName, tech: 'bemjson.js' }
+                        item : { block: _t.getAutogenTestBundleName(), tech: 'bemjson.js' }
                     },
 
                     autogenTestContent = ['block', 'elem', 'mod', 'val'].reduce(function(obj, key) {
@@ -532,7 +532,7 @@ registry.decl(TestsLevelNodeName, ExamplesLevelNodeName, {
                     bundleNode = registry.getNodeClass(TestNodeName).create(U.extend({}, o, {
                         source : PATH.relative(_t.root, sourceLevelPath),
                         envData: {
-                            BundleName: _t.autogenTestBundleName,
+                            BundleName: _t.getAutogenTestBundleName(),
                             TmplContent: JSON.stringify(autogenTestContent),
                         }
                     }));
@@ -541,31 +541,39 @@ registry.decl(TestsLevelNodeName, ExamplesLevelNodeName, {
                     .setNode(bundleNode, arch.getParents(_t), srcNode);
 
                 return _t.takeSnapshot('After TestsLevelNode alterArch ' + _t.getId());
-            })
-        }
+            });
+
+        };
     },
 
-    autogenTestBundleName: 'default',
-    testsLevelTechName: 'tests',
+    getAutogenTestBundleName: function() {
+        return 'default';
+    },
+
+    getTestsLevelTechName: function() {
+        return 'tests';
+    },
 
     bundleNodeCls: TestNodeName
 
 }, {
+
     create: function(o) {
         return new this(o);
     }
+
 });
+
 
 // XXX: Много дублирования. Придумать другой способ.
 registry.decl(AllTestsLevelNodeName, GeneratedLevelNodeName, {
 
     __constructor: function(o) {
-
         this.root = o.root;
         this.sources = o.sources;
 
         this.__base(U.extend(o, {
-            item: { block: this.allTestsLevelName, tech: 'tests' }
+            item: { block: this.getAllTestsLevelName(), tech: 'tests' }
         }));
     },
 
@@ -580,10 +588,11 @@ registry.decl(AllTestsLevelNodeName, GeneratedLevelNodeName, {
 
             return Q.when(base.call(this), function(levelNode) {
 
-                var o = {
-                        root : _t.root,
+                var bundleName = _t.getAutogenTestBundleName(),
+                    o = {
+                        root  : _t.root,
                         level : _t.path,
-                        item : { block: _t.autogenTestBundleName, tech: 'bemjson.js' }
+                        item  : { block: bundleName, tech : 'bemjson.js' }
                     },
 
                     autogenTestContent = _t.getBemjsonDecl(_t.getSourcesItems('test.js')),
@@ -593,8 +602,8 @@ registry.decl(AllTestsLevelNodeName, GeneratedLevelNodeName, {
                     bundleNode = registry.getNodeClass(TestNodeName).create(U.extend({}, o, {
                         source : _t.root,
                         envData: {
-                            BundleName: _t.autogenTestBundleName,
-                            TmplContent: JSON.stringify(autogenTestContent, null, 4),
+                            BundleName: bundleName,
+                            TmplContent: JSON.stringify(autogenTestContent, null, 4)
                         }
                     }));
 
@@ -637,16 +646,23 @@ registry.decl(AllTestsLevelNodeName, GeneratedLevelNodeName, {
     getSourceItems: function(level, tech) {
         return level.getItemsByIntrospection().filter(function(item) {
             return item.tech == tech;
-        })
+        });
     },
 
-    allTestsLevelName: 'all',
-    autogenTestBundleName: 'default'
+    getAllTestsLevelName: function() {
+        return 'all';
+    },
+
+    getAutogenTestBundleName: function() {
+        return 'default';
+    }
 
 }, {
+
     create: function(o) {
         return new this(o);
     }
+
 });
 
 
