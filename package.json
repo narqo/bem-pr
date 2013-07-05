@@ -1,7 +1,7 @@
 {
   "name": "bem-pr",
-  "description": "A set of bem-make extenstions to wrap common infrastructure tasks",
-  "version": "0.0.10",
+  "description": "A set of bem-make extensions to wrap common infrastructure tasks",
+  "version": "0.1.0-dev",
   "repository": {
     "type": "git",
     "url": "git://github.com/narqo/bem-pr.git"
@@ -11,7 +11,7 @@
     "mocha-phantomjs" : "~2.0.2"
   },
   "devDependencies": {
-    "bem": "~0.5.30"
+    "bem": "~0.6.6"
   },
   "keywords": [
     "bem",
