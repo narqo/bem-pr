@@ -790,14 +790,6 @@ registry.decl(ExampleNodeName, bundleNodes.BundleNodeName, {
 
     },
 
-    // KILLME: debug
-    /*
-    make : function() {
-        LOGGER.info(this.ctx.arch.toString());
-        return this.__base();
-    },
-    */
-
     getTechs : function() {
 
         return [
