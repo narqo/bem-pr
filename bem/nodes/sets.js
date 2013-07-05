@@ -791,17 +791,7 @@ registry.decl(ExampleNodeName, bundleNodes.BundleNodeName, {
     },
 
     getTechs : function() {
-
-        return [
-            'bemjson.js',
-            'bemdecl.js',
-            'deps.js',
-            'bemhtml',
-            'css',
-            'js',
-            'html'
-            ];
-
+        return this.__base.apply(this, arguments);
     },
 
     getSourceNodePrefix : function() {
