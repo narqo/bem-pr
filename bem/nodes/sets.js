@@ -676,15 +676,16 @@ registry.decl(ExampleSourceNodeName, fileNodes.GeneratedFileNodeName, {
     make : function() {
 
         var _t = this,
-            content = FS.readFileSync(PATH.resolve(this.root, this.source), 'utf8');
+            path = _t.getPath();
 
-        return QFS.makeTree(PATH.dirname(_t.getPath()))
+        return QFS.makeTree(PATH.dirname(path))
             .then(function() {
-                U.writeFileIfDiffers(_t.getPath(), content);
+                return U.readFile(PATH.resolve(_t.root, _t.source));
             })
-            .then(function() {
-                return _t.path;
-            })
+            .then(function(data) {
+                return U.writeFileIfDiffers(path, data);
+            });
+
     }
 
 }, {
