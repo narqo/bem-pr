@@ -24,7 +24,7 @@ registry.decl(blockNodes.BlockNodeName, {
         var level;
         Object.defineProperty(this, 'level', {
             get : function() {
-                return level || (level = BEM.createLevel(PATH.resolve(this.root, this._level)));
+                return BEM.createLevel(PATH.resolve(this.root, this._level));
             }
         });
 
