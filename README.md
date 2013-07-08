@@ -18,6 +18,16 @@ bem-pr ( */'bʌmpə/, Бампер* ), набор узлов
   * [Базовые настройки и сборка примеров](docs/howto.ru.md)
   * [Сборка и запуск тестов](docs/tests.ru.md)
 
+Демо
+----
+
+См. `examples/silly`
+
+```
+› npm install
+› node_modules/.bin/bem make -r examples/silly sets
+```
+
 ---
 
 **БЭМ** – это способ описания действительности в коде, набор паттернов и способ
