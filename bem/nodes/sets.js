@@ -304,14 +304,16 @@ registry.decl(SetsLevelNodeName, GeneratedLevelNodeName, {
 
                     }, _t);
 
-                    arch.setNode(
-                        registry.getNodeClass(AllTestsLevelNodeName).create({
-                            root : _t.root,
-                            level : _t.path,
-                            sources : _t.sources
-                        }),
-                        arch.getParents(_t),
-                        levelNode);
+                    if(_t.getSourceItemTechs().indexOf('test.js') > -1) {
+                        arch.setNode(
+                            registry.getNodeClass(AllTestsLevelNodeName).create({
+                                root : _t.root,
+                                level : _t.path,
+                                sources : _t.sources
+                            }),
+                            arch.getParents(_t),
+                            levelNode);
+                    }
 
                     return _t.takeSnapshot('After SetsLevelNode alterArch ' + _t.getId());
 
