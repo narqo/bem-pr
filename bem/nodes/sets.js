@@ -139,10 +139,13 @@ registry.decl(GeneratedLevelNodeName, magicNodes.MagicNodeName, {
                     this._level = createLevel(PATH.resolve(this.root, this._level));
                 }
                 return this._level;
+            },
+            set : function(level) {
+                this._level = level;
             }
         });
 
-        this._level = o.level;
+        this.level = o.level;
         this.item = o.item;
         this.techName = o.techName || o.item.tech;
 
@@ -212,7 +215,7 @@ registry.decl(GeneratedLevelNodeName, magicNodes.MagicNodeName, {
     createPath : function(o) {
 
         var level = typeof o.level === 'string'?
-            createLevel(PATH.resolve(o.root, o.level)) :
+            createLevel(PATH.resolve(o.root, o.level), { noCache: true }) :
             o.level;
 
         return level
@@ -705,6 +708,10 @@ registry.decl(ExampleSourceNodeName, fileNodes.GeneratedFileNodeName, {
             })
             .then(function(data) {
                 return U.writeFileIfDiffers(path, data);
+            })
+            .then(function() {
+                // XXX: dropping level path cache (tech/v2)
+                createLevel(_t.level.dir, { noCache : true });
             });
 
     }
