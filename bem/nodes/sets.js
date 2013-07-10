@@ -46,17 +46,14 @@ Object.defineProperty(exports, SetsNodeName, {
 registry.decl(SetsNodeName, nodes.NodeName, {
 
     __constructor : function(o) {
-
          this.__base(o);
 
          this.arch = o.arch;
          this.root = o.root;
          this.rootLevel = createLevel(this.root);
-
     },
 
     alterArch : function(parent, children) {
-
         var _t = this,
             arch = _t.arch;
 
@@ -72,24 +69,19 @@ registry.decl(SetsNodeName, nodes.NodeName, {
                     ];
                 })
                 .then(function() {
-                    //LOGGER.info(arch.toString());
                     return arch;
                 })
-                .fail(console.log);
-
+                .fail(LOGGER.error);
     },
 
     createCommonSetsNode : function(parent) {
-
         var node = new nodes.Node(SETS_NODE_ID);
         this.arch.setNode(node, parent);
 
         return node.getId();
-
     },
 
     createSetsLevelNodes : function(parents, children) {
-
         var sets = this.getSets();
         return Object.keys(sets).map(function(name) {
 
@@ -108,7 +100,6 @@ registry.decl(SetsNodeName, nodes.NodeName, {
             return node.getId();
 
         }, this);
-
     },
 
     /**
@@ -132,7 +123,6 @@ var GeneratedLevelNodeName = 'GeneratedLevelNode';
 registry.decl(GeneratedLevelNodeName, magicNodes.MagicNodeName, {
 
     __constructor : function(o) {
-
         Object.defineProperty(this, 'level', {
             get : function() {
                 if(typeof this._level === 'string') {
@@ -147,10 +137,10 @@ registry.decl(GeneratedLevelNodeName, magicNodes.MagicNodeName, {
 
         this.level = o.level;
         this.item = o.item;
-        this.techName = o.techName || o.item.tech;
+        this.techName = o.item.tech;
+        this.sources = o.sources || [];
 
         this.__base(U.extend({ path : this.__self.createPath(o) }, o));
-
     },
 
     make : function() {
@@ -165,7 +155,6 @@ registry.decl(GeneratedLevelNodeName, magicNodes.MagicNodeName, {
         var ctx = this.ctx;
 
         return function() {
-
             var arch = ctx.arch,
                 levelNode,
 
@@ -188,13 +177,11 @@ registry.decl(GeneratedLevelNodeName, magicNodes.MagicNodeName, {
                 .then(function() {
                     return levelNode.getId();
                 });
-
         };
 
     },
 
     useFileOrBuild : function(node) {
-
         if(FS.existsSync(node.getPath())) {
             return new fileNodes.FileNode({
                 root : this.root,
@@ -203,7 +190,47 @@ registry.decl(GeneratedLevelNodeName, magicNodes.MagicNodeName, {
         }
 
         return node;
+    },
 
+    getSourceItemTechs : function() {
+        return [];
+    },
+
+    getSources : function() {
+        if(!this._sources) {
+            var absolutivize = PATH.resolve.bind(null, this.root);
+            this._sources = this.sources.map(function(level) {
+                if(typeof level === 'string')
+                    return createLevel(absolutivize(level));
+                return level;
+            });
+        }
+
+        return this._sources;
+    },
+
+    scanSources : function() {
+        return this.getSources()
+            .map(this.scanSourceLevel.bind(this))
+            .reduce(function(decls, item) {
+                return decls.concat(item);
+            }, []);
+    },
+
+    scanSourceLevel : function(level) {
+        var relativize = PATH.relative.bind(null, this.root),
+            techs = this.getSourceItemTechs();
+
+        return level.getItemsByIntrospection()
+            .filter(function(item) {
+                return ~techs.indexOf(item.tech);
+            })
+            .map(function(item) {
+                item.level = relativize(level.dir);
+                // XXX: key?
+                item.key = serializeBemItem(item.level, item);
+                return item;
+            });
     }
 
 }, {
@@ -212,41 +239,32 @@ registry.decl(GeneratedLevelNodeName, magicNodes.MagicNodeName, {
         return new this(o);
     },
 
-    createPath : function(o) {
+    createId : function(o) {
+        return this.__base({ path : this.createPath(o) });
+    },
 
+    createPath : function(o) {
         var level = typeof o.level === 'string'?
             createLevel(PATH.resolve(o.root, o.level), { noCache: true }) :
             o.level;
 
         return level
-            .getTech(o.techName || o.item.tech)
+            .getTech(o.item.tech)
             .getPath(this.createNodePrefix(U.extend({}, o, { level: level })));
-
     },
 
     createNodePrefix: function(o) {
-
-        // FIXME: hardcoded NodePrefix
-//        return serializeBemItem(PATH.relative(o.root, o.level.dir), o.item);
         var level = typeof o.level === 'string'?
                 createLevel(PATH.resolve(o.root, o.level)) :
                 o.level;
 
         return PATH.relative(o.root, level.getByObj(o.item));
-
     }
 
 });
 
 
 registry.decl(SetsLevelNodeName, GeneratedLevelNodeName, {
-
-    __constructor : function(o) {
-
-        this.sources = o.sources;
-        this.__base(o);
-
-    },
 
     /**
      * @returns {Function}
@@ -257,67 +275,69 @@ registry.decl(SetsLevelNodeName, GeneratedLevelNodeName, {
         return function() {
 
             var _t = this;
-            return Q.when(base.call(this))
-                .then(function(levelNode) {
+            return Q.when(base.call(this), function(setLevelNode) {
 
-                    var arch = _t.ctx.arch,
-                        decls = _t.scanSources(),
-                        nodeCls = _t.getTech2NodeClsMap();
+                var arch = _t.ctx.arch,
+                    decls = _t.scanSources(),
+                    nodeCls = _t.getTech2NodeClsMap();
 
-                    decls.forEach(function(item) {
-
-                        var o = {
-                            root     : this.root,
-                            level    : this.path,
-                            item     : item,
-                            techName : item.tech
-                        };
-
-                        var setLevelNode = registry.getNodeClass(nodeCls[item.tech]).create(o);
-
-                        if(arch.hasNode(setLevelNode.getId())) {
-                            return;
-                        }
-
-                        arch.setNode(setLevelNode, arch.getParents(this), levelNode);
-
-                        // TODO: move to method
-                        o = {
+                decls.forEach(function(item) {
+                    // creating block node (source) for item
+                    var o = {
                             root  : this.root,
                             item  : item,
                             level : item.level
-                        };
+                        },
+                        blockNode,
+                        blocknid = blockNodes.BlockNode.createId(o);
 
-                        var blockNode,
-                            id = blockNodes.BlockNode.createId(o);
-
-                        if(arch.hasNode(id)) {
-                            blockNode = arch.getNode(id);
-                        } else {
-                            blockNode = new blockNodes.BlockNode(o);
-                        }
-
-                        arch.setNode(blockNode, setLevelNode);
-
-                        // XXX: hardcore
-                        setLevelNode._blockNode = blockNode;
-
-                    }, _t);
-
-                    if(_t.getSourceItemTechs().indexOf('test.js') > -1) {
-                        arch.setNode(
-                            registry.getNodeClass(AllTestsLevelNodeName).create({
-                                root : _t.root,
-                                level : _t.path,
-                                sources : _t.sources
-                            }),
-                            arch.getParents(_t),
-                            levelNode);
+                    if(arch.hasNode(blocknid)) {
+                        blockNode = arch.getNode(blocknid);
+                    } else {
+                        blockNode = new blockNodes.BlockNode(o);
+                        arch.setNode(blockNode);
                     }
 
-                    return _t.takeSnapshot('After SetsLevelNode alterArch ' + _t.getId());
+                    // creating levels node for item (examples/tests/whatever)
+                    o = {
+                        root     : this.root,
+                        level    : this.path,
+                        item     : item,
+                    };
 
-                });
+                    var LevelNodeCls = registry.getNodeClass(nodeCls[item.tech]),
+                        levelnid = LevelNodeCls.createId(o),
+                        levelNode;
+
+                    if(arch.hasNode(levelnid)) {
+                        levelNode = arch.getNode(levelnid);
+                    } else {
+                        levelNode = LevelNodeCls.create(o);
+                        arch.setNode(levelNode, setLevelNode);
+                    }
+
+                    arch.addChildren(levelNode, blockNode);
+
+                    var source = blockNode.level.getPathByObj(item, item.tech);
+                    if(FS.existsSync(source)) {
+                        levelNode.sources.push(source);
+                    }
+                }, _t);
+
+                // FIXME: hack
+                if(_t.getSourceItemTechs().indexOf('test.js') > -1) {
+                    arch.setNode(
+                        registry.getNodeClass(AllTestsLevelNodeName).create({
+                            root : _t.root,
+                            level : _t.path,
+                            sources : _t.sources
+                        }),
+                        arch.getParents(_t),
+                        setLevelNode);
+                }
+
+                return Q.when(_t.takeSnapshot('After SetsLevelNode alterArch ' + _t.getId()));
+            });
 
         };
 
@@ -337,50 +357,6 @@ registry.decl(SetsLevelNodeName, GeneratedLevelNodeName, {
             'tests' : TestsLevelNodeName,
             'test.js' : TestsLevelNodeName
         };
-    },
-
-    getSources : function() {
-
-        if(!this._sources) {
-            var absolutivize = PATH.resolve.bind(null, this.root);
-
-            this._sources = this.sources.map(function(level) {
-                    if(typeof level === 'string')
-                        return createLevel(absolutivize(level));
-                    return level;
-                });
-        }
-
-        return this._sources;
-
-    },
-
-    scanSources : function() {
-
-        return this.getSources()
-            .map(this.scanSourceLevel.bind(this))
-            .reduce(function(decls, item) {
-                return decls.concat(item);
-            }, []);
-
-    },
-
-    scanSourceLevel : function(level) {
-
-        var relativize = PATH.relative.bind(null, this.root),
-            techs = this.getSourceItemTechs();
-
-        return level.getItemsByIntrospection()
-            .filter(function(item) {
-                return ~techs.indexOf(item.tech);
-            })
-            .map(function(item) {
-                item.level = relativize(level.dir);
-                // XXX: key?
-                item.key = serializeBemItem(item.level, item);
-                return item;
-            });
-
     }
 
 }, {
@@ -395,10 +371,9 @@ registry.decl(SetsLevelNodeName, GeneratedLevelNodeName, {
 registry.decl(ExamplesLevelNodeName, GeneratedLevelNodeName, {
 
     __constructor : function(o) {
-
         this.__base(o);
         this.rootLevel = createLevel(this.root);
-
+        this.sources = o.sources || [];
     },
 
     /**
@@ -411,54 +386,22 @@ registry.decl(ExamplesLevelNodeName, GeneratedLevelNodeName, {
 
             var _t = this,
                 arch = _t.ctx.arch;
-            return Q.when(base.call(_t), function(levelNode) {
 
-                var decls = _t.scanSourceLevel();
+            return Q.when(base.call(_t), function(levelNode) {
+                var decls = _t.scanSources();
 
                 decls.forEach(function(item) {
-
-                    // TODO: meta node
-                    var sourceLevel = createLevel(
-                            this._blockNode.level.getPathByObj(
-                                    this.item, this.item.tech)),
-                        source = PATH.relative(this.root, sourceLevel.getPathByObj(item, item.tech)),
-                        srcNode = registry.getNodeClass(ExampleSourceNodeName).create({
-                            root   : this.root,
-                            level  : this.path,
-                            item   : item,
-                            source : source
-                        });
-
-                    arch.setNode(srcNode, arch.getParents(this))
-                        .addChildren(srcNode, [levelNode, _t._blockNode]);
-
-                    // TODO: source node should be block, not any BEM-item
-                    var sourceNode;
-                    if(arch.hasNode(source)) {
-                        sourceNode = arch.getNode(source);
-                    } else {
-                        sourceNode = new fileNodes.FileNode({
-                            root : this.root,
-                            path : source
-                        });
-                    }
-
-                    arch.setNode(sourceNode, srcNode);
-
                     var bundleNode = registry.getNodeClass(this.bundleNodeCls).create({
                         root   : this.root,
-                        source : PATH.relative(this.root, sourceLevel.dir),   // FIXME: hack
                         level  : this.path,
+                        source : item.level,
                         item   : item
                     });
 
-                    arch.setNode(bundleNode, arch.getParents(this), srcNode);
-
+                    arch.setNode(bundleNode, levelNode);
                 }, _t);
 
-                return Q.when(_t.takeSnapshot('After ExamplesLevelNode alterArch ' + _t.getId()), function() {
-                    return levelNode;
-                });
+                return Q.when(_t.takeSnapshot('After ExamplesLevelNode alterArch ' + _t.getId()));
             });
 
         };
@@ -467,21 +410,6 @@ registry.decl(ExamplesLevelNodeName, GeneratedLevelNodeName, {
 
     getSourceItemTechs : function() {
         return ['bemjson.js'];
-    },
-
-    scanSourceLevel : function(level) {
-
-        var sourceTechs = this.getSourceItemTechs(),
-            path = this._blockNode.level.getPathByObj(this.item, this.item.tech),
-            rslt = [];
-
-        if(FS.existsSync(path)) {
-            rslt = createLevel(path).getItemsByIntrospection().filter(function(item) {
-                return ~sourceTechs.indexOf(item.tech);
-            });
-        }
-
-        return rslt;
     },
 
     bundleNodeCls: ExampleNodeName
@@ -622,7 +550,6 @@ registry.decl(AllTestsLevelNodeName, GeneratedLevelNodeName, {
     },
 
     getBemjsonDecl: function(items) {
-
         return items.map(function(item) {
             return ['block', 'elem', 'mod', 'val'].reduce(function(obj, key) {
                 obj[key] = item[key];
@@ -632,7 +559,6 @@ registry.decl(AllTestsLevelNodeName, GeneratedLevelNodeName, {
     },
 
     getSourcesItems: function(tech) {
-
         var absolutivize = PATH.resolve.bind(null, this.root),
             rslt = [];
 
@@ -674,33 +600,33 @@ registry.decl(AllTestsLevelNodeName, GeneratedLevelNodeName, {
 registry.decl(ExampleSourceNodeName, fileNodes.GeneratedFileNodeName, {
 
     __constructor : function(o) {
+        var self = this.__self;
 
         this.level = typeof o.level === 'string'?
             createLevel(PATH.resolve(o.root, o.level)) :
             o.level;
+
         this.item = o.item;
-        this.source = o.source;
+        this.source = self.createPath(U.extend({}, o, { level : o.source }));
 
-        this.__base(U.extend({ path: this.__self.createPath(o) }, o));
-
+        this.__base(U.extend({ path: self.createPath(o) }, o));
     },
 
     clean : function() {
         var _t = this;
         return this.__base()
             .then(function() {
-
+                console.log('!!!!!!!!!!!!!!!!!!!!!!!!')
                 return U.removePath(PATH.dirname(_t.getPath()))
                     .then(function() {
                         LOGGER.fverbose('[-] Removed %j', _t.getId());
                     })
-                    .fail(function() {});
+                    .fail(function() {console.log(arguments)});
 
             });
     },
 
     make : function() {
-
         var _t = this,
             path = _t.getPath();
 
@@ -715,7 +641,6 @@ registry.decl(ExampleSourceNodeName, fileNodes.GeneratedFileNodeName, {
                 // XXX: dropping level path cache (tech/v2)
                 createLevel(_t.level.dir, { noCache : true });
             });
-
     }
 
 }, {
@@ -725,7 +650,6 @@ registry.decl(ExampleSourceNodeName, fileNodes.GeneratedFileNodeName, {
     },
 
     createPath : function(o) {
-
         var level = typeof o.level === 'string'?
                 createLevel(PATH.resolve(o.root, o.level)) :
                 o.level;
@@ -733,17 +657,14 @@ registry.decl(ExampleSourceNodeName, fileNodes.GeneratedFileNodeName, {
         return level
             .getTech(o.item.tech)
             .getPath(this.createNodePrefix(o));
-
     },
 
     createNodePrefix : function(o) {
-
         var level = typeof o.level === 'string'?
                 createLevel(PATH.resolve(o.root, o.level)) :
                 o.level;
 
         return PATH.relative(o.root, level.getByObj(o.item));
-
     }
 
 });
@@ -767,7 +688,6 @@ registry.decl(AutogenTestSourceNodeName, ExampleSourceNodeName, {
     },
 
     make: function() {
-
         var opts = {
                 forceTech: this.tech.getTechPath(),
                 level: this.level.dir
@@ -776,7 +696,6 @@ registry.decl(AutogenTestSourceNodeName, ExampleSourceNodeName, {
             args = { names: this.item.block };
 
         return BEM.api.create.block(opts, args);
-
     }
 
 }, {
@@ -791,12 +710,10 @@ registry.decl(AutogenTestSourceNodeName, ExampleSourceNodeName, {
 registry.decl(ExampleNodeName, bundleNodes.BundleNodeName, {
 
     __constructor : function(o) {
-
         this.__base(o);
 
-        this.source = o.source; // TODO: source -> sourceLevel
         this.rootLevel = createLevel(this.root);
-
+        this.source = o.source;
     },
 
     getTechs : function() {
@@ -804,32 +721,69 @@ registry.decl(ExampleNodeName, bundleNodes.BundleNodeName, {
     },
 
     getSourceNodePrefix : function() {
-
-        if (!this._sourceNodePrefix) {
+        if(!this._sourceNodePrefix) {
             this._sourceNodePrefix = this.__self.createNodePrefix({
-                root: this.root,
-                level: this.source,
-                item: this.item
+                root  : this.root,
+                level : this.source,
+                item  : this.item
             });
         }
-        return this._sourceNodePrefix;
 
+        return this._sourceNodePrefix;
     },
 
-    getLevels: function(tech) {
-        return (this.level.getConfig().bundleBuildLevels || [])
+    getLevels : function(tech) {
+        return this.__base.apply(this, arguments)
             .concat([this.rootLevel.getTech('blocks').getPath(this.getSourceNodePrefix())]);
     },
 
-    createTechNode: function(tech, bundleNode, magicNode) {
-
-        // FIXME: example source is hardcoded
+    createTechNode : function(tech, bundleNode, magicNode) {
         // NOTE: we use `ExampleSourceNode` to build example's source bundle
-        if(tech === 'bemjson.js')
-            return false;
+        if(tech === this.item.tech) {
+            var arch = this.ctx.arch,
+                sourceNode = this.createSourceNode(),
+                originNode = this.createOriginNode();
+
+            bundleNode && arch.addParents(sourceNode, bundleNode);
+            originNode && arch.addChildren(sourceNode, originNode);
+        }
 
         return this.__base.apply(this, arguments);
+    },
 
+    createSourceNode : function() {
+        var item = this.item,
+            node = this.useFileOrBuild(registry.getNodeClass(ExampleSourceNodeName).create({
+                    root   : this.root,
+                    level  : this.level,
+                    item   : item,
+                    source : item.level
+                }));
+
+        this.ctx.arch.setNode(node);
+
+        return node;
+    },
+
+    createOriginNode : function() {
+        var filePath = registry.getNodeClass(ExampleSourceNodeName).createPath({
+            root : this.root,
+            item : this.item,
+            level : this.item.level
+        });
+
+        if(!FS.existsSync(PATH.resolve(this.root, filePath))) {
+            return;
+        }
+
+        var node = new fileNodes.FileNode({
+            root: this.root,
+            path: filePath
+        });
+
+        this.ctx.arch.setNode(node);
+
+        return node;
     }
 
 }, {
