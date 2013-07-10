@@ -21,9 +21,17 @@ MAKE.decl('SetsNode', {
 
     getSets : function() {
         return {
-            'desktop' : ['common.blocks', 'desktop.blocks'],
+//            'desktop' : ['common.blocks', 'desktop.blocks'],
             'touch' : ['common.blocks', 'touch.blocks']
         };
+    }
+
+});
+
+MAKE.decl('SetsLevelNode', {
+
+    getSourceItemTechs : function() {
+        return [ 'examples' ];
     }
 
 });
