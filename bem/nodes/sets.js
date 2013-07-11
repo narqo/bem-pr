@@ -300,9 +300,9 @@ registry.decl(SetsLevelNodeName, GeneratedLevelNodeName, {
 
                     // creating levels node for item (examples/tests/whatever)
                     o = {
-                        root     : this.root,
-                        level    : this.path,
-                        item     : item,
+                        root  : this.root,
+                        level : this.path,
+                        item  : item
                     };
 
                     var LevelNodeCls = registry.getNodeClass(nodeCls[item.tech]),
@@ -354,7 +354,7 @@ registry.decl(SetsLevelNodeName, GeneratedLevelNodeName, {
     getTech2NodeClsMap : function() {
         return {
             'examples' : ExamplesLevelNodeName,
-            'tests' : TestsLevelNodeName,
+            'tests'   : TestsLevelNodeName,
             'test.js' : TestsLevelNodeName
         };
     }
@@ -424,14 +424,13 @@ registry.decl(TestsLevelNodeName, ExamplesLevelNodeName, {
     },
 
     makeTestsLevelDecl: function(decl) {
-
         var tech = this.getTestsLevelTechName();
 
         return U.extend({}, decl, {
-            techName: tech,
-            item: U.extend({}, decl.item, {
-                suffix: '.' + tech,
-                tech: tech
+            techName : tech,
+            item : U.extend({}, decl.item, {
+                suffix : '.' + tech,
+                tech   : tech
             })
         });
     },
@@ -446,7 +445,6 @@ registry.decl(TestsLevelNodeName, ExamplesLevelNodeName, {
                 arch = this.ctx.arch;
 
             return Q.when(base.call(this), function(levelNode) {
-
                 var o = {
                         root : _t.root,
                         level : _t.path,
@@ -612,20 +610,6 @@ registry.decl(ExampleSourceNodeName, fileNodes.GeneratedFileNodeName, {
         this.__base(U.extend({ path: self.createPath(o) }, o));
     },
 
-    clean : function() {
-        var _t = this;
-        return this.__base()
-            .then(function() {
-                console.log('!!!!!!!!!!!!!!!!!!!!!!!!')
-                return U.removePath(PATH.dirname(_t.getPath()))
-                    .then(function() {
-                        LOGGER.fverbose('[-] Removed %j', _t.getId());
-                    })
-                    .fail(function() {console.log(arguments)});
-
-            });
-    },
-
     make : function() {
         var _t = this,
             path = _t.getPath();
@@ -740,12 +724,16 @@ registry.decl(ExampleNodeName, bundleNodes.BundleNodeName, {
     createTechNode : function(tech, bundleNode, magicNode) {
         // NOTE: we use `ExampleSourceNode` to build example's source bundle
         if(tech === this.item.tech) {
+            LOGGER.fdebug('Going to create source node for tech %s', tech);
+
             var arch = this.ctx.arch,
                 sourceNode = this.createSourceNode(),
                 originNode = this.createOriginNode();
 
             bundleNode && arch.addParents(sourceNode, bundleNode);
             originNode && arch.addChildren(sourceNode, originNode);
+
+            return sourceNode;
         }
 
         return this.__base.apply(this, arguments);
