@@ -26,9 +26,9 @@ var BEM = require('bem'),
     SetsLevelNodeName = exports.SetsLevelNodeName = 'SetsLevelNode',
     ExamplesLevelNodeName = exports.ExamplesLevelNodeName = 'ExamplesLevelNode',
     TestsLevelNodeName = exports.TestsLevelNodeName = 'TestsLevelNode',
-    AllTestsLevelNodeName = exports.AllTestsLevelNodeName = 'AllTestsLevelNode',
+//    AllTestsLevelNodeName = exports.AllTestsLevelNodeName = 'AllTestsLevelNode',
     ExampleSourceNodeName = exports.ExampleSourceNodeName = 'ExampleSourceNode',
-    AutogenTestSourceNodeName = exports.AutogenTestSourceNodeName = 'AutogenTestSourceNode',
+//    AutogenTestSourceNodeName = exports.AutogenTestSourceNodeName = 'AutogenTestSourceNode',
     ExampleNodeName = exports.ExampleNodeName = 'ExampleNode',
     TestNodeName = exports.TestNodeName = 'TestNode',
 
@@ -141,6 +141,8 @@ registry.decl(GeneratedLevelNodeName, magicNodes.MagicNodeName, {
         this.sources = o.sources || [];
 
         this.__base(U.extend({ path : this.__self.createPath(o) }, o));
+
+        this.rootLevel = createLevel(this.root);
     },
 
     make : function() {
@@ -156,21 +158,29 @@ registry.decl(GeneratedLevelNodeName, magicNodes.MagicNodeName, {
 
         return function() {
             var arch = ctx.arch,
-                levelNode,
+                snapshot1 = this.takeSnapshot('Before GeneratedLevelNode alterArch'),
+                CreateLevelNode = registry.getNodeClass(CreateLeveNodeName),
+                opts = {
+                    root     : this.root,
+                    level    : this.level,
+                    item     : this.item,
+                    techName : this.techName
+                },
+                path = CreateLevelNode.createPath(opts),
+                levelNode;
 
-                snapshot1 = this.takeSnapshot('Before GeneratedLevelNode alterArch');
-
-            if(arch.hasNode(this.path)) {
-                levelNode = arch.getNode(this.path);
+            if(arch.hasNode(path)) {
+                levelNode = arch.getNode(path);
             } else {
-                levelNode = this.useFileOrBuild(new createNodes.BemCreateNode({
-                        root     : this.root,
-                        level    : this.level,
-                        item     : this.item,
-                        techName : this.techName
-                    }));
+                levelNode = new fileNodes.FileNode({
+                    root : this.root,
+                    path : path
+                });
 
-                arch.setNode(levelNode, arch.getParents(this));
+                var realLevelNode = this.useFileOrBuild(new CreateLevelNode(opts));
+
+                arch.setNode(levelNode, arch.getParents(this))
+                    .setNode(realLevelNode, levelNode);
             }
 
             return Q.all([snapshot1, this.takeSnapshot('After GeneratedLevelNode alterArch ' + this.getId())])
@@ -182,10 +192,10 @@ registry.decl(GeneratedLevelNodeName, magicNodes.MagicNodeName, {
     },
 
     useFileOrBuild : function(node) {
-        if(FS.existsSync(node.getPath())) {
+        if(FS.existsSync(node.getLevelPath())) {
             return new fileNodes.FileNode({
                 root : this.root,
-                path : node.getId()
+                path : node.levelPath
             });
         }
 
@@ -194,6 +204,17 @@ registry.decl(GeneratedLevelNodeName, magicNodes.MagicNodeName, {
 
     getSourceItemTechs : function() {
         return [];
+    },
+
+    getTechSuffixesForLevel : function(level) {
+        return this.getSourceItemTechs()
+            .reduce(function(techs, tech) {
+                [].push.apply(techs, level.getTech(tech).getSuffixes());
+                return techs;
+            }, [])
+            .map(function(suffix) {
+                return '.' + suffix;
+            });
     },
 
     getSources : function() {
@@ -219,11 +240,11 @@ registry.decl(GeneratedLevelNodeName, magicNodes.MagicNodeName, {
 
     scanSourceLevel : function(level) {
         var relativize = PATH.relative.bind(null, this.root),
-            techs = this.getSourceItemTechs();
+            suffixes = this.getTechSuffixesForLevel(level);
 
         return level.getItemsByIntrospection()
             .filter(function(item) {
-                return ~techs.indexOf(item.tech);
+                return ~suffixes.indexOf(item.suffix);
             })
             .map(function(item) {
                 item.level = relativize(level.dir);
@@ -253,12 +274,61 @@ registry.decl(GeneratedLevelNodeName, magicNodes.MagicNodeName, {
             .getPath(this.createNodePrefix(U.extend({}, o, { level: level })));
     },
 
-    createNodePrefix: function(o) {
+    createNodePrefix : function(o) {
         var level = typeof o.level === 'string'?
                 createLevel(PATH.resolve(o.root, o.level)) :
                 o.level;
 
         return PATH.relative(o.root, level.getByObj(o.item));
+    }
+
+});
+
+
+var CreateLeveNodeName = 'CreateLevelNode';
+
+registry.decl(CreateLeveNodeName, createNodes.BemCreateNodeName, {
+
+    __constructor : function(o) {
+        this.__base(o);
+
+        this.levelPath = this.__self.createLevelPath(o);
+    },
+
+    getLevelPath : function() {
+        return PATH.resolve(this.root, this.levelPath);
+    },
+
+    lastModified : function() {
+        var base = this.__base.bind(this, arguments);
+        return QFS.lastModified(this.getLevelPath())
+            .fail(base);
+    },
+
+    make : function() {
+        var _t = this,
+            base = this.__base.bind(this, arguments);
+        return QFS.exists(this.getLevelPath())
+            .then(function(exists) {
+                if(exists && !_t.ctx.force) return;
+
+                return base()
+                    .then(function() {
+                        // XXX: dropping level path cache (tech/v2)
+                        createLevel(_t.getPath(), { noCache : true });
+                    });
+            });
+    }
+
+}, {
+
+    createId : function(o) {
+        return this.createLevelPath(o);
+    },
+
+    createLevelPath : function() {
+        var path = this.createPath.apply(this, arguments);
+        return PATH.join(path, '.bem', 'level.js');
     }
 
 });
@@ -274,12 +344,13 @@ registry.decl(SetsLevelNodeName, GeneratedLevelNodeName, {
         var base = this.__base();
         return function() {
 
-            var _t = this;
-            return Q.when(base.call(this), function(setLevelNode) {
+            var _t = this,
+                arch = _t.ctx.arch;
 
-                var arch = _t.ctx.arch,
-                    decls = _t.scanSources(),
-                    nodeCls = _t.getTech2NodeClsMap();
+            return Q.when(base.call(this), function(level) {
+                var realLevel = arch.getChildren(level),
+                    getNodeClassForSuffix = _t.getNodeClsForSuffix.bind(_t),
+                    decls = _t.scanSources();
 
                 decls.forEach(function(item) {
                     // creating block node (source) for item
@@ -300,12 +371,12 @@ registry.decl(SetsLevelNodeName, GeneratedLevelNodeName, {
 
                     // creating levels node for item (examples/tests/whatever)
                     o = {
-                        root     : this.root,
-                        level    : this.path,
-                        item     : item,
+                        root  : this.root,
+                        level : this.path,
+                        item  : item
                     };
 
-                    var LevelNodeCls = registry.getNodeClass(nodeCls[item.tech]),
+                    var LevelNodeCls = registry.getNodeClass(getNodeClassForSuffix(item.suffix)),
                         levelnid = LevelNodeCls.createId(o),
                         levelNode;
 
@@ -313,7 +384,7 @@ registry.decl(SetsLevelNodeName, GeneratedLevelNodeName, {
                         levelNode = arch.getNode(levelnid);
                     } else {
                         levelNode = LevelNodeCls.create(o);
-                        arch.setNode(levelNode, setLevelNode);
+                        arch.setNode(levelNode, level, realLevel);
                     }
 
                     arch.addChildren(levelNode, blockNode);
@@ -325,16 +396,15 @@ registry.decl(SetsLevelNodeName, GeneratedLevelNodeName, {
                 }, _t);
 
                 // FIXME: hack
-                if(_t.getSourceItemTechs().indexOf('test.js') > -1) {
-                    arch.setNode(
-                        registry.getNodeClass(AllTestsLevelNodeName).create({
-                            root : _t.root,
-                            level : _t.path,
-                            sources : _t.sources
-                        }),
-                        arch.getParents(_t),
-                        setLevelNode);
-                }
+//                if(_t.getSourceItemTechs().indexOf('test.js') > -1) {
+//                    arch.setNode(
+//                        registry.getNodeClass(AllTestsLevelNodeName).create({
+//                            root : _t.root,
+//                            level : _t.path,
+//                            sources : _t.sources
+//                        }),
+//                        setLevelNode);
+//                }
 
                 return Q.when(_t.takeSnapshot('After SetsLevelNode alterArch ' + _t.getId()));
             });
@@ -351,30 +421,18 @@ registry.decl(SetsLevelNodeName, GeneratedLevelNodeName, {
         ];
     },
 
-    getTech2NodeClsMap : function() {
+    getNodeClsForSuffix : function(suffix) {
         return {
-            'examples' : ExamplesLevelNodeName,
-            'tests' : TestsLevelNodeName,
-            'test.js' : TestsLevelNodeName
-        };
-    }
-
-}, {
-
-    create : function(o) {
-        return new this(o);
+            '.examples' : ExamplesLevelNodeName,
+            '.tests'    : TestsLevelNodeName,
+            '.test.js'  : TestsLevelNodeName
+        }[suffix];
     }
 
 });
 
 
 registry.decl(ExamplesLevelNodeName, GeneratedLevelNodeName, {
-
-    __constructor : function(o) {
-        this.__base(o);
-        this.rootLevel = createLevel(this.root);
-        this.sources = o.sources || [];
-    },
 
     /**
      * @returns {Function}
@@ -387,18 +445,19 @@ registry.decl(ExamplesLevelNodeName, GeneratedLevelNodeName, {
             var _t = this,
                 arch = _t.ctx.arch;
 
-            return Q.when(base.call(_t), function(levelNode) {
-                var decls = _t.scanSources();
+            return Q.when(base.call(_t), function(level) {
+                var realLevel = arch.getChildren(level),
+                    decls = _t.scanSources();
 
                 decls.forEach(function(item) {
                     var bundleNode = registry.getNodeClass(this.bundleNodeCls).create({
                         root   : this.root,
                         level  : this.path,
-                        source : item.level,
-                        item   : item
+                        item   : U.extend({}, item),
+                        source : item
                     });
 
-                    arch.setNode(bundleNode, levelNode);
+                    arch.setNode(bundleNode, level, realLevel);
                 }, _t);
 
                 return Q.when(_t.takeSnapshot('After ExamplesLevelNode alterArch ' + _t.getId()));
@@ -412,71 +471,25 @@ registry.decl(ExamplesLevelNodeName, GeneratedLevelNodeName, {
         return ['bemjson.js'];
     },
 
-    bundleNodeCls: ExampleNodeName
+    bundleNodeCls : ExampleNodeName
 
 });
 
 
-registry.decl(TestsLevelNodeName, ExamplesLevelNodeName, {
+registry.decl(TestsLevelNodeName, GeneratedLevelNodeName, {
 
-    __constructor: function(o) {
-        this.__base(this.makeTestsLevelDecl(o));
+    __constructor : function(o) {
+        this.__base(U.extend({}, o, { item : this.getTestsLevelItem(o.item) }));
     },
 
-    makeTestsLevelDecl: function(decl) {
-
+    getTestsLevelItem : function(item) {
         var tech = this.getTestsLevelTechName();
 
-        return U.extend({}, decl, {
-            techName: tech,
-            item: U.extend({}, decl.item, {
-                suffix: '.' + tech,
-                tech: tech
-            })
+        // TODO: use `Tech#getSuffix()`
+        return U.extend({}, item, {
+            suffix : '.' + tech,
+            tech   : tech
         });
-    },
-
-    alterArch: function() {
-
-        var base = this.__base();
-
-        return function() {
-
-            var _t = this,
-                arch = this.ctx.arch;
-
-            return Q.when(base.call(this), function(levelNode) {
-
-                var o = {
-                        root : _t.root,
-                        level : _t.path,
-                        item : { block: _t.getAutogenTestBundleName(), tech: 'bemjson.js' }
-                    },
-
-                    autogenTestContent = ['block', 'elem', 'mod', 'val'].reduce(function(obj, key) {
-                        obj[key] = _t.item[key];
-                        return obj;
-                    }, {}),
-
-                    srcNode = registry.getNodeClass(AutogenTestSourceNodeName).create(o),
-
-                    sourceLevelPath = _t._blockNode.level.getPathByObj(_t.item, _t.item.tech),
-
-                    bundleNode = registry.getNodeClass(TestNodeName).create(U.extend({}, o, {
-                        source : PATH.relative(_t.root, sourceLevelPath),
-                        envData: {
-                            BundleName: _t.getAutogenTestBundleName(),
-                            TmplContent: JSON.stringify(autogenTestContent),
-                        }
-                    }));
-
-                arch.setNode(srcNode, arch.getParents(_t), [levelNode, _t._blockNode])
-                    .setNode(bundleNode, arch.getParents(_t), srcNode);
-
-                return _t.takeSnapshot('After TestsLevelNode alterArch ' + _t.getId());
-            });
-
-        };
     },
 
     getAutogenTestBundleName: function() {
@@ -487,106 +500,45 @@ registry.decl(TestsLevelNodeName, ExamplesLevelNodeName, {
         return 'tests';
     },
 
-    bundleNodeCls: TestNodeName
-
-}, {
-
-    create: function(o) {
-        return new this(o);
-    }
-
-});
-
-
-// XXX: Много дублирования. Придумать другой способ.
-registry.decl(AllTestsLevelNodeName, GeneratedLevelNodeName, {
-
-    __constructor: function(o) {
-        this.root = o.root;
-        this.sources = o.sources;
-
-        this.__base(U.extend(o, {
-            item: { block: this.getAllTestsLevelName(), tech: 'tests' }
-        }));
-    },
-
-    alterArch: function() {
+    alterArch : function() {
 
         var base = this.__base();
-
         return function() {
 
             var _t = this,
                 arch = this.ctx.arch;
 
-            return Q.when(base.call(this), function(levelNode) {
-
-                var bundleName = _t.getAutogenTestBundleName(),
-                    o = {
-                        root  : _t.root,
-                        level : _t.path,
-                        item  : { block: bundleName, tech : 'bemjson.js' }
+            return Q.when(base.call(this), function(level) {
+                var realLevel = arch.getChildren(level),
+                    item = {
+                        block : this.getAutogenTestBundleName(),
+                        tech  : 'bemjson.js'
                     },
-
-                    autogenTestContent = _t.getBemjsonDecl(_t.getSourcesItems('test.js')),
-
-                    srcNode = registry.getNodeClass(AutogenTestSourceNodeName).create(o),
-
-                    bundleNode = registry.getNodeClass(TestNodeName).create(U.extend({}, o, {
-                        source : _t.root,
+                    source = U.extend({ level : this.path }, _t.item),
+                    testContent = ['block', 'elem', 'mod', 'val'].reduce(function(obj, key) {
+                        obj[key] = _t.item[key];
+                        return obj;
+                    }, {}),
+                    bundleNode = registry.getNodeClass(this.bundleNodeCls).create({
+                        root  : this.root,
+                        level : this.path,
+                        item  : item,
+                        source : source,
                         envData: {
-                            BundleName: bundleName,
-                            TmplContent: JSON.stringify(autogenTestContent, null, 4)
+                            BundleName : _t.getAutogenTestBundleName(),
+                            TmplContent : JSON.stringify(testContent)
                         }
-                    }));
+                    });
 
-                arch.setNode(srcNode, arch.getParents(_t), levelNode)
-                    .setNode(bundleNode, arch.getParents(_t), srcNode);
+                arch.setNode(bundleNode, level, realLevel);
 
-                return _t.takeSnapshot('After AllTestsLevelNode alterArch ' + _t.getId());
-            });
+                return Q.when(_t.takeSnapshot('After TestsLevelNode alterArch ' + _t.getId()));
+            }.bind(this));
 
         };
     },
 
-    getBemjsonDecl: function(items) {
-        return items.map(function(item) {
-            return ['block', 'elem', 'mod', 'val'].reduce(function(obj, key) {
-                obj[key] = item[key];
-                return obj;
-            }, {});
-        });
-    },
-
-    getSourcesItems: function(tech) {
-        var absolutivize = PATH.resolve.bind(null, this.root),
-            rslt = [];
-
-        this.sources.map(function(source) {
-            if(typeof source === 'string') {
-                source = createLevel(absolutivize(source));
-            }
-            return this.getSourceItems(source, tech);
-        }, this).forEach(function (item) {
-            rslt = rslt.concat(item);
-        })
-
-        return rslt;
-    },
-
-    getSourceItems: function(level, tech) {
-        return level.getItemsByIntrospection().filter(function(item) {
-            return item.tech == tech;
-        });
-    },
-
-    getAllTestsLevelName: function() {
-        return 'all';
-    },
-
-    getAutogenTestBundleName: function() {
-        return 'default';
-    }
+    bundleNodeCls : TestNodeName
 
 }, {
 
@@ -595,6 +547,91 @@ registry.decl(AllTestsLevelNodeName, GeneratedLevelNodeName, {
     }
 
 });
+
+
+// TODO: выяснить, пользуется ли кто-нибудь этим
+//registry.decl(AllTestsLevelNodeName, TestsLevelNodeName, {
+//
+//    __constructor : function(o) {
+//        this.__base(U.extend({
+//            item : { block : this.getAllTestsLevelName() }
+//        }, o));
+//    },
+//
+//    getAllTestsLevelName : function() {
+//        return 'all';
+//    },
+//
+//    alterArch: function() {
+//        var ctx = this.ctx,
+//            base = this.__base();
+//
+//        return function() {
+//
+//            var _t = this,
+//                arch = ctx.arch;
+//
+//            return Q.when(base.call(this), function(levelNode) {
+//
+//                var bundleName = _t.getAutogenTestBundleName(),
+//                    o = {
+//                        root  : _t.root,
+//                        level : _t.path,
+//                        item  : { block: bundleName, tech : 'bemjson.js' }
+//                    },
+//
+////                    autogenTestContent = _t.getBemjsonDecl(_t.getSourcesItems('test.js')),
+////                    srcNode = registry.getNodeClass(AutogenTestSourceNodeName).create(o),
+//
+//                    bundleNode = registry.getNodeClass(TestNodeName).create(U.extend({}, o, {
+//                        source : _t.item.level,
+//                        envData: {
+//                            BundleName: bundleName,
+//                            TmplContent: JSON.stringify(autogenTestContent, null, 4)
+//                        }
+//                    }));
+//
+//                arch.setNode(bundleNode, levelNode)
+////                    .setNode(srcNode, bundleNode);
+//
+//                return Q.when(_t.takeSnapshot('After AllTestsLevelNode alterArch ' + _t.getId()))
+//            });
+//
+//        };
+//    },
+//
+//    getBemjsonDecl: function(items) {
+//        return items.map(function(item) {
+//            return ['block', 'elem', 'mod', 'val'].reduce(function(obj, key) {
+//                obj[key] = item[key];
+//                return obj;
+//            }, {});
+//        });
+//    },
+//
+//    getSourcesItems: function(tech) {
+//        var absolutivize = PATH.resolve.bind(null, this.root),
+//            rslt = [];
+//
+//        this.sources.map(function(source) {
+//            if(typeof source === 'string') {
+//                source = createLevel(absolutivize(source));
+//            }
+//            return this.getSourceItems(source, tech);
+//        }, this).forEach(function (item) {
+//            rslt = rslt.concat(item);
+//        });
+//
+//        return rslt;
+//    },
+//
+//    getSourceItems: function(level, tech) {
+//        return level.getItemsByIntrospection().filter(function(item) {
+//            return item.tech == tech;
+//        });
+//    }
+//
+//});
 
 
 registry.decl(ExampleSourceNodeName, fileNodes.GeneratedFileNodeName, {
@@ -607,23 +644,13 @@ registry.decl(ExampleSourceNodeName, fileNodes.GeneratedFileNodeName, {
             o.level;
 
         this.item = o.item;
-        this.source = self.createPath(U.extend({}, o, { level : o.source }));
+        this.source = self.createPath({
+            root : o.root,
+            level : o.source.level,
+            item : o.source
+        });
 
         this.__base(U.extend({ path: self.createPath(o) }, o));
-    },
-
-    clean : function() {
-        var _t = this;
-        return this.__base()
-            .then(function() {
-                console.log('!!!!!!!!!!!!!!!!!!!!!!!!')
-                return U.removePath(PATH.dirname(_t.getPath()))
-                    .then(function() {
-                        LOGGER.fverbose('[-] Removed %j', _t.getId());
-                    })
-                    .fail(function() {console.log(arguments)});
-
-            });
     },
 
     make : function() {
@@ -636,10 +663,6 @@ registry.decl(ExampleSourceNodeName, fileNodes.GeneratedFileNodeName, {
             })
             .then(function(data) {
                 return U.writeFileIfDiffers(path, data);
-            })
-            .then(function() {
-                // XXX: dropping level path cache (tech/v2)
-                createLevel(_t.level.dir, { noCache : true });
             });
     }
 
@@ -670,41 +693,33 @@ registry.decl(ExampleSourceNodeName, fileNodes.GeneratedFileNodeName, {
 });
 
 
-registry.decl(AutogenTestSourceNodeName, ExampleSourceNodeName, {
-
-    __constructor : function(o) {
-
-        this.__base(o);
-
-        var techName = this.getAutogenTechName(),
-            techPath = this.level.resolveTech(techName);
-
-        this.tech = this.level.getTech(techName, techPath);
-
-    },
-
-    getAutogenTechName : function() {
-        return 'test-tmpl';
-    },
-
-    make: function() {
-        var opts = {
-                forceTech: this.tech.getTechPath(),
-                level: this.level.dir
-            },
-            // FIXME: hardcode
-            args = { names: this.item.block };
-
-        return BEM.api.create.block(opts, args);
-    }
-
-}, {
-
-    create : function(o) {
-        return new this(o);
-    }
-
-});
+//registry.decl(AutogenTestSourceNodeName, ExampleSourceNodeName, {
+//
+//    make: function() {
+//        this.level = createLevel(this.level.dir, { noCache : true });
+//
+//        var techName = this.getAutogenTechName(),
+//            techPath = this.level.resolveTech(techName);
+//
+//        this.tech = this.level.getTech(techName, techPath);
+//        console.log(this.tech);
+//
+//        var opts = {
+//                forceTech : this.tech.getTechPath(),
+//                level : this.level.dir,
+//                force : true
+//            },
+//            // FIXME: hardcode
+//            args = { names: this.item.block };
+//
+//        return BEM.api.create.block(opts, args);
+//    },
+//
+//    getAutogenTechName : function() {
+//        return 'test-tmpl';
+//    }
+//
+//});
 
 
 registry.decl(ExampleNodeName, bundleNodes.BundleNodeName, {
@@ -724,7 +739,7 @@ registry.decl(ExampleNodeName, bundleNodes.BundleNodeName, {
         if(!this._sourceNodePrefix) {
             this._sourceNodePrefix = this.__self.createNodePrefix({
                 root  : this.root,
-                level : this.source,
+                level : this.source.level,
                 item  : this.item
             });
         }
@@ -738,38 +753,44 @@ registry.decl(ExampleNodeName, bundleNodes.BundleNodeName, {
     },
 
     createTechNode : function(tech, bundleNode, magicNode) {
-        // NOTE: we use `ExampleSourceNode` to build example's source bundle
         if(tech === this.item.tech) {
-            var arch = this.ctx.arch,
-                sourceNode = this.createSourceNode(),
-                originNode = this.createOriginNode();
-
-            bundleNode && arch.addParents(sourceNode, bundleNode);
-            originNode && arch.addChildren(sourceNode, originNode);
+            return this.setSourceItemNode(tech, bundleNode, magicNode);
         }
-
         return this.__base.apply(this, arguments);
     },
 
+    setSourceItemNode : function(tech, bundleNode, magicNode) {
+        LOGGER.fdebug('Going to create source node for tech %s', tech);
+
+        var arch = this.ctx.arch,
+            node = this.createSourceNode(),
+            upstreamNode = this.createUpstreamNode();
+
+        bundleNode && arch.addParents(node, bundleNode);
+        magicNodes && arch.addChildren(node, magicNode);
+        upstreamNode && arch.addChildren(node, upstreamNode);
+
+        return node;
+    },
+
     createSourceNode : function() {
-        var item = this.item,
-            node = this.useFileOrBuild(registry.getNodeClass(ExampleSourceNodeName).create({
-                    root   : this.root,
-                    level  : this.level,
-                    item   : item,
-                    source : item.level
-                }));
+        var node = this.useFileOrBuild(registry.getNodeClass(ExampleSourceNodeName).create({
+                root   : this.root,
+                level  : this.level,
+                item   : this.item,
+                source : this.source
+            }));
 
         this.ctx.arch.setNode(node);
 
         return node;
     },
 
-    createOriginNode : function() {
+    createUpstreamNode : function() {
         var filePath = registry.getNodeClass(ExampleSourceNodeName).createPath({
-            root : this.root,
-            item : this.item,
-            level : this.item.level
+            root  : this.root,
+            level : this.source.level,
+            item  : this.source
         });
 
         if(!FS.existsSync(PATH.resolve(this.root, filePath))) {
@@ -798,7 +819,6 @@ registry.decl(ExampleNodeName, bundleNodes.BundleNodeName, {
 registry.decl(TestNodeName, ExampleNodeName, {
 
     __constructor: function(o) {
-
         var testsEnv = JSON.parse(process.env.__tests || '{}'),
             testId = PATH.join(o.root, o.level, o.item.block),
             pageRelPath = PATH.join(o.level, o.item.block, o.item.block + '.html'),
@@ -807,8 +827,7 @@ registry.decl(TestNodeName, ExampleNodeName, {
 
         if(this.webRoot) {
             pageURL = this.webRoot + pageRelPath;
-        }
-        else {
+        } else {
             pageURL = 'file://' + PATH.join(o.root, pageRelPath);
         }
 
@@ -821,12 +840,35 @@ registry.decl(TestNodeName, ExampleNodeName, {
         process.env.__tests = JSON.stringify(testsEnv);
 
         this.__base(o);
-    }
+    },
 
-}, {
+    setSourceItemNode : function(tech, bundleNode, magicNode) {
+        tech = this.getAutogenTechName();
 
-    create: function(o) {
-        return new this(o);
+        return this.setBemCreateNode(
+                tech,
+                this.level.resolveTech(tech),
+                bundleNode,
+                magicNode,
+                true);
+
+//        var node = this.useFileOrBuild(registry.getNodeClass(AutogenTestSourceNodeName).create({
+//                root   : this.root,
+//                level  : this.level,
+//                item   : this.item,
+//                source : this.source
+//            }));
+//
+//        this.ctx.arch.setNode(node);
+//        bundleNode && this.ctx.arch.addParents(node, bundleNode);
+//
+//        console.log(this.ctx.arch.toString());
+//
+//        return node;
+    },
+
+    getAutogenTechName : function() {
+        return 'test-tmpl';
     }
 
 });
@@ -841,7 +883,7 @@ function serializeBemItem() {
                 if(!item)
                     return keys;
                 item = { block : item };
-            };
+            }
 
             keys.push(U.bemKey(item));
             return keys;
