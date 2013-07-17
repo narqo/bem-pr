@@ -207,6 +207,17 @@ registry.decl(GeneratedLevelNodeName, magicNodes.MagicNodeName, {
         return [];
     },
 
+    getTechSuffixesForLevel : function(level) {
+        return this.getSourceItemTechs()
+            .reduce(function(techs, tech) {
+                [].push.apply(techs, level.getTech(tech).getSuffixes());
+                return techs;
+            }, [])
+            .map(function(suffix) {
+                return '.' + suffix;
+            });
+    },
+
     getSources : function() {
         if(!this._sources) {
             var absolutivize = PATH.resolve.bind(null, this.root);
@@ -230,11 +241,11 @@ registry.decl(GeneratedLevelNodeName, magicNodes.MagicNodeName, {
 
     scanSourceLevel : function(level) {
         var relativize = PATH.relative.bind(null, this.root),
-            techs = this.getSourceItemTechs();
+            suffixes = this.getTechSuffixesForLevel(level);
 
         return level.getItemsByIntrospection()
             .filter(function(item) {
-                return ~techs.indexOf(item.tech);
+                return ~suffixes.indexOf(item.suffix);
             })
             .map(function(item) {
                 item.level = relativize(level.dir);
@@ -264,7 +275,7 @@ registry.decl(GeneratedLevelNodeName, magicNodes.MagicNodeName, {
             .getPath(this.createNodePrefix(U.extend({}, o, { level: level })));
     },
 
-    createNodePrefix: function(o) {
+    createNodePrefix : function(o) {
         var level = typeof o.level === 'string'?
                 createLevel(PATH.resolve(o.root, o.level)) :
                 o.level;
@@ -315,8 +326,8 @@ registry.decl(SetsLevelNodeName, GeneratedLevelNodeName, {
 
             return Q.when(base.call(this), function(level) {
                 var realLevel = arch.getChildren(level),
-                    decls = _t.scanSources(),
-                    nodeCls = _t.getTech2NodeClsMap();
+                    getNodeClassForSuffix = _t.getNodeClsForSuffix.bind(_t),
+                    decls = _t.scanSources();
 
                 decls.forEach(function(item) {
                     // creating block node (source) for item
@@ -342,7 +353,7 @@ registry.decl(SetsLevelNodeName, GeneratedLevelNodeName, {
                         item  : item
                     };
 
-                    var LevelNodeCls = registry.getNodeClass(nodeCls[item.tech]),
+                    var LevelNodeCls = registry.getNodeClass(getNodeClassForSuffix(item.suffix)),
                         levelnid = LevelNodeCls.createId(o),
                         levelNode;
 
@@ -387,12 +398,12 @@ registry.decl(SetsLevelNodeName, GeneratedLevelNodeName, {
         ];
     },
 
-    getTech2NodeClsMap : function() {
+    getNodeClsForSuffix : function(suffix) {
         return {
-            'examples' : ExamplesLevelNodeName,
-            'tests'    : TestsLevelNodeName,
-            'test.js'  : TestsLevelNodeName
-        };
+            '.examples' : ExamplesLevelNodeName,
+            '.tests'    : TestsLevelNodeName,
+            '.test.js'  : TestsLevelNodeName
+        }[suffix];
     }
 
 });
