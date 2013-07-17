@@ -172,8 +172,15 @@ registry.decl(GeneratedLevelNodeName, magicNodes.MagicNodeName, {
             if(arch.hasNode(path)) {
                 levelNode = arch.getNode(path);
             } else {
-                levelNode = this.useFileOrBuild(new CreateLevelNode(opts));
-                arch.addParents(levelNode, arch.getParents(this));
+                levelNode = new fileNodes.FileNode({
+                    root : this.root,
+                    path : path
+                });
+
+                var realLevelNode = this.useFileOrBuild(new CreateLevelNode(opts));
+
+                arch.setNode(levelNode, arch.getParents(this))
+                    .setNode(realLevelNode, levelNode);
             }
 
             return Q.all([snapshot1, this.takeSnapshot('After GeneratedLevelNode alterArch ' + this.getId())])
@@ -185,22 +192,14 @@ registry.decl(GeneratedLevelNodeName, magicNodes.MagicNodeName, {
     },
 
     useFileOrBuild : function(node) {
-        var arch = this.ctx.arch,
-            fileNode = new fileNodes.FileNode({
+        if(FS.existsSync(node.getLevelPath())) {
+            return new fileNodes.FileNode({
                 root : this.root,
-                path : node.path
+                path : node.levelPath
             });
-
-        arch.setNode(fileNode);
-
-        if(FS.existsSync(node.getPath())) {
-            return fileNode;
         }
 
-        arch.setNode(node)
-            .addParents(node, fileNode);
-
-        return fileNode;
+        return node;
     },
 
     getSourceItemTechs : function() {
@@ -290,12 +289,35 @@ var CreateLeveNodeName = 'CreateLevelNode';
 
 registry.decl(CreateLeveNodeName, createNodes.BemCreateNodeName, {
 
+    __constructor : function(o) {
+        this.__base(o);
+
+        this.levelPath = this.__self.createLevelPath(o);
+    },
+
+    getLevelPath : function() {
+        return PATH.resolve(this.root, this.levelPath);
+    },
+
+    lastModified : function() {
+        var base = this.__base.bind(this, arguments);
+        return QFS.lastModified(this.getLevelPath())
+            .fail(base);
+    },
+
     make : function() {
-        return this.__base.apply(this, arguments)
-            .then(function() {
-                // XXX: dropping level path cache (tech/v2)
-                createLevel(this.getPath(), { noCache : true });
-            }.bind(this));
+        var _t = this,
+            base = this.__base.bind(this, arguments);
+        return QFS.exists(this.getLevelPath())
+            .then(function(exists) {
+                if(exists && !_t.ctx.force) return;
+
+                return base()
+                    .then(function() {
+                        // XXX: dropping level path cache (tech/v2)
+                        createLevel(_t.getPath(), { noCache : true });
+                    });
+            });
     }
 
 }, {
@@ -305,7 +327,8 @@ registry.decl(CreateLeveNodeName, createNodes.BemCreateNodeName, {
     },
 
     createLevelPath : function() {
-        return PATH.join(this.createPath.apply(this, arguments), '.bem', 'level.js');
+        var path = this.createPath.apply(this, arguments);
+        return PATH.join(path, '.bem', 'level.js');
     }
 
 });
