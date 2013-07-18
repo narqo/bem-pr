@@ -316,21 +316,21 @@ exports.getTechs = function() {
 
 ### Сборка и запуск тестов
 
-Дефолтный тестовый бандл для отдельной бем-сущности:
+Дефолтный тестовый бандл для отдельной БЭМ-сущности:
 
     $ bem make smth.tests/block.tests/default
 
     $ bem make smth.tests/block__elem.tests/default
-
-Дефолтный тестовый бандл для всех бем-сущностей в рамках уровня `smth.sets`:
-
-    $ bem make smth.tests/all.tests/default
 
 Рукотворный тестовый бандл:
 
     $ bem make smth.tests/block.tests/testbundle
 
     $ bem make smth.tests/block__elem.tests/testbundle
+    
+Все тестовые бандлы в рамках уровня `smth.sets`:
+
+    $ bem make smth.sets/block.tests
 
 Если в процесс сборки тестовых бандлов была добавлена технология `phantomjs`, то в конце сборки тесты прогонятся через `phantomjs`, вы увидите результаты их выполнения прямо в консоли.
 
