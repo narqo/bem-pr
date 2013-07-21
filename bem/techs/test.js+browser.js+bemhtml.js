@@ -3,49 +3,39 @@ var PATH = require('path'),
     BEM = require('bem'),
     Q = BEM.require('q');
 
-function getTechBuildResults(techName, decl, context) {
-    var opts = context.opts,
-        tech = context.createTech(techName),
-        output = PATH.resolve(opts.outputDir, opts.outputName);
+function getTechBuildResults(techName, decl, context, output, opts) {
+    opts.force = true; /* AHTUNG! ugly spike! v2 techs return empty result if source files not changed */
+    var tech = context.createTech(techName);
+
+    if (tech.API_VER !== 2) return Q.reject(new Error(_this.getTechName() +
+        ' can’t use v1 ' + tech + ' tech to concat ' + tech + ' content. Configure level to use v2 ' + tech + '.'));
 
     return tech.getBuildResults(
-        tech.getBuildPrefixes(
-            tech.transformBuildDecl(decl),
-            context.getLevels()
-        ),
-        PATH.dirname(output) + PATH.dirSep,
-        PATH.basename(output)
+        decl,
+        context.getLevels(),
+        output,
+        opts
     );
 }
 
+exports.API_VER = 2;
+
 exports.techMixin = {
 
-    getSuffixes : function() {
-        return ['test.js'];
+    getBuildSuffixesMap: function() {
+        return {
+            'test.js': ['test.js', 'vanilla.js', 'js', 'browser.js', 'bemhtml']
+        };
     },
 
-    getBuildSuffixes : function() {
-        return ['test.js'];
-    },
-
-    /**
-     * Build and return result of build of specified prefixes
-     * for specified suffix.
-     *
-     * @param {Promise * String[]} prefixes Prefixes to build from.
-     * @param {String} suffix Suffix to build result for.
-     * @param {String} outputDir Output dir name for build result.
-     * @param {String} outputName Output name of build result.
-     * @returns {Promise * String} Promise for build result.
-     */
-    getBuildResult: function(prefixes, suffix, outputDir, outputName) {
+    getBuildResult: function(files, suffix, output, opts) {
         var context = this.context,
-            opts = context.opts;
+            ctxOpts = context.opts;
 
-        return opts.declaration
+        return ctxOpts.declaration
             .then(function(decl) {
-                var testJsResults = getTechBuildResults('test.js', decl, context),
-                    browserJsResults = getTechBuildResults('browser.js', decl, context),
+                var testJsResults = getTechBuildResults('test.js', decl, context, output, opts),
+                    browserJsResults = getTechBuildResults('browser.js', decl, context, output, opts),
                     bemhtmlDecl = new DEPS.Deps(),
                     depsByTechs = decl.depsByTechs || {},
                     depsByTechsJs = depsByTechs.js || {},
@@ -56,7 +46,7 @@ exports.techMixin = {
 
                 bemhtmlDecl = { deps: bemhtmlDecl.serialize()['bemhtml']['bemhtml'] };
 
-                var bemhtmlResults = getTechBuildResults('bemhtml', bemhtmlDecl, context);
+                var bemhtmlResults = getTechBuildResults('bemhtml', bemhtmlDecl, context, output, opts);
 
                 return Q.all([testJsResults, browserJsResults, bemhtmlResults])
                     .spread(function(testJsResults, browserJsResults, bemhtmlResults) {
@@ -67,7 +57,7 @@ exports.techMixin = {
                         ].join('');
                     });
 
-            })
+            });
     }
 
 };

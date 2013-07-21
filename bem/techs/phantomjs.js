@@ -5,6 +5,8 @@ var BEM = require('bem'),
     PATH = require('path'),
     mochaPhantomjsPath = PATH.resolve(require.resolve('mocha-phantomjs'), '../../bin/mocha-phantomjs');
 
+exports.API_VER = 2;
+
 exports.getDependencies = function() {
     return ['html', 'test.js'];
 };
