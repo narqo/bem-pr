@@ -194,8 +194,7 @@ registry.decl(SetsLevelNodeName, commonNodes.GeneratedLevelNodeName, {
     getSourceItemTechs : function() {
         var map = this.getSourceItemsMap();
         return _.uniq(Object.keys(map).reduce(function(techs, name) {
-                techs.concat(map[name]);
-                return techs;
+                return techs.concat(map[name]);
             }, []));
     },
 
