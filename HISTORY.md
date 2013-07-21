@@ -1,3 +1,9 @@
+0.2.1 / 2013-07-21
+==================
+
+  * build nodes were spreaded into separate modules to simplify future
+    maintenance
+
 0.2.0 / 2013-07-18
 ==================
 
