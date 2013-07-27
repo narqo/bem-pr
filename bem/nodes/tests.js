@@ -26,12 +26,31 @@ registry.decl(TestsLevelNodeName, commonNodes.GeneratedLevelNodeName, {
         });
     },
 
-    getAutogenTestBundleName: function() {
+    getAutogenTestBundleName : function() {
         return 'default';
     },
 
-    getTestsLevelTechName: function() {
+    getTestsLevelTechName : function() {
         return 'tests';
+    },
+
+    normalizeTestItem : function(item) {
+        var normalized = {
+                block : item.block
+            },
+            isElem = false;
+
+        if(item.elem) {
+            isElem = true;
+            normalized.elem = item.elem;
+        }
+
+        if(item.mod) {
+            var tmods = normalized[isElem? 'elemMods' : 'mods'] = {};
+            tmods[item.mod] = item.val || '';
+        }
+
+        return normalized;
     },
 
     alterArch : function() {
@@ -49,10 +68,7 @@ registry.decl(TestsLevelNodeName, commonNodes.GeneratedLevelNodeName, {
                         tech  : 'bemjson.js'
                     },
                     source = U.extend({ level : this.path }, _t.item),
-                    testContent = ['block', 'elem', 'mod', 'val'].reduce(function(obj, key) {
-                        obj[key] = _t.item[key];
-                        return obj;
-                    }, {}),
+                    testContent = _t.normalizeTestItem(_t.item),
                     bundleNode = registry.getNodeClass(this.bundleNodeCls).create({
                         root  : this.root,
                         level : this.path,
