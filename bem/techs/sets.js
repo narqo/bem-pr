@@ -2,6 +2,8 @@ var PATH = require('path'),
     BEM = require('bem'),
     API = BEM.api;
 
+exports.API_VER = 2;
+
 exports.techMixin = {
 
     getBaseLevel : function() {
