@@ -1,4 +1,5 @@
 var QFS = require('bem/node_modules/q-fs'),
+    DEPS = require('bem/lib/techs/deps.js'),
     PATH = require('path');
 
 /**
@@ -26,7 +27,13 @@ exports.transformBuildDecl = function(decl) {
             return val;
         });
 
-        return tests.length ? { deps: tests } : decl;
+        if(tests.length) {
+            var deps = new DEPS.Deps();
+            deps.parse(tests);
+            return { deps: deps.serialize()[''][''] };
+        } else {
+            return decl;
+        }
     });
 };
 
