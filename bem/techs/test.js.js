@@ -2,6 +2,8 @@ var QFS = require('bem/node_modules/q-fs'),
     DEPS = require('bem/lib/techs/deps.js'),
     PATH = require('path');
 
+exports.API_VER = 2;
+
 /**
  * Если в testbundle.bemjson.js есть декларация блока test, и в поле content этого блока
  * перечислены конкретные bem-сущности, то строим декларацию таким образом,
