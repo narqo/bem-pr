@@ -4,7 +4,7 @@ var PATH = require('path'),
     Q = BEM.require('q');
 
 function getTechBuildResults(techName, decl, context, output, opts) {
-    opts.force = true; /* AHTUNG! ugly spike! v2 techs return empty result if source files not changed */
+    opts.force = true;
     var tech = context.createTech(techName);
 
     if (tech.API_VER !== 2) return Q.reject(new Error(_this.getTechName() +
