@@ -1,3 +1,10 @@
+0.3.0 / 2013-07-31
+==================
+
+NOTE: this release requires bem >= 0.6.x
+
+  * tech modules were refactored to satisfy v2 API (#40)
+
 0.2.3 / 2013-07-27
 ==================
 
