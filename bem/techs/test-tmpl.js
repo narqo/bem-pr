@@ -1,14 +1,18 @@
-var PATH = require('path'),
-    tmpl = require('bem/lib/template');
+'use strict';
+
+var BEM = require('bem'),
+    PATH = require('path');
 
 exports.API_VER = 2;
 
 exports.techMixin = {
 
-    getCreateResult : function(path, suffix, vars) {
-        var envProps = JSON.parse(process.env.__tests || '{}')[PATH.dirname(path)] || {};
+    getEnvProps: function(path) {
+        return JSON.parse(process.env.__tests || '{}')[PATH.dirname(path)] || {};
+    },
 
-        return tmpl.process([
+    getTemplate: function() {
+        return [
             '([',
             '"<!DOCTYPE html>",',
             '{ "tag": "html", "content": [',
@@ -27,11 +31,21 @@ exports.techMixin = {
             '  }',
             '] }',
             '])'
-        ], {
-            BundleName : envProps.BundleName || vars.BlockName,
-            TmplDecl : envProps.TmplDecl || "",
-            TmplContent : envProps.TmplContent || ""
-        });
+        ];
+    },
+
+    getTemplateData: function(env, vars, suffix) {
+        return {
+            BundleName: env.BundleName || vars.BlockName,
+            TmplDecl: env.TmplDecl || '',
+            TmplContent: env.TmplContent || ''
+        };
+    },
+
+    getCreateResult : function(path, suffix, vars) {
+        return BEM.template.process(
+            this.getTemplate(),
+            this.getTemplateData(this.getEnvProps(path), vars, suffix));
     },
 
     getCreateSuffixes : function() {
