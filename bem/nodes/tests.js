@@ -131,6 +131,14 @@ registry.decl('TestNode', 'ExampleNode', {
 
     getAutogenTechName : function() {
         return 'test-tmpl';
+    },
+
+    'create-phantomjs-node': function(tech, bundleNode, magicNode) {
+        return this.setBemCreateNode(
+            tech,
+            this.level.resolveTech(tech),
+            bundleNode,
+            magicNode);
     }
 
 });
