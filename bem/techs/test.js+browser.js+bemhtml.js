@@ -11,7 +11,7 @@ function getTechBuildResults(techName, decl, context, output, opts) {
         ' can’t use v1 ' + tech + ' tech to concat ' + tech + ' content. Configure level to use v2 ' + tech + '.'));
 
     return tech.getBuildResults(
-        decl,
+        tech.transformBuildDecl(decl),
         context.getLevels(),
         output,
         opts
