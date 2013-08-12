@@ -131,6 +131,14 @@ registry.decl('TestNode', 'ExampleNode', {
 
     getAutogenTechName : function() {
         return 'test-tmpl';
+    },
+
+    'create-test.js-optimizer-node': function(tech, sourceNode, bundleNode) {
+        return this['create-js-optimizer-node'].apply(this, arguments);
+    },
+
+    'create-test.js+browser.js+bemhtml-optimizer-node': function(tech, sourceNode, bundleNode) {
+        return this['create-js-optimizer-node'].apply(this, arguments);
     }
 
 });
