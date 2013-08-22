@@ -1,5 +1,5 @@
 var QFS = require('bem/node_modules/q-fs'),
-    DEPS = require('bem/lib/techs/deps.js'),
+    DEPS = require('bem/lib/techs/v2/deps.js'),
     PATH = require('path');
 
 exports.API_VER = 2;
