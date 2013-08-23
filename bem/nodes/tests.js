@@ -45,9 +45,15 @@ registry.decl(TestsLevelNodeName, commonNodes.GeneratedLevelNodeName, {
             normalized.elem = item.elem;
         }
 
+//        if(item.mod) {
+//            var tmods = normalized[isElem? 'elemMods' : 'mods'] = {};
+//            tmods[item.mod] = item.val || '';
+//        }
         if(item.mod) {
-            var tmods = normalized[isElem? 'elemMods' : 'mods'] = {};
-            tmods[item.mod] = item.val || '';
+            normalized.mod = item.mod;
+            if(item.val) {
+                normalized.val = item.val;
+            }
         }
 
         return normalized;
