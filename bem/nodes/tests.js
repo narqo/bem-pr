@@ -14,6 +14,12 @@ registry.decl(TestsLevelNodeName, commonNodes.GeneratedLevelNodeName, {
 
     __constructor : function(o) {
         this.__base(U.extend({}, o, { item : this.getTestsLevelItem(o.item) }));
+
+        var item = this.item;
+        this.decl = ['block', 'elem', 'mod', 'val'].reduce(function(decl, name) {
+            item[name] && (decl[name] = item[name]);
+            return decl;
+        }, {});
     },
 
     getTestsLevelItem : function(item) {
@@ -34,7 +40,7 @@ registry.decl(TestsLevelNodeName, commonNodes.GeneratedLevelNodeName, {
         return 'tests';
     },
 
-    normalizeTestItem : function(item) {
+    getTestContent : function(item) {
         var normalized = {
                 block : item.block
             },
@@ -54,10 +60,8 @@ registry.decl(TestsLevelNodeName, commonNodes.GeneratedLevelNodeName, {
     },
 
     alterArch : function() {
-
         var base = this.__base();
         return function() {
-
             var _t = this,
                 arch = this.ctx.arch;
 
@@ -67,8 +71,8 @@ registry.decl(TestsLevelNodeName, commonNodes.GeneratedLevelNodeName, {
                         block : this.getAutogenTestBundleName(),
                         tech  : 'bemjson.js'
                     },
-                    source = U.extend({ level : this.path }, _t.item),
-                    testContent = _t.normalizeTestItem(_t.item),
+                    source = U.extend({ level : this.path }, this.item),
+                    testContent = this.getTestContent(this.decl),
                     bundleNode = registry.getNodeClass(this.bundleNodeCls).create({
                         root  : this.root,
                         level : this.path,
@@ -76,6 +80,7 @@ registry.decl(TestsLevelNodeName, commonNodes.GeneratedLevelNodeName, {
                         source : source,
                         envData: {
                             BundleName : _t.getAutogenTestBundleName(),
+                            TmplDecl : JSON.stringify(this.decl),
                             TmplContent : JSON.stringify(testContent)
                         }
                     });
@@ -84,7 +89,6 @@ registry.decl(TestsLevelNodeName, commonNodes.GeneratedLevelNodeName, {
 
                 return Q.when(_t.takeSnapshot('After TestsLevelNode alterArch ' + _t.getId()));
             }.bind(this));
-
         };
     },
 

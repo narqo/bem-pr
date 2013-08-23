@@ -1,10 +1,8 @@
 modules.require(['mocha', 'chai', 'sinon', 'sinon-chai'], function(mocha, chai, sinon, sinonChai) {
-
     mocha.ui('bdd');
 
     chai.use(sinonChai);
     chai.should();
-
 });
 
 (function() {

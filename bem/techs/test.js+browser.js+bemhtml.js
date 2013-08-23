@@ -1,5 +1,5 @@
 var PATH = require('path'),
-    DEPS = require('bem/lib/techs/deps.js'),
+    DEPS = require('bem/lib/techs/v2/deps.js'),
     BEM = require('bem'),
     Q = BEM.require('q');
 
@@ -7,8 +7,11 @@ function getTechBuildResults(techName, decl, context, output, opts) {
     opts.force = true;
     var tech = context.createTech(techName);
 
-    if (tech.API_VER !== 2) return Q.reject(new Error(tech.getTechName() +
-        ' can’t use v1 ' + tech + ' tech to concat ' + tech + ' content. Configure level to use v2 ' + tech + '.'));
+    if(tech.API_VER !== 2) {
+        return Q.reject(new Error(tech.getTechName() +
+            ' can’t use v1 ' + tech + ' tech to concat ' + tech +
+            ' content. Configure level to use v2 ' + tech + '.'));
+    }
 
     return tech.getBuildResults(
         tech.transformBuildDecl(decl),
@@ -44,7 +47,9 @@ exports.techMixin = {
                 bemhtmlDecl.parse(depsByTechsJs.bemhtml || []);
                 bemhtmlDecl.parse(depsByTechsTestJs.bemhtml || []);
 
-                bemhtmlDecl = { deps: bemhtmlDecl.serialize()['bemhtml']['bemhtml'] };
+                var deps = bemhtmlDecl.serialize();
+                bemhtmlDecl = deps['bemhmtl'] && deps['bemhmtl']['bemhtml']?
+                    { deps: deps['bemhmtl']['bemhtml'] } : {};
 
                 var bemhtmlResults = getTechBuildResults('bemhtml', bemhtmlDecl, context, output, opts);
 

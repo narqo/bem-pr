@@ -1,5 +1,6 @@
-var PATH = require('path'),
-    registry = require('bem/lib/nodesregistry');
+var PATH = require('path');
+
+module.exports = function(registry) {
 
 registry.decl('BundleNode', {
 
@@ -21,3 +22,5 @@ registry.decl('BundleNode', {
     }
 
 });
+
+};
