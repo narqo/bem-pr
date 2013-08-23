@@ -5,6 +5,7 @@ NOTE: all tech modules rewriten to v2 API of bem >= 0.6.15
 
   * fix #46
   * fix #48
+  * fix #49
   * drop dependency from bem-core's "page" block in test-tmpls tech
 
 0.3.1 / 2013-08-17
