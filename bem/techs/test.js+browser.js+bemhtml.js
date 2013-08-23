@@ -7,8 +7,11 @@ function getTechBuildResults(techName, decl, context, output, opts) {
     opts.force = true;
     var tech = context.createTech(techName);
 
-    if (tech.API_VER !== 2) return Q.reject(new Error(tech.getTechName() +
-        ' can’t use v1 ' + tech + ' tech to concat ' + tech + ' content. Configure level to use v2 ' + tech + '.'));
+    if(tech.API_VER !== 2) {
+        return Q.reject(new Error(tech.getTechName() +
+            ' can’t use v1 ' + tech + ' tech to concat ' + tech +
+            ' content. Configure level to use v2 ' + tech + '.'));
+    }
 
     return tech.getBuildResults(
         tech.transformBuildDecl(decl),
