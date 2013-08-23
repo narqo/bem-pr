@@ -3,7 +3,7 @@
 var setsNodes = require('../../../bem/nodes/sets');
 
 // import some globals
-require('../../.bem/nodes');
+require('../../.bem/nodes')(MAKE);
 
 MAKE.decl('Arch', {
 
@@ -31,7 +31,7 @@ MAKE.decl('SetsNode', {
 MAKE.decl('SetsLevelNode', {
 
     getSourceItemTechs : function() {
-        return [ 'test.js', 'examples' ];
+        return ['test.js', 'examples'];
     }
 
 });
