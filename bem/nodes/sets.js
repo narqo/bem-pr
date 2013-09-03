@@ -5,8 +5,8 @@
 var FS = require('fs'),
     PATH = require('path'),
     BEM = require('bem'),
-    Q = BEM.require('qq'),
-    _ = BEM.require('underscore'),
+    Q = require('qq'),
+    _ = require('underscore'),
     registry = BEM.require('./nodesregistry'),
     LOGGER = BEM.require('./logger'),
 

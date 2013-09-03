@@ -8,7 +8,11 @@
   },
   "dependencies": {
     "phantomjs": "~1.9.1",
-    "mocha-phantomjs": "~2.0.2"
+    "mocha-phantomjs": "~2.0.2",
+    "q-fs": "~0.1.36",
+    "q": "~0.9.6",
+    "qq": "~0.3.5",
+    "underscore": "~1.5.1"
   },
   "devDependencies": {
     "bem": "~0.6.6"
