@@ -1,7 +1,7 @@
 var PATH = require('path'),
     BEM = require('bem'),
     registry = require('bem/lib/nodesregistry'),
-    Q = require('bem/node_modules/q'),
+    Q = require('q'),
     commonNodes = require('./common'),
     examplesNodes = require('./examples'),
     /* exports */

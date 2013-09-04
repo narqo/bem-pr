@@ -1,5 +1,5 @@
 var BEM = require('bem'),
-    Q = BEM.require('qq'),
+    Q = require('qq'),
     LOGGER = BEM.require('./logger'),
     CP = require('child_process'),
     PATH = require('path'),
