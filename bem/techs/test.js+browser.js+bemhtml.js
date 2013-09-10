@@ -1,7 +1,6 @@
 var PATH = require('path'),
-    DEPS = require('bem/lib/techs/v2/deps.js'),
-    BEM = require('bem'),
-    Q = BEM.require('q');
+    Q = require('q'),
+    DEPS = require('bem/lib/techs/v2/deps.js');
 
 function getTechBuildResults(techName, decl, context, output, opts) {
     opts.force = true;

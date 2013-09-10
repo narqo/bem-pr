@@ -1,6 +1,6 @@
 var PATH = require('path'),
     BEM = require('bem'),
-    Q = require('bem/node_modules/q'),
+    Q = require('q'),
     U = BEM.util;
 
 module.exports = function(registry) {

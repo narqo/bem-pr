@@ -3,8 +3,8 @@
 var FS = require('fs'),
     PATH = require('path'),
     BEM = require('bem'),
-    Q = require('bem/node_modules/q'),
-    QFS = require('bem/node_modules/q-fs'),
+    Q = require('q'),
+    QFS = require('q-io/fs'),
     U = BEM.util,
     createLevel = BEM.createLevel;
 

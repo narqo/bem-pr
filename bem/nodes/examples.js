@@ -1,8 +1,8 @@
 var PATH = require('path'),
     BEM = require('bem'),
+    Q = require('q'),
+    QFS = require('q-io/fs'),
     LOGGER = require('bem/lib/logger'),
-    Q = require('bem/node_modules/q'),
-    QFS = require('bem/node_modules/q-fs'),
     U = BEM.util,
     createLevel = BEM.createLevel;
 

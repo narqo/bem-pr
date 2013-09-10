@@ -5,8 +5,8 @@
 var FS = require('fs'),
     PATH = require('path'),
     BEM = require('bem'),
-    Q = BEM.require('qq'),
-    _ = BEM.require('underscore'),
+    Q = require('q'),
+    _ = require('lodash'),
     LOGGER = BEM.require('./logger'),
     createLevel = BEM.createLevel;
 
@@ -28,16 +28,10 @@ registry.decl('SetsNode', 'Node', {
         var _t = this,
             arch = _t.arch;
 
-        return Q.step(
-            function() {
-                return Q.call(_t.createCommonSetsNode, _t, parent);
-            },
-            function(common) {
-                return [
-                    common,
-                    Q.call(_t.createSetsLevelNodes, _t,
-                        parent? [common].concat(parent) : common, children)
-                ];
+        return Q.invoke(this, 'createCommonSetsNode', parent)
+            .then(function(common) {
+                return Q.invoke(_t, 'createSetsLevelNodes',
+                    parent? [common].concat(parent) : common, children)
             })
             .then(function() {
                 return arch;
@@ -53,10 +47,11 @@ registry.decl('SetsNode', 'Node', {
     },
 
     createSetsLevelNodes : function(parents, children) {
-        var sets = this.getSets();
-        return Object.keys(sets).map(function(name) {
+        var sets = this.getSets(),
+            SetsLevelNode = registry.getNodeClass('SetsLevelNode');
 
-            var node = registry.getNodeClass('SetsLevelNode').create({
+        return Object.keys(sets).map(function(name) {
+            var node = SetsLevelNode.create({
                 root    : this.root,
                 level   : this.rootLevel,
                 item    : { block : name, tech : 'sets' },
@@ -69,7 +64,6 @@ registry.decl('SetsNode', 'Node', {
             children && this.arch.addChildren(node, children);
 
             return node.getId();
-
         }, this);
     },
 

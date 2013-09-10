@@ -1,7 +1,7 @@
-var BEM = require('bem'),
-    Q = BEM.require('qq'),
+var CP = require('child_process'),
+    BEM = require('bem'),
+    Q = require('q'),
     LOGGER = BEM.require('./logger'),
-    CP = require('child_process'),
     PATH = require('path'),
     mochaPhantomjsPath = PATH.resolve(require.resolve('mocha-phantomjs'), '../../bin/mocha-phantomjs');
 
@@ -19,7 +19,6 @@ exports.storeBuildResult = function(path, suffix, res) {
         defer = Q.defer();
 
     CP.exec([mochaPhantomjsPath, consoleReporter, URL].join(' '), function (error, stdout, stderr) {
-
         console.log([
             '------------------------------',
             'Tests results for: ' + PATH.dirname(path),
@@ -31,8 +30,7 @@ exports.storeBuildResult = function(path, suffix, res) {
 
         if(error !== null) {
             defer.reject('Tests failed');
-        }
-        else {
+        } else {
             defer.resolve();
         }
     });
