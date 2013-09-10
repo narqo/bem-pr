@@ -1,4 +1,4 @@
-module.exports = function(registry) {
+exports.init = function(registry) {
     require('./arch')(registry);
     require('./bundles')(registry);
     require('./examples')(registry);

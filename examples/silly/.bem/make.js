@@ -1,14 +1,16 @@
-/*global MAKE */
+function init(registry) {
 
-var setsNodes = require('../../../bem/nodes/sets');
+// import bem-pr's nodes
+require('../../../bem/nodes').init(registry);
 
-// import some globals
-require('../../.bem/nodes')(MAKE);
+// import some common nodes
+require('../../.bem/nodes').init(registry);
 
-MAKE.decl('Arch', {
+registry.decl('Arch', {
 
     createCustomNodes : function() {
-        return new setsNodes.SetsNode({
+        return registry.getNodeClass('SetsNode')
+            .create({
                 root : this.root,
                 arch : this.arch
             })
@@ -17,7 +19,7 @@ MAKE.decl('Arch', {
 
 });
 
-MAKE.decl('SetsNode', {
+registry.decl('SetsNode', {
 
     getSets : function() {
         return {
@@ -28,7 +30,7 @@ MAKE.decl('SetsNode', {
 
 });
 
-MAKE.decl('SetsLevelNode', {
+registry.decl('SetsLevelNode', {
 
     getSourceItemTechs : function() {
         return ['test.js', 'examples'];
@@ -37,7 +39,7 @@ MAKE.decl('SetsLevelNode', {
 });
 
 // TODO: configure examples building process
-//MAKE.decl('ExampleNode', {
+//registry.decl('ExampleNode', {
 //
 //    getLevels : function() {
 //        return [];
@@ -46,10 +48,18 @@ MAKE.decl('SetsLevelNode', {
 //});
 
 // TODO: configure tests building process
-//MAKE.decl('TestNode', {
+//registry.decl('TestNode', {
 //
 //    getLevels : function() {
 //        return [];
 //    }
 //
 //});
+
+};
+
+if(typeof MAKE === 'undefined') {
+    module.exports = init;
+} else {
+    init(MAKE);
+}
