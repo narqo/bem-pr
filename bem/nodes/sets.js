@@ -7,40 +7,21 @@ var FS = require('fs'),
     BEM = require('bem'),
     Q = BEM.require('qq'),
     _ = BEM.require('underscore'),
-    registry = BEM.require('./nodesregistry'),
     LOGGER = BEM.require('./logger'),
+    createLevel = BEM.createLevel;
 
-    nodes = require('bem/lib/nodes/node'),
-    blockNodes = require('bem/lib/nodes/block'),
-    /* jshint -W098 */
-    monkeyNodes = require('./monkey'),
-    /* jshint +W098 */
-    commonNodes = require('./common'),
-    examplesNodes = require('./examples'),
-    testsNodes = require('./tests'),
+module.exports = function(registry) {
 
-    SetsNodeName = exports.SetsNodeName = 'SetsNode',
-    SetsLevelNodeName = exports.SetsLevelNodeName = 'SetsLevelNode',
-
-    createLevel = BEM.createLevel,
-
-    /** Id главного узла сборки наборов */
-    SETS_NODE_ID = 'sets';
-
-
-Object.defineProperty(exports, SetsNodeName, {
-    get : function() { return registry.getNodeClass(SetsNodeName) }
-});
-
-
-registry.decl(SetsNodeName, nodes.NodeName, {
+registry.decl('SetsNode', 'Node', {
 
     __constructor : function(o) {
-         this.__base(o);
+        this.__base(o);
 
-         this.arch = o.arch;
-         this.root = o.root;
-         this.rootLevel = createLevel(this.root);
+        this.setNodeId = 'sets';
+
+        this.arch = o.arch;
+        this.root = o.root;
+        this.rootLevel = createLevel(this.root);
     },
 
     alterArch : function(parent, children) {
@@ -65,7 +46,7 @@ registry.decl(SetsNodeName, nodes.NodeName, {
     },
 
     createCommonSetsNode : function(parent) {
-        var node = new nodes.Node(SETS_NODE_ID);
+        var node = new registry.getNodeClass('Node').create(this.setNodeId);
         this.arch.setNode(node, parent);
 
         return node.getId();
@@ -75,7 +56,7 @@ registry.decl(SetsNodeName, nodes.NodeName, {
         var sets = this.getSets();
         return Object.keys(sets).map(function(name) {
 
-            var node = registry.getNodeClass(SetsLevelNodeName).create({
+            var node = registry.getNodeClass('SetsLevelNode').create({
                 root    : this.root,
                 level   : this.rootLevel,
                 item    : { block : name, tech : 'sets' },
@@ -108,7 +89,7 @@ registry.decl(SetsNodeName, nodes.NodeName, {
 });
 
 
-registry.decl(SetsLevelNodeName, commonNodes.GeneratedLevelNodeName, {
+registry.decl('SetsLevelNode', 'GeneratedLevelNode', {
 
     alterArch : function() {
         var base = this.__base();
@@ -120,6 +101,7 @@ registry.decl(SetsLevelNodeName, commonNodes.GeneratedLevelNodeName, {
             return Q.when(base.call(this), function(level) {
                 var realLevel = arch.getChildren(level),
                     getNodeClassForSuffix = _t.getNodeClsForSuffix.bind(_t),
+                    BlockNode = registry.getNodeClass('BlockNode'),
                     decls = _t.scanSources();
 
                 decls.forEach(function(item) {
@@ -130,12 +112,12 @@ registry.decl(SetsLevelNodeName, commonNodes.GeneratedLevelNodeName, {
                             level : item.level
                         },
                         blockNode,
-                        blocknid = blockNodes.BlockNode.createId(o);
+                        blocknid = BlockNode.createId(o);
 
                     if(arch.hasNode(blocknid)) {
                         blockNode = arch.getNode(blocknid);
                     } else {
-                        blockNode = new blockNodes.BlockNode(o);
+                        blockNode = BlockNode.create(o);
                         arch.setNode(blockNode);
                     }
 
@@ -165,17 +147,6 @@ registry.decl(SetsLevelNodeName, commonNodes.GeneratedLevelNodeName, {
                     }
                 }, _t);
 
-                // FIXME: hack
-//                if(_t.getSourceItemTechs().indexOf('test.js') > -1) {
-//                    arch.setNode(
-//                        registry.getNodeClass(AllTestsLevelNodeName).create({
-//                            root : _t.root,
-//                            level : _t.path,
-//                            sources : _t.sources
-//                        }),
-//                        setLevelNode);
-//                }
-
                 return Q.when(_t.takeSnapshot('After SetsLevelNode alterArch ' + _t.getId()));
             });
 
@@ -186,8 +157,8 @@ registry.decl(SetsLevelNodeName, commonNodes.GeneratedLevelNodeName, {
     getSourceItemsMap : function() {
         return {
             examples : ['examples'],
-            tests : ['tests', 'test.js'],
-            docs : ['md', 'wiki']
+            tests    : ['tests', 'test.js'],
+            docs     : ['md', 'wiki']
         };
     },
 
@@ -200,10 +171,12 @@ registry.decl(SetsLevelNodeName, commonNodes.GeneratedLevelNodeName, {
 
     getNodeClsForSuffix : function(suffix) {
         return {
-            '.examples' : examplesNodes.ExamplesLevelNodeName,
-            '.tests'    : testsNodes.TestsLevelNodeName,
-            '.test.js'  : testsNodes.TestsLevelNodeName
+            '.examples' : 'ExamplesLevelNode',
+            '.tests'    : 'TestsLevelNode',
+            '.test.js'  : 'TestsLevelNode'
         }[suffix];
     }
 
 });
+
+};

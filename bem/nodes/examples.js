@@ -1,22 +1,14 @@
-var FS = require('fs'),
-    PATH = require('path'),
+var PATH = require('path'),
     BEM = require('bem'),
-    registry = require('bem/lib/nodesregistry'),
-    bundleNodes = require('bem/lib/nodes/bundle'),
     LOGGER = require('bem/lib/logger'),
     Q = require('bem/node_modules/q'),
     QFS = require('bem/node_modules/q-fs'),
-    fileNodes = require('bem/lib/nodes/file'),
-    commonNodes = require('./common'),
-    /* exports */
-    ExamplesLevelNodeName = exports.ExamplesLevelNodeName = 'ExamplesLevelNode',
-    ExampleNodeName = exports.ExampleNodeName = 'ExampleNode',
-    ExampleSourceNodeName = exports.ExampleSourceNodeName = 'ExampleSourceNode',
     U = BEM.util,
     createLevel = BEM.createLevel;
 
+module.exports = function(registry) {
 
-registry.decl(ExamplesLevelNodeName, commonNodes.GeneratedLevelNodeName, {
+registry.decl('ExamplesLevelNode', 'GeneratedLevelNode', {
 
     /**
      * @returns {Function}
@@ -55,12 +47,12 @@ registry.decl(ExamplesLevelNodeName, commonNodes.GeneratedLevelNodeName, {
         return ['bemjson.js'];
     },
 
-    bundleNodeCls : ExampleNodeName
+    bundleNodeCls : 'ExampleNode'
 
 });
 
 
-registry.decl(ExampleNodeName, bundleNodes.BundleNodeName, {
+registry.decl('ExampleNode', 'BundleNode', {
 
     __constructor : function(o) {
         this.__base(o);
@@ -116,7 +108,7 @@ registry.decl(ExampleNodeName, bundleNodes.BundleNodeName, {
     },
 
     createSourceNode : function() {
-        var node = this.useFileOrBuild(registry.getNodeClass(ExampleSourceNodeName).create({
+        var node = this.useFileOrBuild(registry.getNodeClass('ExampleSourceNode').create({
                 root   : this.root,
                 level  : this.level,
                 item   : this.item,
@@ -129,22 +121,15 @@ registry.decl(ExampleNodeName, bundleNodes.BundleNodeName, {
     },
 
     createUpstreamNode : function() {
-        var filePath = registry.getNodeClass(ExampleSourceNodeName).createPath({
+        var filePath = registry.getNodeClass('ExampleSourceNode').createPath({
                 root  : this.root,
                 level : this.source.level,
                 item  : this.source
+            }),
+            node = new registry.getNodeClass('FileNode').create({
+                root: this.root,
+                path: filePath
             });
-
-        // FIXME: `fileNodes#FileNode` сам проверяет, что файла не существует (?)
-//        if(!FS.existsSync(PATH.resolve(this.root, filePath))) {
-//            LOGGER.error('Upstream does not exists', filePath);
-//            return;
-//        }
-
-        var node = new fileNodes.FileNode({
-            root: this.root,
-            path: filePath
-        });
 
         this.ctx.arch.setNode(node);
 
@@ -160,7 +145,7 @@ registry.decl(ExampleNodeName, bundleNodes.BundleNodeName, {
 });
 
 
-registry.decl(ExampleSourceNodeName, fileNodes.GeneratedFileNodeName, {
+registry.decl('ExampleSourceNode', 'GeneratedFileNode', {
 
     __constructor : function(o) {
         var self = this.__self;
@@ -217,3 +202,5 @@ registry.decl(ExampleSourceNodeName, fileNodes.GeneratedFileNodeName, {
     }
 
 });
+
+};

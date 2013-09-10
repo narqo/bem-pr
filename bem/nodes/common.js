@@ -5,11 +5,6 @@ var FS = require('fs'),
     BEM = require('bem'),
     Q = require('bem/node_modules/q'),
     QFS = require('bem/node_modules/q-fs'),
-    registry = require('bem/lib/nodesregistry'),
-    createNodes = require('bem/lib/nodes/create'),
-    fileNodes = require('bem/lib/nodes/file'),
-    magicNodes = require('bem/lib/nodes/magic'),
-    GeneratedLevelNodeName = exports.GeneratedLevelNodeName = 'GeneratedLevelNode',
     U = BEM.util,
     createLevel = BEM.createLevel;
 
@@ -35,12 +30,12 @@ function parseBemItem(key) {
         });
 }
 
+module.exports = function(registry) {
 
-registry.decl('CreateLevelNode', createNodes.BemCreateNodeName, {
+registry.decl('CreateLevelNode', 'BemCreateNode', {
 
     __constructor : function(o) {
         this.__base(o);
-
         this.levelPath = this.__self.createLevelPath(o);
     },
 
@@ -84,7 +79,7 @@ registry.decl('CreateLevelNode', createNodes.BemCreateNodeName, {
 });
 
 
-registry.decl(GeneratedLevelNodeName, magicNodes.MagicNodeName, {
+registry.decl('GeneratedLevelNode', 'MagicNode', {
 
     __constructor : function(o) {
         Object.defineProperty(this, 'level', {
@@ -132,7 +127,7 @@ registry.decl(GeneratedLevelNodeName, magicNodes.MagicNodeName, {
             if(arch.hasNode(path)) {
                 levelNode = arch.getNode(path);
             } else {
-                levelNode = new fileNodes.FileNode({
+                levelNode = registry.getNodeClass('FileNode').create({
                     root : this.root,
                     path : path
                 });
@@ -152,7 +147,7 @@ registry.decl(GeneratedLevelNodeName, magicNodes.MagicNodeName, {
 
     useFileOrBuild : function(node) {
         if(FS.existsSync(node.getLevelPath())) {
-            return new fileNodes.FileNode({
+            return new registry.getNodeClass('FileNode').create({
                 root : this.root,
                 path : node.levelPath
             });
@@ -243,3 +238,5 @@ registry.decl(GeneratedLevelNodeName, magicNodes.MagicNodeName, {
     }
 
 });
+
+};

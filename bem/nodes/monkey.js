@@ -5,11 +5,11 @@
 
 var BEM = require('bem'),
     PATH = require('path'),
-    registry = BEM.require('bem/lib/nodesregistry'),
-    blockNodes = BEM.require('bem/lib/nodes/block');
+    createLevel = BEM.createLevel;
 
+module.exports = function(registry) {
 
-registry.decl(blockNodes.BlockNodeName, {
+registry.decl('BlockNode', {
 
     /**
      * @see https://github.com/bem/bem-tools/pull/341
@@ -24,10 +24,12 @@ registry.decl(blockNodes.BlockNodeName, {
         var level;
         Object.defineProperty(this, 'level', {
             get : function() {
-                return BEM.createLevel(PATH.resolve(this.root, this._level));
+                return createLevel(PATH.resolve(this.root, this._level));
             }
         });
 
     }
 
 });
+
+};
