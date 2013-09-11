@@ -1,7 +1,6 @@
 var CP = require('child_process'),
     BEM = require('bem'),
     Q = require('q'),
-    LOGGER = BEM.require('./logger'),
     PATH = require('path'),
     mochaPhantomjsPath = PATH.resolve(require.resolve('mocha-phantomjs'), '../../bin/mocha-phantomjs');
 
@@ -37,7 +36,7 @@ exports.techMixin = {
             }
         });
 
-        LOGGER.info('[i] Page was sent to Phantom (' + URL + ')');
+        BEM.logger.info('[i] Page was sent to Phantom (' + URL + ')');
 
         return defer.promise;
     }
