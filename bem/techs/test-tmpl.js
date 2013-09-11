@@ -7,11 +7,11 @@ exports.API_VER = 2;
 
 exports.techMixin = {
 
-    getEnvProps: function(path) {
+    getEnvProps : function(path) {
         return JSON.parse(process.env.__tests || '{}')[PATH.dirname(path)] || {};
     },
 
-    getTemplate: function() {
+    getTemplate : function() {
         return [
             '([',
             '"<!DOCTYPE html>",',
@@ -34,11 +34,11 @@ exports.techMixin = {
         ];
     },
 
-    getTemplateData: function(env, vars, suffix) {
+    getTemplateData : function(env, vars, suffix) {
         return {
-            BundleName: env.BundleName || vars.BlockName,
-            TmplDecl: env.TmplDecl || '',
-            TmplContent: env.TmplContent || ''
+            BundleName : env.BundleName || vars.BlockName,
+            TmplDecl : env.TmplDecl || '',
+            TmplContent : env.TmplContent || ''
         };
     },
 
