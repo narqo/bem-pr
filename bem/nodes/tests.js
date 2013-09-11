@@ -133,11 +133,11 @@ registry.decl('TestNode', 'ExampleNode', {
         return 'test-tmpl';
     },
 
-    'create-test.js-optimizer-node': function(tech, sourceNode, bundleNode) {
+    'create-test.js-optimizer-node' : function(tech, sourceNode, bundleNode) {
         return this['create-js-optimizer-node'].apply(this, arguments);
     },
 
-    'create-test.js+browser.js+bemhtml-optimizer-node': function(tech, sourceNode, bundleNode) {
+    'create-test.js+browser.js+bemhtml-optimizer-node' : function(tech, sourceNode, bundleNode) {
         return this['create-js-optimizer-node'].apply(this, arguments);
     }
 
