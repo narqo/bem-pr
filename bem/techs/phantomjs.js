@@ -9,11 +9,11 @@ exports.API_VER = 2;
 
 exports.techMixin = {
 
-    getDependencies: function() {
+    getDependencies : function() {
         return ['html', 'test.js+browser.js+bemhtml'];
     },
 
-    storeCreateResult: function(path, suffix, res, force) {
+    storeCreateResult : function(path, suffix, res, force) {
 
         var envProps = JSON.parse(process.env.__tests || '{}')[PATH.dirname(path)] || {},
             consoleReporter = envProps.consoleReporter ? '--reporter ' + envProps.consoleReporter : '',
