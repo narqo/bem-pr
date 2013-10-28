@@ -130,8 +130,7 @@ registry.decl(TestNodeName, examplesNodes.ExampleNodeName, {
                 tech,
                 this.level.resolveTech(tech),
                 bundleNode,
-                magicNode,
-                true);
+                magicNode);
     },
 
     getAutogenTechName : function() {

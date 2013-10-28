@@ -1,4 +1,5 @@
 var PATH = require('path'),
+    bemUtil = require('bem/lib/util'),
     tmpl = require('bem/lib/template');
 
 exports.API_VER = 2;
@@ -32,6 +33,13 @@ exports.techMixin = {
             TmplDecl : envProps.TmplDecl || "",
             TmplContent : envProps.TmplContent || ""
         });
+    },
+
+    storeCreateResult: function(path, suffix, res, force) {
+        bemUtil.mkdirs(PATH.dirname(path));
+        return force?
+            bemUtil.writeFile(path, res) :
+            bemUtil.writeFileIfDiffers(path, res);
     },
 
     getCreateSuffixes : function() {
