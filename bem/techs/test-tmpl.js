@@ -1,5 +1,3 @@
-'use strict';
-
 var BEM = require('bem'),
     PATH = require('path');
 
@@ -46,6 +44,13 @@ exports.techMixin = {
         return BEM.template.process(
             this.getTemplate(),
             this.getTemplateData(this.getEnvProps(path), vars, suffix));
+    },
+
+    storeCreateResult: function(path, suffix, res, force) {
+        BEM.util.mkdirs(PATH.dirname(path));
+        return force?
+            BEM.util.writeFile(path, res) :
+            BEM.util.writeFileIfDiffers(path, res);
     },
 
     getCreateSuffixes : function() {
