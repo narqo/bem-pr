@@ -1,3 +1,8 @@
+0.3.6 / 2013-10-29
+==================
+
+  * fix race when running tests from bem-server (@SevInf) #57
+
 0.3.5 / 2013-08-23
 ==================
 
