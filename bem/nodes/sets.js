@@ -11,7 +11,7 @@ require('./tests')(registry);
 
 var FS = require('fs'),
     BEM = require('bem'),
-    Q = require('qq'),
+    Q = require('q'),
     _ = require('underscore'),
     createLevel = BEM.createLevel,
     logger = BEM.logger,
@@ -35,16 +35,9 @@ registry.decl('SetsNode', 'Node', {
         var _t = this,
             arch = _t.arch;
 
-        return Q.step(
-            function() {
-                return Q.call(_t.createCommonSetsNode, _t, parent);
-            },
-            function(common) {
-                return [
-                    common,
-                    Q.call(_t.createSetsLevelNodes, _t,
-                        parent? [common].concat(parent) : common, children)
-                ];
+        return Q.when(this.createCommonSetsNode(parent))
+            .then(function(common) {
+                return _t.createSetsLevelNodes(parent? [common].concat(parent) : common, children);
             })
             .then(function() {
                 return arch;
@@ -55,7 +48,6 @@ registry.decl('SetsNode', 'Node', {
     createCommonSetsNode : function(parent) {
         var node = new Node(SETS_NODE_ID);
         this.arch.setNode(node, parent);
-
         return node.getId();
     },
 
