@@ -154,17 +154,6 @@ registry.decl('SetsLevelNode', 'GeneratedLevelNode', {
                     }
                 }, _t);
 
-                // FIXME: hack
-//                if(_t.getSourceItemTechs().indexOf('test.js') > -1) {
-//                    arch.setNode(
-//                        registry.getNodeClass(AllTestsLevelNodeName).create({
-//                            root : _t.root,
-//                            level : _t.path,
-//                            sources : _t.sources
-//                        }),
-//                        setLevelNode);
-//                }
-
                 return Q.when(_t.takeSnapshot('After SetsLevelNode alterArch ' + _t.getId()));
             });
 
