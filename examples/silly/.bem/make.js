@@ -1,6 +1,6 @@
 /*global MAKE */
 
-var setsNodes = require('../../../bem/nodes/sets');
+require('../../../bem/nodes/sets')(MAKE);
 
 // import some globals
 require('../../.bem/nodes')(MAKE);
@@ -8,7 +8,9 @@ require('../../.bem/nodes')(MAKE);
 MAKE.decl('Arch', {
 
     createCustomNodes : function() {
-        return new setsNodes.SetsNode({
+        var SetsNode = MAKE.getNodeClass('SetsNode');
+
+        return new SetsNode({
                 root : this.root,
                 arch : this.arch
             })
