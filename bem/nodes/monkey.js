@@ -3,31 +3,29 @@
  * проблемы, для которых (еще) нет решения в bem-tools.
  */
 
+module.exports = function(registry) {
+
 var BEM = require('bem'),
-    PATH = require('path'),
-    registry = BEM.require('bem/lib/nodesregistry'),
-    blockNodes = BEM.require('bem/lib/nodes/block');
+    PATH = require('path');
 
-
-registry.decl(blockNodes.BlockNodeName, {
+registry.decl('BlockNode', {
 
     /**
      * @see https://github.com/bem/bem-tools/pull/341
      */
     __constructor : function(o) {
-
         this.__base(o);
 
         this.level = undefined;
         this._level = typeof o.level === 'string'? o.level : o.level.dir;
 
-        var level;
         Object.defineProperty(this, 'level', {
             get : function() {
                 return BEM.createLevel(PATH.resolve(this.root, this._level));
             }
         });
-
     }
 
 });
+
+};

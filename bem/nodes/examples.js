@@ -1,31 +1,24 @@
+module.exports = function(registry) {
+
 var FS = require('fs'),
     PATH = require('path'),
     BEM = require('bem'),
-    registry = require('bem/lib/nodesregistry'),
-    bundleNodes = require('bem/lib/nodes/bundle'),
-    LOGGER = require('bem/lib/logger'),
     Q = require('q'),
     QFS = require('q-fs'),
-    fileNodes = require('bem/lib/nodes/file'),
-    commonNodes = require('./common'),
-    /* exports */
-    ExamplesLevelNodeName = exports.ExamplesLevelNodeName = 'ExamplesLevelNode',
-    ExampleNodeName = exports.ExampleNodeName = 'ExampleNode',
-    ExampleSourceNodeName = exports.ExampleSourceNodeName = 'ExampleSourceNode',
+    FileNode = registry.getNodeClass('FileNode'),
     U = BEM.util,
+    logger = BEM.logger,
     createLevel = BEM.createLevel;
 
 
-registry.decl(ExamplesLevelNodeName, commonNodes.GeneratedLevelNodeName, {
+registry.decl('ExamplesLevelNode', 'GeneratedLevelNode', {
 
     /**
      * @returns {Function}
      */
     alterArch : function() {
-
         var base = this.__base();
         return function() {
-
             var _t = this,
                 arch = _t.ctx.arch;
 
@@ -46,21 +39,19 @@ registry.decl(ExamplesLevelNodeName, commonNodes.GeneratedLevelNodeName, {
 
                 return Q.when(_t.takeSnapshot('After ExamplesLevelNode alterArch ' + _t.getId()));
             });
-
         };
-
     },
 
     getSourceItemTechs : function() {
         return ['bemjson.js'];
     },
 
-    bundleNodeCls : ExampleNodeName
+    bundleNodeCls : 'ExampleNode'
 
 });
 
 
-registry.decl(ExampleNodeName, bundleNodes.BundleNodeName, {
+registry.decl('ExampleNode', 'BundleNode', {
 
     __constructor : function(o) {
         this.__base(o);
@@ -102,7 +93,7 @@ registry.decl(ExampleNodeName, bundleNodes.BundleNodeName, {
     },
 
     setSourceItemNode : function(tech, bundleNode, magicNode) {
-        LOGGER.fdebug('Going to create source node for tech %s', tech);
+        logger.fdebug('Going to create source node for tech %s', tech);
 
         var arch = this.ctx.arch,
             node = this.createSourceNode(),
@@ -116,12 +107,13 @@ registry.decl(ExampleNodeName, bundleNodes.BundleNodeName, {
     },
 
     createSourceNode : function() {
-        var node = this.useFileOrBuild(registry.getNodeClass(ExampleSourceNodeName).create({
-                root   : this.root,
-                level  : this.level,
-                item   : this.item,
-                source : this.source
-            }));
+        var node = this.useFileOrBuild(
+                registry.getNodeClass('ExampleSourceNode').create({
+                    root   : this.root,
+                    level  : this.level,
+                    item   : this.item,
+                    source : this.source
+                }));
 
         this.ctx.arch.setNode(node);
 
@@ -129,7 +121,7 @@ registry.decl(ExampleNodeName, bundleNodes.BundleNodeName, {
     },
 
     createUpstreamNode : function() {
-        var filePath = registry.getNodeClass(ExampleSourceNodeName).createPath({
+        var filePath = registry.getNodeClass('ExampleSourceNode').createPath({
                 root  : this.root,
                 level : this.source.level,
                 item  : this.source
@@ -141,7 +133,7 @@ registry.decl(ExampleNodeName, bundleNodes.BundleNodeName, {
 //            return;
 //        }
 
-        var node = new fileNodes.FileNode({
+        var node = new FileNode({
             root: this.root,
             path: filePath
         });
@@ -160,7 +152,7 @@ registry.decl(ExampleNodeName, bundleNodes.BundleNodeName, {
 });
 
 
-registry.decl(ExampleSourceNodeName, fileNodes.GeneratedFileNodeName, {
+registry.decl('ExampleSourceNode', 'GeneratedFileNode', {
 
     __constructor : function(o) {
         var self = this.__self;
@@ -217,3 +209,5 @@ registry.decl(ExampleSourceNodeName, fileNodes.GeneratedFileNodeName, {
     }
 
 });
+
+};

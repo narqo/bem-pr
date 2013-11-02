@@ -1,15 +1,13 @@
 /* jshint curly:false */
 
+module.exports = function(registry) {
+
 var FS = require('fs'),
     PATH = require('path'),
     BEM = require('bem'),
     Q = require('q'),
     QFS = require('q-fs'),
-    registry = require('bem/lib/nodesregistry'),
-    createNodes = require('bem/lib/nodes/create'),
-    fileNodes = require('bem/lib/nodes/file'),
-    magicNodes = require('bem/lib/nodes/magic'),
-    GeneratedLevelNodeName = exports.GeneratedLevelNodeName = 'GeneratedLevelNode',
+    FileNode = registry.getNodeClass('FileNode'),
     U = BEM.util,
     createLevel = BEM.createLevel;
 
@@ -36,7 +34,7 @@ function parseBemItem(key) {
 }
 
 
-registry.decl('CreateLevelNode', createNodes.BemCreateNodeName, {
+registry.decl('CreateLevelNode', 'BemCreateNode', {
 
     __constructor : function(o) {
         this.__base(o);
@@ -84,7 +82,7 @@ registry.decl('CreateLevelNode', createNodes.BemCreateNodeName, {
 });
 
 
-registry.decl(GeneratedLevelNodeName, magicNodes.MagicNodeName, {
+registry.decl('GeneratedLevelNode', 'MagicNode', {
 
     __constructor : function(o) {
         Object.defineProperty(this, 'level', {
@@ -132,7 +130,7 @@ registry.decl(GeneratedLevelNodeName, magicNodes.MagicNodeName, {
             if(arch.hasNode(path)) {
                 levelNode = arch.getNode(path);
             } else {
-                levelNode = new fileNodes.FileNode({
+                levelNode = new FileNode({
                     root : this.root,
                     path : path
                 });
@@ -152,7 +150,7 @@ registry.decl(GeneratedLevelNodeName, magicNodes.MagicNodeName, {
 
     useFileOrBuild : function(node) {
         if(FS.existsSync(node.getLevelPath())) {
-            return new fileNodes.FileNode({
+            return new FileNode({
                 root : this.root,
                 path : node.levelPath
             });
@@ -243,3 +241,5 @@ registry.decl(GeneratedLevelNodeName, magicNodes.MagicNodeName, {
     }
 
 });
+
+};

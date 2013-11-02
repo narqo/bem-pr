@@ -2,38 +2,26 @@
  * @fileOverview Узлы для сборки наборов БЭМ-сущностей (sets)
  */
 
+module.exports = function(registry) {
+
+require('./monkey')(registry);
+require('./common')(registry);
+require('./examples')(registry);
+require('./tests')(registry);
+
 var FS = require('fs'),
-    PATH = require('path'),
     BEM = require('bem'),
     Q = require('qq'),
     _ = require('underscore'),
-    registry = BEM.require('./nodesregistry'),
-    LOGGER = BEM.require('./logger'),
-
-    nodes = require('bem/lib/nodes/node'),
-    blockNodes = require('bem/lib/nodes/block'),
-    /* jshint -W098 */
-    monkeyNodes = require('./monkey'),
-    /* jshint +W098 */
-    commonNodes = require('./common'),
-    examplesNodes = require('./examples'),
-    testsNodes = require('./tests'),
-
-    SetsNodeName = exports.SetsNodeName = 'SetsNode',
-    SetsLevelNodeName = exports.SetsLevelNodeName = 'SetsLevelNode',
-
     createLevel = BEM.createLevel,
-
+    logger = BEM.logger,
+    Node = registry.getNodeClass('Node'),
+    BlockNode = registry.getNodeClass('BlockNode'),
     /** Id главного узла сборки наборов */
     SETS_NODE_ID = 'sets';
 
 
-Object.defineProperty(exports, SetsNodeName, {
-    get : function() { return registry.getNodeClass(SetsNodeName) }
-});
-
-
-registry.decl(SetsNodeName, nodes.NodeName, {
+registry.decl('SetsNode', 'Node', {
 
     __constructor : function(o) {
          this.__base(o);
@@ -61,34 +49,35 @@ registry.decl(SetsNodeName, nodes.NodeName, {
             .then(function() {
                 return arch;
             })
-            .fail(LOGGER.error);
+            .fail(logger.error);
     },
 
     createCommonSetsNode : function(parent) {
-        var node = new nodes.Node(SETS_NODE_ID);
+        var node = new Node(SETS_NODE_ID);
         this.arch.setNode(node, parent);
 
         return node.getId();
     },
 
     createSetsLevelNodes : function(parents, children) {
-        var sets = this.getSets();
-        return Object.keys(sets).map(function(name) {
+        var arch = this.arch,
+            sets = this.getSets(),
+            node;
 
-            var node = registry.getNodeClass(SetsLevelNodeName).create({
+        return Object.keys(sets).map(function(name) {
+            node = registry.getNodeClass('SetsLevelNode').create({
                 root    : this.root,
                 level   : this.rootLevel,
                 item    : { block : name, tech : 'sets' },
                 sources : sets[name]
             });
 
-            this.arch.setNode(node);
+            arch.setNode(node);
 
-            parents && this.arch.addParents(node, parents);
-            children && this.arch.addChildren(node, children);
+            parents && arch.addParents(node, parents);
+            children && arch.addChildren(node, children);
 
             return node.getId();
-
         }, this);
     },
 
@@ -96,7 +85,7 @@ registry.decl(SetsNodeName, nodes.NodeName, {
      * @returns {Object} Описание наборов `{ name : [level1, level2] }`
      */
     getSets : function() {
-        return { };
+        return {};
     }
 
 }, {
@@ -108,7 +97,7 @@ registry.decl(SetsNodeName, nodes.NodeName, {
 });
 
 
-registry.decl(SetsLevelNodeName, commonNodes.GeneratedLevelNodeName, {
+registry.decl('SetsLevelNode', 'GeneratedLevelNode', {
 
     alterArch : function() {
         var base = this.__base();
@@ -130,12 +119,12 @@ registry.decl(SetsLevelNodeName, commonNodes.GeneratedLevelNodeName, {
                             level : item.level
                         },
                         blockNode,
-                        blocknid = blockNodes.BlockNode.createId(o);
+                        blocknid = BlockNode.createId(o);
 
                     if(arch.hasNode(blocknid)) {
                         blockNode = arch.getNode(blocknid);
                     } else {
-                        blockNode = new blockNodes.BlockNode(o);
+                        blockNode = new BlockNode(o);
                         arch.setNode(blockNode);
                     }
 
@@ -200,10 +189,12 @@ registry.decl(SetsLevelNodeName, commonNodes.GeneratedLevelNodeName, {
 
     getNodeClsForSuffix : function(suffix) {
         return {
-            '.examples' : examplesNodes.ExamplesLevelNodeName,
-            '.tests'    : testsNodes.TestsLevelNodeName,
-            '.test.js'  : testsNodes.TestsLevelNodeName
+            '.examples' : 'ExamplesLevelNode',
+            '.tests'    : 'TestsLevelNode',
+            '.test.js'  : 'TestsLevelNode'
         }[suffix];
     }
 
 });
+
+};

@@ -1,25 +1,23 @@
+module.exports = function(registry) {
+
 var PATH = require('path'),
     BEM = require('bem'),
-    registry = require('bem/lib/nodesregistry'),
     Q = require('q'),
-    commonNodes = require('./common'),
-    examplesNodes = require('./examples'),
-    /* exports */
-    TestsLevelNodeName = exports.TestsLevelNodeName = 'TestsLevelNode',
-    TestNodeName = exports.TestNodeName = 'TestNode',
     U = BEM.util;
 
 
-registry.decl(TestsLevelNodeName, commonNodes.GeneratedLevelNodeName, {
+registry.decl('TestsLevelNode', 'GeneratedLevelNode', {
 
     __constructor : function(o) {
         this.__base(U.extend({}, o, { item : this.getTestsLevelItem(o.item) }));
 
-        var item = this.item;
-        this.decl = ['block', 'elem', 'mod', 'val'].reduce(function(decl, name) {
+        var item = this.item,
+            decl = this.decl = {};
+
+        ['block', 'elem', 'mod', 'val'].reduce(function(decl, name) {
             item[name] && (decl[name] = item[name]);
             return decl;
-        }, {});
+        }, decl);
     },
 
     getTestsLevelItem : function(item) {
@@ -92,25 +90,21 @@ registry.decl(TestsLevelNodeName, commonNodes.GeneratedLevelNodeName, {
         };
     },
 
-    bundleNodeCls : TestNodeName
+    bundleNodeCls : 'TestNode'
 
 });
 
 
-registry.decl(TestNodeName, examplesNodes.ExampleNodeName, {
+registry.decl('TestNode', 'ExampleNode', {
 
     __constructor: function(o) {
         var testsEnv = JSON.parse(process.env.__tests || '{}'),
             testId = PATH.join(o.root, o.level, o.item.block),
             pageRelPath = PATH.join(o.level, o.item.block, o.item.block + '.html'),
             consoleReporter = this.consoleReporter || '',
-            pageURL;
-
-        if(this.webRoot) {
-            pageURL = this.webRoot + pageRelPath;
-        } else {
-            pageURL = 'file://' + PATH.join(o.root, pageRelPath);
-        }
+            pageURL = this.webRoot?
+                this.webRoot + pageRelPath :
+                'file://' + PATH.join(o.root, pageRelPath);
 
         testsEnv[testId] = U.extend(testsEnv[testId] || {}, {
             consoleReporter: consoleReporter,
@@ -253,3 +247,5 @@ registry.decl(TestNodeName, examplesNodes.ExampleNodeName, {
 //    }
 //
 //});
+
+};
