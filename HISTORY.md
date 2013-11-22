@@ -1,3 +1,8 @@
+0.3.7 / 2013-11-22
+==================
+
+  * fix maximum call stack exceeded error when bem server is used (@scf2k) #58
+
 0.3.6 / 2013-10-29
 ==================
 
