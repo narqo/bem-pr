@@ -1,6 +1,6 @@
 /*global MAKE */
 
-require('../../../bem/nodes/sets')(MAKE);
+require('../../../bem/nodes')(MAKE);
 
 // import some globals
 require('../../.bem/nodes')(MAKE);
@@ -24,16 +24,14 @@ MAKE.decl('SetsNode', {
     getSets : function() {
         return {
             'desktop' : ['common.blocks', 'desktop.blocks'],
-            'touch' : ['common.blocks', 'touch.blocks']
+            //'touch' : ['common.blocks', 'touch.blocks']
         };
-    }
+    },
 
-});
-
-MAKE.decl('SetsLevelNode', {
-
-    getSourceItemTechs : function() {
-        return ['test.js', 'examples'];
+    getSourceTechs : function(setName) {
+        //return ['examples'];
+        //return ['tests'];
+        return ['examples', 'tests'];
     }
 
 });

@@ -11,6 +11,8 @@ exports.getTechs = function() {
     var techs = {
         'blocks' : 'bem/lib/tech/v2',
         'bundles' : 'bem/lib/tech/v2',
+        'examples' : 'bem/lib/tech/v2',
+        'tests' : 'bem/lib/tech/v2',
         'bemjson.js' : 'bem/lib/tech/v2',
 
         'bemdecl.js' : 'v2/bemdecl.js',
@@ -25,12 +27,9 @@ exports.getTechs = function() {
     };
 
     [
-        'sets',
-        'examples',
-        'tests',
-        'test-tmpl',
-        'phantomjs',
-        'test.js'
+        'test.bemjson.js',
+        'test.js',
+        'phantomjs'
     ].forEach(resolveTechs(techs, BEMPR_TECHS));
 
     return techs;
