@@ -1,7 +1,7 @@
 {
   "name": "bem-pr",
   "description": "A set of bem-make extensions to wrap common infrastructure tasks",
-  "version": "0.3.5",
+  "version": "0.5.0-beta1",
   "repository": {
     "type": "git",
     "url": "git://github.com/narqo/bem-pr.git"
@@ -9,21 +9,24 @@
   "dependencies": {
     "phantomjs": "~1.9.1",
     "mocha-phantomjs": "~2.0.2",
-    "q-fs": "~0.1.36",
     "q": "~0.9.6",
-    "underscore": "~1.5.1"
+    "q-io": "~1.10.6"
   },
   "devDependencies": {
-    "bem": "~0.6.6"
+    "bem": "~0.7.2"
   },
   "keywords": [
     "bem",
     "bem-make"
   ],
   "author": "Vladimir Varankin <varankinv@yandex-team.ru> (http://github.com/narqo)",
-  "maintainers": [
-    "Vladimir Varankin <varankinv@yandex-team.ru> (http://github.com/narqo)",
-    "Mikhail Berezin <karamadjong@yandex-team.ru> (http://github.com/mishaberezin)"
+  "contributors": [
+    "Mikhail Berezin <karamadjong@yandex-team.ru> (http://github.com/mishaberezin)",
+    "Sergey Berezhnoy <veged@yandex-team.ru> (http://github.com/veged)",
+    "Dmitry Filatov <dfilatov@yandex-team.ru> (http://github.com/dfilatov)",
+    "Sergey Belov <arikon@yandex-team.ru> (http://github.com/arikon)",
+    "Sergej Tatarincev <sevinf@yandex-team.ru> (http://github.com/SevInf)",
+    "Dmitry Unkovsky <diunko@yandex-team.ru> (http://github.com/diunko)"
   ],
   "readmeFilename": "README.md",
   "license": "MIT",
