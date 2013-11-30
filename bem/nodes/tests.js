@@ -1,12 +1,11 @@
-module.exports = function(registry) {
-
 var PATH = require('path'),
     BEM = require('bem'),
     Q = require('q'),
     U = BEM.util;
 
+module.exports = function(registry) {
 
-registry.decl('TestsLevelNode', 'GeneratedLevelNode', {
+registry.decl('TestsLevelNode', 'TargetsLevelNode', {
 
     __constructor : function(o) {
         this.__base(U.extend({}, o, { item : this.getTestsLevelItem(o.item) }));
@@ -30,8 +29,8 @@ registry.decl('TestsLevelNode', 'GeneratedLevelNode', {
         });
     },
 
-    getAutogenTestBundleName : function() {
-        return 'default';
+    getTestBundleName : function() {
+        return this.item.tech.replace(/\./g, '_');
     },
 
     getTestsLevelTechName : function() {
@@ -57,35 +56,46 @@ registry.decl('TestsLevelNode', 'GeneratedLevelNode', {
         return normalized;
     },
 
-    alterArch : function() {
-        var base = this.__base();
-        return function() {
-            var _t = this,
-                arch = this.ctx.arch;
+    createBundleNode : function(item) {
+        var arch = this.ctx.arch,
+            source = U.extend({ level : this.path }, this.item),
+            testContent = this.getTestContent(this.decl),
+            BundleNode = registry.getNodeClass(this.bundleNodeCls),
+            bundleNode = new BundleNode({
+                root  : this.root,
+                level : this.path,
+                item  : item,
+                source : source,
+                envData: {
+                    BundleName : this.getTestBundleName(),
+                    TmplDecl : JSON.stringify(this.decl),
+                    TmplContent : JSON.stringify(testContent)
+                }
+            });
 
+        arch.setNode(bundleNode);
+
+        return bundleNode;
+    },
+
+    alterArch : function() {
+        var base = this.__base(),
+            arch = this.ctx.arch;
+
+        return function() {
             return Q.when(base.call(this), function(level) {
-                var realLevel = arch.getChildren(level),
+                var realLevel = PATH.join(level, '.bem/level.js'),
                     item = {
                         block : this.getAutogenTestBundleName(),
                         tech  : 'bemjson.js'
                     },
-                    source = U.extend({ level : this.path }, this.item),
-                    testContent = this.getTestContent(this.decl),
-                    bundleNode = registry.getNodeClass(this.bundleNodeCls).create({
-                        root  : this.root,
-                        level : this.path,
-                        item  : item,
-                        source : source,
-                        envData: {
-                            BundleName : _t.getAutogenTestBundleName(),
-                            TmplDecl : JSON.stringify(this.decl),
-                            TmplContent : JSON.stringify(testContent)
-                        }
-                    });
+                    bundleNode = this.createBundleNode(item);
 
-                arch.setNode(bundleNode, level, realLevel);
+                arch
+                    .addParents(bundleNode, level)
+                    .addChildren(bundleNode, realLevel);
 
-                return Q.when(_t.takeSnapshot('After TestsLevelNode alterArch ' + _t.getId()));
+                return Q.when(this.takeSnapshot('After TestsLevelNode alterArch ' + this.getId()));
             }.bind(this));
         };
     },

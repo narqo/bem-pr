@@ -1,18 +1,16 @@
-/* jshint curly:false */
-
-module.exports = function(registry) {
-
 var FS = require('fs'),
     PATH = require('path'),
     BEM = require('bem'),
-    Q = require('q'),
-    QFS = require('q-fs'),
-    FileNode = registry.getNodeClass('FileNode'),
-    U = BEM.util,
-    createLevel = BEM.createLevel;
+    QFS = require('q-io/fs');
+
+module.exports = function(registry) {
+
+var U = BEM.util,
+    createLevel = BEM.createLevel,
+    FileNode = registry.getNodeClass('FileNode');
 
 function serializeBemItem() {
-    return [].splice.call(arguments, 0)
+    return Array.prototype.slice.call(arguments, 0)
         .reduce(function(keys, item) {
             if(typeof item === 'string') {
                 item = item.trim();
@@ -29,58 +27,9 @@ function serializeBemItem() {
 
 function parseBemItem(key) {
     return (key + '').split('/').map(function(part) {
-            return U.bemParseKey(part);
-        });
+        return U.bemParseKey(part);
+    });
 }
-
-
-registry.decl('CreateLevelNode', 'BemCreateNode', {
-
-    __constructor : function(o) {
-        this.__base(o);
-
-        this.levelPath = this.__self.createLevelPath(o);
-    },
-
-    getLevelPath : function() {
-        return PATH.resolve(this.root, this.levelPath);
-    },
-
-    lastModified : function() {
-        var base = this.__base.bind(this, arguments);
-        return QFS.lastModified(this.getLevelPath())
-            .fail(base);
-    },
-
-    make : function() {
-        var _t = this,
-            base = this.__base.bind(this, arguments);
-
-        return QFS.exists(this.getLevelPath())
-            .then(function(exists) {
-                if(exists && !_t.ctx.force) return;
-
-                return base()
-                    .then(function() {
-                        // NOTE: drops level path cache (for bem tech/v2)
-                        createLevel(_t.getPath(), { noCache : true });
-                    });
-            });
-    }
-
-}, {
-
-    createId : function(o) {
-        return this.createLevelPath(o);
-    },
-
-    createLevelPath : function() {
-        var path = this.createPath.apply(this, arguments);
-        return PATH.join(path, '.bem', 'level.js');
-    }
-
-});
-
 
 registry.decl('GeneratedLevelNode', 'MagicNode', {
 
@@ -99,12 +48,12 @@ registry.decl('GeneratedLevelNode', 'MagicNode', {
 
         this.level = o.level;
         this.item = o.item;
-        this.techName = o.item.tech;
-        this.sources = o.sources || [];
 
         this.__base(U.extend({ path : this.__self.createPath(o) }, o));
 
-        this.rootLevel = createLevel(this.root);
+        this.rootLevel = createLevel(o.root);
+        this.outputDir = this._level;
+        this.outputName = this.__self.createName(this);
     },
 
     make : function() {
@@ -116,35 +65,31 @@ registry.decl('GeneratedLevelNode', 'MagicNode', {
 
         return function() {
             var arch = ctx.arch,
-                snapshot1 = this.takeSnapshot('Before GeneratedLevelNode alterArch'),
-                CreateLevelNode = registry.getNodeClass('CreateLevelNode'),
-                opts = {
-                    root     : this.root,
-                    level    : this.level,
-                    item     : this.item,
-                    techName : this.techName
-                },
-                path = CreateLevelNode.createPath(opts),
-                levelNode;
+                path = this.path;
 
             if(arch.hasNode(path)) {
-                levelNode = arch.getNode(path);
-            } else {
-                levelNode = new FileNode({
-                    root : this.root,
-                    path : path
-                });
-
-                var realLevelNode = this.useFileOrBuild(new CreateLevelNode(opts));
-
-                arch.setNode(levelNode, arch.getParents(this))
-                    .setNode(realLevelNode, levelNode);
+                return arch.getNode(path).getId();
             }
 
-            return Q.all([snapshot1, this.takeSnapshot('After GeneratedLevelNode alterArch ' + this.getId())])
-                .then(function() {
-                    return levelNode.getId();
-                });
+            var levelNode = new FileNode({
+                root : this.root,
+                path : path
+            });
+
+            arch.setNode(levelNode, arch.getParents(this));
+
+            var CreateLevelNode = registry.getNodeClass('BemCreateLevelNode'),
+                opts = {
+                    root : this.root,
+                    output : this.outputDir,
+                    name : this.outputName,
+                    proto : this.getProtoLevelPath()
+                },
+                realLevelNode = this.useFileOrBuild(new CreateLevelNode(opts));
+
+            arch.setNode(realLevelNode, levelNode);
+
+            return levelNode.getId();
         };
     },
 
@@ -159,19 +104,86 @@ registry.decl('GeneratedLevelNode', 'MagicNode', {
         return node;
     },
 
-    getSourceItemTechs : function() {
-        return [];
+    getProtoLevelName : function() {
+        return 'bundles';
     },
 
-    getTechSuffixesForLevel : function(level) {
-        return this.getSourceItemTechs()
-            .reduce(function(techs, tech) {
-                [].push.apply(techs, level.getTech(tech).getSuffixes());
-                return techs;
-            }, [])
-            .map(function(suffix) {
-                return '.' + suffix;
-            });
+    getProtoLevelPath : function() {
+        return PATH.join(U.findLevel(this.getPath(), 'project'), '.bem/levels', this.getProtoLevelName());
+    }
+
+}, {
+
+    create : function(o) {
+        return new this(o);
+    },
+
+    createId : function(o) {
+        return this.__base({ path : this.createPath(o) });
+    },
+
+    createPath : function(o) {
+        return this.createNodePrefix(U.extend({}, o));
+    },
+
+    createName : function(o) {
+        var item = o.item,
+            name = item.block,
+            pt;
+
+        if(pt = item.elem) {
+            name += '__' + pt;
+        }
+
+        if(pt = item.mod) {
+            name += '_' + pt;
+            if(pt = item.val) {
+                name += '_' + pt;
+            }
+        }
+
+        return name;
+    },
+
+    createNodePrefix : function(o) {
+        return PATH.join(o.level, this.createName(o));
+    }
+
+});
+
+
+registry.decl('TargetFileNode', 'GeneratedFileNode', {
+
+    make : function() {
+        var path = this.getPath();
+        return QFS.exists(path).then(function(exists) {
+            if(!exists) return QFS.makeTree(path);
+        });
+    }
+
+}, {
+
+    createId : function(o) {
+        return this.__base(o) + '~';
+    }
+
+});
+
+
+registry.decl('TargetsLevelNode', 'GeneratedLevelNode', {
+
+    __constructor : function(o) {
+        this.sources = o.sources || [];
+        this.__base(o);
+    },
+
+    addSources : function(sources) {
+        this._sources = null;
+        this.sources = this.sources.concat(sources);
+    },
+
+    getSourceItemTechs : function() {
+        return [];
     },
 
     getSources : function() {
@@ -188,10 +200,21 @@ registry.decl('GeneratedLevelNode', 'MagicNode', {
         return this._sources;
     },
 
+    getTechSuffixesForLevel : function(level) {
+        return this.getSourceItemTechs()
+            .reduce(function(techs, tech) {
+                return techs.concat(level.getTech(tech).getSuffixes());
+            }, [])
+            .map(function(suffix) {
+                return '.' + suffix;
+            });
+    },
+
     scanSourceLevel : function(level) {
         var relativize = PATH.relative.bind(null, this.root),
             suffixes = this.getTechSuffixesForLevel(level);
 
+        // TODO: Level#scanFiles()
         return level.getItemsByIntrospection()
             .filter(function(item) {
                 return ~suffixes.indexOf(item.suffix);
@@ -199,7 +222,7 @@ registry.decl('GeneratedLevelNode', 'MagicNode', {
             .map(function(item) {
                 item.level = relativize(level.dir);
                 // XXX: key?
-                item.key = serializeBemItem(item.level, item);
+                //item.key = serializeBemItem(item.level, item);
                 return item;
             });
     },
@@ -210,34 +233,6 @@ registry.decl('GeneratedLevelNode', 'MagicNode', {
             .reduce(function(decls, item) {
                 return decls.concat(item);
             }, []);
-    }
-
-}, {
-
-    create : function(o) {
-        return new this(o);
-    },
-
-    createId : function(o) {
-        return this.__base({ path : this.createPath(o) });
-    },
-
-    createPath : function(o) {
-        var level = typeof o.level === 'string'?
-            createLevel(PATH.resolve(o.root, o.level), { noCache: true }) :
-            o.level;
-
-        return level
-            .getTech(o.item.tech)
-            .getPath(this.createNodePrefix(U.extend({}, o, { level: level })));
-    },
-
-    createNodePrefix : function(o) {
-        var level = typeof o.level === 'string'?
-                createLevel(PATH.resolve(o.root, o.level)) :
-                o.level;
-
-        return PATH.relative(o.root, level.getByObj(o.item));
     }
 
 });

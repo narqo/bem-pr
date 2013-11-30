@@ -1,33 +1,28 @@
-module.exports = function(registry) {
-
-var FS = require('fs'),
-    PATH = require('path'),
+var PATH = require('path'),
     BEM = require('bem'),
     Q = require('q'),
-    QFS = require('q-fs'),
-    FileNode = registry.getNodeClass('FileNode'),
+    QFS = require('q-io/fs');
+
+module.exports = function(registry) {
+
+var FileNode = registry.getNodeClass('FileNode'),
     U = BEM.util,
     logger = BEM.logger,
     createLevel = BEM.createLevel;
 
+registry.decl('ExamplesLevelNode', 'TargetsLevelNode', {
 
-registry.decl('ExamplesLevelNode', 'GeneratedLevelNode', {
-
-    /**
-     * @returns {Function}
-     */
     alterArch : function() {
-        var base = this.__base();
+        var base = this.__base(),
+            arch = this.ctx.arch;
+
         return function() {
-            var _t = this,
-                arch = _t.ctx.arch;
+            return Q.when(base.call(this), function(level) {
+                var realLevel = PATH.join(level, '.bem/level.js'),
+                    BundleNode = registry.getNodeClass(this.bundleNodeCls);
 
-            return Q.when(base.call(_t), function(level) {
-                var realLevel = PATH.join(level, '.bem', 'level.js'),
-                    decls = _t.scanSources();
-
-                decls.forEach(function(item) {
-                    var bundleNode = registry.getNodeClass(this.bundleNodeCls).create({
+                this.scanSources().forEach(function(item) {
+                    var bundleNode = new BundleNode({
                         root   : this.root,
                         level  : this.path,
                         item   : U.extend({}, item),
@@ -35,10 +30,10 @@ registry.decl('ExamplesLevelNode', 'GeneratedLevelNode', {
                     });
 
                     arch.setNode(bundleNode, level, realLevel);
-                }, _t);
+                }, this);
 
-                return Q.when(_t.takeSnapshot('After ExamplesLevelNode alterArch ' + _t.getId()));
-            });
+                return Q.when(this.takeSnapshot('After ExamplesLevelNode alterArch ' + this.getId()));
+            }.bind(this));
         };
     },
 
@@ -125,18 +120,11 @@ registry.decl('ExampleNode', 'BundleNode', {
                 root  : this.root,
                 level : this.source.level,
                 item  : this.source
+            }),
+            node = new FileNode({
+                root: this.root,
+                path: filePath
             });
-
-        // FIXME: `fileNodes#FileNode` сам проверяет, что файла не существует (?)
-//        if(!FS.existsSync(PATH.resolve(this.root, filePath))) {
-//            LOGGER.error('Upstream does not exists', filePath);
-//            return;
-//        }
-
-        var node = new FileNode({
-            root: this.root,
-            path: filePath
-        });
 
         this.ctx.arch.setNode(node);
 

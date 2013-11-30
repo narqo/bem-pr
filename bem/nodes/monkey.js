@@ -8,6 +8,7 @@ module.exports = function(registry) {
 var BEM = require('bem'),
     PATH = require('path');
 
+
 registry.decl('BlockNode', {
 
     /**
