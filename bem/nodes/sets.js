@@ -323,6 +323,10 @@ registry.decl('SetNode', 'MagicNode', {
 
     'create-test.js-node' : function(item, sourceNode, collectionNode) {
         return this['create-tests-node'].apply(this, arguments);
+    },
+
+    'create-test.js+browser.js+bemhtml-node' : function(item, sourceNode, collectionNode) {
+        return this['create-tests-node'].apply(this, arguments);
     }
 
 }, {
