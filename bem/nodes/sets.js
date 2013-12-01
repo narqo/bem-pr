@@ -2,18 +2,17 @@ var FS = require('fs'),
     PATH = require('path'),
     BEM = require('bem'),
     Q = require('q'),
-    QFS = require('q-io/fs'),
-    //_ = require('underscore'),
     createLevel = BEM.createLevel,
     logger = BEM.logger,
-    U = BEM.util,
-    /** Id главного узла сборки наборов */
-    SETS_NODE_ID = 'sets';
+    U = BEM.util;
 
 module.exports = function(registry) {
 
 var Node = registry.getNodeClass('Node'),
-    BlockNode = registry.getNodeClass('BlockNode');
+    FileNode = registry.getNodeClass('FileNode'),
+    BlockNode = registry.getNodeClass('BlockNode'),
+    /** Id главного узла сборки наборов */
+    SETS_NODE_ID = 'sets';
 
 registry.decl('SetsNode', 'Node', {
 
@@ -115,10 +114,15 @@ registry.decl('SetsNode', 'Node', {
 registry.decl('SetNode', 'MagicNode', {
 
     __constructor : function(o) {
-        this.level = o.level;
         this.item = o.item;
-        this.tech = this.level.getTech(o.techName);
         this.sources = o.sources || [];
+
+        var level = this.level = o.level,
+            techs = this.getTechs(o.techName) || [o.techName];
+
+        this.techs = techs.map(function(techName) {
+            return level.getTech(techName);
+        }, this);
 
         this.__base(U.extend({ path : this.__self.createPath(o) }, o));
     },
@@ -133,28 +137,23 @@ registry.decl('SetNode', 'MagicNode', {
 
         return function() {
             var setNode = this.createCollectionNode(),
-                virtualSetNode;
+                aliasSetNode;
 
             if(arch.hasNode(this.path)) {
-                virtualSetNode = arch.getNode(this.path);
+                aliasSetNode = arch.getNode(this.path);
             } else {
-                virtualSetNode = new Node(this.path);
-                arch.setNode(virtualSetNode, arch.getParents(this), setNode);
+                aliasSetNode = new Node(this.path);
+                arch.setNode(aliasSetNode, arch.getParents(this), setNode);
             }
 
-            return Q.all(this.scanSources().map(function(item) {
+            this.scanSources().map(function(item) {
                 var blockNode = this.createSourceBlockNode(item),
-                    targetLevelNode = this.createTargetLevelNode(item);
+                    targetLevelNode = this.createTargetLevelNode(item, blockNode, setNode);
 
                 arch
-                    .addParents(targetLevelNode, virtualSetNode)
+                    .addParents(targetLevelNode, aliasSetNode)
                     .addChildren(targetLevelNode, [setNode, blockNode]);
-
-                var source = blockNode.level.getPathByObj(item, item.tech);
-                return QFS.exists(source).then(function(exists) {
-                    if(exists) targetLevelNode.addSources(source);
-                });
-            }, this));
+            }, this);
         };
     },
 
@@ -184,9 +183,24 @@ registry.decl('SetNode', 'MagicNode', {
      * Creates level node for target `item`,
      * e.g. `desktop.examples/block1`
      */
-    createTargetLevelNode : function(item) {
+    createTargetLevelNode : function(item, sourceNode, collectionNode) {
+        var tech = item.tech,
+            createLevelNodeFn = 'create-' + tech + '-node';
+
+        if(typeof this[createLevelNodeFn] !== 'function') {
+            createLevelNodeFn = 'createLevelNode';
+        }
+
+        return this[createLevelNodeFn].apply(this, arguments);
+    },
+
+    createLevelNode : function(item, sourceNode, collectionNode, levelNodeClass) {
+        if(!levelNodeClass) {
+            levelNodeClass = 'GeneratedLevelNode';
+        }
+
         var arch = this.ctx.arch,
-            LevelNode = registry.getNodeClass('ExamplesLevelNode'),
+            LevelNode = registry.getNodeClass(levelNodeClass),
             opts = {
                 root : this.root,
                 level : this.path,
@@ -197,6 +211,11 @@ registry.decl('SetNode', 'MagicNode', {
 
         if(arch.hasNode(nodeid)) {
             return arch.getNode(nodeid);
+        }
+
+        var source = sourceNode.level.getPathByObj(item, item.tech);
+        if(FS.existsSync(source)) {
+            opts.sources = [PATH.relative(this.root, source)];
         }
 
         var levelNode = new LevelNode(opts);
@@ -228,17 +247,39 @@ registry.decl('SetNode', 'MagicNode', {
         return blockNode;
     },
 
+    getTechs : function(techName) {
+        switch(techName) {
+
+        case 'tests':
+            return ['tests', 'test.js'];
+
+        case 'docs':
+            return ['md', 'wiki'];
+
+        }
+
+        return [techName];
+    },
+
     getTechSuffixesForLevel : function(level) {
-        return level.getTech(this.tech.getTechName())
-            .getSuffixes()
-            .map(function(suffix) {
-                return '.' + suffix;
-            });
+        var suffixes = [];
+
+        this.techs.forEach(function(tech) {
+            var techName = tech.getTechName(),
+                levelSuffixes = level.getTech(techName)
+                    .getSuffixes()
+                    .map(function(suffix) {
+                        return '.' + suffix;
+                    });
+            Array.prototype.push.apply(suffixes, levelSuffixes);
+        });
+
+        return suffixes;
     },
 
     getSources : function() {
         if(!this._sources) {
-            var absolutivize = PATH.resolve.bind(PATH, this.root);
+            var absolutivize = PATH.resolve.bind(null, this.root);
             this._sources = this.sources.map(function(level) {
                 if(typeof level === 'string') {
                     return createLevel(absolutivize(level));
@@ -251,7 +292,7 @@ registry.decl('SetNode', 'MagicNode', {
     },
 
     scanSourceLevel : function(level) {
-        var relativize = PATH.relative.bind(PATH, this.root),
+        var relativize = PATH.relative.bind(null, this.root),
             suffixes = this.getTechSuffixesForLevel(level);
 
         return level.getItemsByIntrospection()
@@ -270,6 +311,18 @@ registry.decl('SetNode', 'MagicNode', {
             .reduce(function(decls, item) {
                 return decls.concat(item);
             }, []);
+    },
+
+    'create-examples-node' : function(item, sourceNode, collectionNode) {
+        return this.createLevelNode(item, sourceNode, collectionNode, 'ExamplesLevelNode');
+    },
+
+    'create-tests-node' : function(item, sourceNode, collectionNode) {
+        return this.createLevelNode(item, sourceNode, collectionNode, 'TestsLevelNode');
+    },
+
+    'create-test.js-node' : function(item, sourceNode, collectionNode) {
+        return this['create-tests-node'].apply(this, arguments);
     }
 
 }, {
@@ -305,96 +358,5 @@ registry.decl('SetNode', 'MagicNode', {
     }
 
 });
-
-/*
-registry.decl('SetsLevelNode_', 'GeneratedLevelNode', {
-
-    alterArch : function() {
-        var base = this.__base();
-        return function() {
-
-            var _t = this,
-                arch = _t.ctx.arch;
-
-            return Q.when(base.call(this), function(level) {
-                var realLevel = arch.getChildren(level),
-                    getNodeClassForSuffix = _t.getNodeClsForSuffix.bind(_t),
-                    decls = _t.scanSources();
-
-                decls.forEach(function(item) {
-                    // creating block node (source) for item
-                    var o = {
-                            root  : this.root,
-                            item  : item,
-                            level : item.level
-                        },
-                        blockNode,
-                        blocknid = BlockNode.createId(o);
-
-                    if(arch.hasNode(blocknid)) {
-                        blockNode = arch.getNode(blocknid);
-                    } else {
-                        blockNode = new BlockNode(o);
-                        arch.setNode(blockNode);
-                    }
-
-                    // creating levels node for item (examples, tests, whatever)
-                    o = {
-                        root  : this.root,
-                        level : this.path,
-                        item  : item
-                    };
-
-                    var LevelNodeCls = registry.getNodeClass(getNodeClassForSuffix(item.suffix)),
-                        levelnid = LevelNodeCls.createId(o),
-                        levelNode;
-
-                    if(arch.hasNode(levelnid)) {
-                        levelNode = arch.getNode(levelnid);
-                    } else {
-                        levelNode = LevelNodeCls.create(o);
-                        arch.setNode(levelNode, level, realLevel);
-                    }
-
-                    arch.addChildren(levelNode, blockNode);
-
-                    var source = blockNode.level.getPathByObj(item, item.tech);
-                    if(FS.existsSync(source)) {
-                        levelNode.sources.push(source);
-                    }
-                }, _t);
-
-                return Q.when(_t.takeSnapshot('After SetsLevelNode alterArch ' + _t.getId()));
-            });
-
-        };
-
-    },
-
-    getSourceItemsMap : function() {
-        return {
-            examples : ['examples'],
-            tests : ['tests', 'test.js'],
-            docs : ['md', 'wiki']
-        };
-    },
-
-    getSourceItemTechs : function() {
-        var map = this.getSourceItemsMap();
-        return _.uniq(Object.keys(map).reduce(function(techs, name) {
-                return techs.concat(map[name]);
-            }, []));
-    },
-
-    getNodeClsForSuffix : function(suffix) {
-        return {
-            '.examples' : 'ExamplesLevelNode',
-            '.tests'    : 'TestsLevelNode',
-            '.test.js'  : 'TestsLevelNode'
-        }[suffix];
-    }
-
-});
-*/
 
 };

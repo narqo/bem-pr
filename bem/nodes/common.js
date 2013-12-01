@@ -1,35 +1,13 @@
 var FS = require('fs'),
     PATH = require('path'),
     BEM = require('bem'),
-    QFS = require('q-io/fs');
+    QFS = require('q-io/fs'),
+    U = BEM.util,
+    createLevel = BEM.createLevel;
 
 module.exports = function(registry) {
 
-var U = BEM.util,
-    createLevel = BEM.createLevel,
-    FileNode = registry.getNodeClass('FileNode');
-
-function serializeBemItem() {
-    return Array.prototype.slice.call(arguments, 0)
-        .reduce(function(keys, item) {
-            if(typeof item === 'string') {
-                item = item.trim();
-                if(!item)
-                    return keys;
-                item = { block : item };
-            }
-
-            keys.push(U.bemKey(item));
-            return keys;
-        }, [])
-        .join('/');
-}
-
-function parseBemItem(key) {
-    return (key + '').split('/').map(function(part) {
-        return U.bemParseKey(part);
-    });
-}
+var FileNode = registry.getNodeClass('FileNode');
 
 registry.decl('GeneratedLevelNode', 'MagicNode', {
 
@@ -174,12 +152,8 @@ registry.decl('TargetsLevelNode', 'GeneratedLevelNode', {
 
     __constructor : function(o) {
         this.sources = o.sources || [];
+        this.techName = o.techName;
         this.__base(o);
-    },
-
-    addSources : function(sources) {
-        this._sources = null;
-        this.sources = this.sources.concat(sources);
     },
 
     getSourceItemTechs : function() {
@@ -233,6 +207,42 @@ registry.decl('TargetsLevelNode', 'GeneratedLevelNode', {
             .reduce(function(decls, item) {
                 return decls.concat(item);
             }, []);
+    }
+
+});
+
+registry.decl('TargetBundleNode', 'BundleNode', {
+
+    __constructor : function(o) {
+        this.__base(o);
+
+        this.rootLevel = createLevel(this.root);
+        this.source = o.source;
+    },
+
+    getTechs : function() {
+        return this.__base.apply(this, arguments);
+    },
+
+    getLevels : function(tech) {
+        return this.__base.apply(this, arguments)
+            .concat(
+                this.rootLevel
+                    .getTech('blocks')
+                    .getPath(this.getSourceNodePrefix())
+            );
+    },
+
+    getSourceNodePrefix : function() {
+        if(!this._sourceNodePrefix) {
+            this._sourceNodePrefix = this.__self.createNodePrefix({
+                root  : this.root,
+                level : this.source.level,
+                item  : this.item
+            });
+        }
+
+        return this._sourceNodePrefix;
     }
 
 });

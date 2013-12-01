@@ -1,12 +1,11 @@
 var PATH = require('path'),
     BEM = require('bem'),
-    QFS = require('q-io/fs');
-
-module.exports = function(registry) {
-
-var U = BEM.util,
+    QFS = require('q-io/fs'),
+    U = BEM.util,
     api = BEM.api,
     createLevel = BEM.createLevel;
+
+module.exports = function(registry) {
 
 registry.decl('BemCreateLevelNode', 'GeneratedFileNode', {
 

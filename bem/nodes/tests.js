@@ -30,7 +30,7 @@ registry.decl('TestsLevelNode', 'TargetsLevelNode', {
     },
 
     getTestBundleName : function() {
-        return this.item.tech.replace(/\./g, '_');
+        return this.techName.replace(/\./g, '-');
     },
 
     getTestsLevelTechName : function() {
@@ -56,9 +56,8 @@ registry.decl('TestsLevelNode', 'TargetsLevelNode', {
         return normalized;
     },
 
-    createBundleNode : function(item) {
+    createBundleNode : function(item, source) {
         var arch = this.ctx.arch,
-            source = U.extend({ level : this.path }, this.item),
             testContent = this.getTestContent(this.decl),
             BundleNode = registry.getNodeClass(this.bundleNodeCls),
             bundleNode = new BundleNode({
@@ -86,10 +85,11 @@ registry.decl('TestsLevelNode', 'TargetsLevelNode', {
             return Q.when(base.call(this), function(level) {
                 var realLevel = PATH.join(level, '.bem/level.js'),
                     item = {
-                        block : this.getAutogenTestBundleName(),
+                        block : this.getTestBundleName(),
                         tech  : 'bemjson.js'
                     },
-                    bundleNode = this.createBundleNode(item);
+                    source = U.extend({ level : this.path }, this.item),
+                    bundleNode = this.createBundleNode(item, source);
 
                 arch
                     .addParents(bundleNode, level)
@@ -105,7 +105,7 @@ registry.decl('TestsLevelNode', 'TargetsLevelNode', {
 });
 
 
-registry.decl('TestNode', 'ExampleNode', {
+registry.decl('TestNode', 'TargetBundleNode', {
 
     __constructor: function(o) {
         var testsEnv = JSON.parse(process.env.__tests || '{}'),
@@ -121,15 +121,21 @@ registry.decl('TestNode', 'ExampleNode', {
             pageURL: pageURL
         }, o.envData);
 
-        // Data for 'test-tmpl' and 'phantomjs' technologies
+        // Data for 'test.bemjson.js' and 'phantomjs' technologies
         process.env.__tests = JSON.stringify(testsEnv);
 
         this.__base(o);
     },
 
-    setSourceItemNode : function(tech, bundleNode, magicNode) {
-        tech = this.getAutogenTechName();
+    createTechNode : function(tech, bundleNode, magicNode) {
+        if(tech === this.item.tech) {
+            return this.createSourceItemNode(tech, bundleNode, magicNode);
+        }
+        return this.__base.apply(this, arguments);
+    },
 
+    createSourceItemNode : function(tech, bundleNode, magicNode) {
+        tech = this.getAutogenTechName();
         return this.setBemCreateNode(
                 tech,
                 this.level.resolveTech(tech),
@@ -138,8 +144,17 @@ registry.decl('TestNode', 'ExampleNode', {
                 true);
     },
 
+    'create-phantomjs-node': function(tech, bundleNode, magicNode) {
+        return this.setBemCreateNode(
+            tech,
+            this.level.resolveTech(tech),
+            bundleNode,
+            magicNode,
+            true);
+    },
+
     getAutogenTechName : function() {
-        return 'test-tmpl';
+        return 'test.bemjson.js';
     }
 
 });

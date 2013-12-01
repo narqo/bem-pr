@@ -2,12 +2,10 @@
  * @fileOverview Набор monkey-patched целей bem-make, решающих встречающиеся
  * проблемы, для которых (еще) нет решения в bem-tools.
  */
-
-module.exports = function(registry) {
-
 var BEM = require('bem'),
     PATH = require('path');
 
+module.exports = function(registry) {
 
 registry.decl('BlockNode', {
 
