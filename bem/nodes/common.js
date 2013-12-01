@@ -92,10 +92,6 @@ registry.decl('GeneratedLevelNode', 'MagicNode', {
 
 }, {
 
-    create : function(o) {
-        return new this(o);
-    },
-
     createId : function(o) {
         return this.__base({ path : this.createPath(o) });
     },
@@ -222,15 +218,6 @@ registry.decl('TargetBundleNode', 'BundleNode', {
 
     getTechs : function() {
         return this.__base.apply(this, arguments);
-    },
-
-    getLevels : function(tech) {
-        return this.__base.apply(this, arguments)
-            .concat(
-                this.rootLevel
-                    .getTech('blocks')
-                    .getPath(this.getSourceNodePrefix())
-            );
     },
 
     getSourceNodePrefix : function() {

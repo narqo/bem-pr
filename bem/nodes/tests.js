@@ -37,6 +37,10 @@ registry.decl('TestsLevelNode', 'TargetsLevelNode', {
         return 'tests';
     },
 
+    getProtoLevelName : function() {
+        return 'tests';
+    },
+
     getTestContent : function(item) {
         var normalized = {
                 block : item.block
@@ -127,6 +131,18 @@ registry.decl('TestNode', 'TargetBundleNode', {
         this.__base(o);
     },
 
+    // DEBUG
+    /*
+    make : function() {
+        console.log(this.ctx.arch.toString());
+        return this.__base();
+    },
+    */
+
+    getAutogenTechName : function() {
+        return 'test.bemjson.js';
+    },
+
     createTechNode : function(tech, bundleNode, magicNode) {
         if(tech === this.item.tech) {
             return this.createSourceItemNode(tech, bundleNode, magicNode);
@@ -150,11 +166,26 @@ registry.decl('TestNode', 'TargetBundleNode', {
             this.level.resolveTech(tech),
             bundleNode,
             magicNode,
+            true,
+            !true);    // FIXME: bem/bem-tools#527
+    },
+
+    'create-test.js+browser.js+bemhtml-node' : function(tech, bundleNode, magicNode) {
+        return this.setBemBuildNode(
+            tech,
+            this.level.resolveTech(tech),
+            this.getBundlePath('deps.js'),
+            bundleNode,
+            magicNode,
             true);
     },
 
-    getAutogenTechName : function() {
-        return 'test.bemjson.js';
+    'create-test.js-optimizer-node': function(tech, sourceNode, bundleNode) {
+        return this.createBorschikOptimizerNode('js', sourceNode, bundleNode);
+    },
+
+    'create-test.js+browser.js+bemhtml-optimizer-node': function(tech, sourceNode, bundleNode) {
+        return this.createBorschikOptimizerNode('js', sourceNode, bundleNode);
     }
 
 });

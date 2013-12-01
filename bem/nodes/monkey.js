@@ -27,4 +27,28 @@ registry.decl('BlockNode', {
 
 });
 
+// FIXME: bem/bem-tools#527
+registry.decl('BemCreateNode', {
+
+    make : function() {
+        var opts = BEM.util.extend({}, {
+            force: this.force,
+            level: this.level.dir,
+            forceTech: this.tech.getTechPath()  // getTechName -> getTechPath
+        });
+
+        ['block', 'elem', 'mod', 'val'].forEach(function(key) {
+            if(this.item[key]) opts[key] = this.item[key];
+        }, this);
+
+        this.log('bem.create(forked=%j, %s, {})',
+            this.forked,
+            JSON.stringify(opts, null, 4));
+
+        // NOTE: we don't use forked create, since it's just a temporary monkey patching
+        return BEM.api.create(opts);
+    }
+
+});
+
 };

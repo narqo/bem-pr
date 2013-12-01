@@ -37,8 +37,21 @@ registry.decl('ExamplesLevelNode', 'TargetsLevelNode', {
         };
     },
 
+    getProtoLevelName : function() {
+        return 'examples';
+    },
+
     getSourceItemTechs : function() {
         return ['bemjson.js'];
+    },
+
+    getLevels : function(tech) {
+        return this.__base.apply(this, arguments)
+            .concat(
+                this.rootLevel
+                    .getTech('blocks')
+                    .getPath(this.getSourceNodePrefix())
+            );
     },
 
     bundleNodeCls : 'ExampleNode'

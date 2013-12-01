@@ -52,14 +52,14 @@ registry.decl('SetsNode', 'Node', {
 
     createSetsNodes : function(parents, children) {
         var arch = this.arch,
-            sets = this.getSets(),
             SetNode = registry.getNodeClass('SetNode'),
+            sets = this.getSets(),
             setLevesCollection = [],
             levelsNodes, node;
 
         // zip sets and source techs into set collection
         Object.keys(sets).reduce(function(nodes, setName) {
-            levelsNodes = this.getSourceItemTechs().map(function(techName) {
+            levelsNodes = this.getSourceTechs(setName).map(function(techName) {
                 node = new SetNode({
                     root : this.root,
                     level : this.rootLevel,
@@ -83,22 +83,31 @@ registry.decl('SetsNode', 'Node', {
     },
 
     /**
-     * Sets description `{ name : [sourceLevel1, sourceLevel2] }`
+     * Sets description
+     *
+     * - `{ setName : [...sourceLevels] }`
      *
      * @example
      *   { desktop : ['common.blocks', 'desktop.blocks'] }
      *
      * @returns {Object}
+     * @protected
      */
     getSets : function() {
         return {};
     },
 
     /**
-     * Tech names list for each set
+     * Tech names list for sources in `setName` set
+     *
+     * - `['examples']` for `common.blocks/b1/b1.examples` source of `desktop` set
+     * - `['test.js']` for `desktop.blocks/b2/b2.test.js` source of `desktop` set
+     *
+     * @param {String} setName
      * @returns {Array}
+     * @protected
      */
-    getSourceItemTechs : function() {
+    getSourceTechs : function(setName) {
         return [];
     }
 
@@ -251,6 +260,7 @@ registry.decl('SetNode', 'MagicNode', {
         switch(techName) {
 
         case 'tests':
+        case 'tests.js':
             return ['tests', 'test.js'];
 
         case 'docs':
@@ -330,10 +340,6 @@ registry.decl('SetNode', 'MagicNode', {
     }
 
 }, {
-
-    create : function(o) {
-        return new this(o);
-    },
 
     createId : function(o) {
         return this.__base({ path : this.createPath(o) });
