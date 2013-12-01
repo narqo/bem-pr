@@ -1,14 +1,12 @@
 var PATH = require('path'),
-    tmpl = require('bem/lib/template');
+    BEM = require('bem');
 
 exports.API_VER = 2;
 
 exports.techMixin = {
 
-    getCreateResult : function(path, suffix, vars) {
-        var envProps = JSON.parse(process.env.__tests || '{}')[PATH.dirname(path)] || {};
-
-        return tmpl.process([
+    getTemplate : function() {
+        return [
             '([',
             '"<!DOCTYPE html>",',
             '{"tag": "html", "content": [',
@@ -27,11 +25,18 @@ exports.techMixin = {
             '  }',
             ']}',
             '])'
-        ], {
-            BundleName : envProps.BundleName || vars.BlockName,
-            TmplDecl : envProps.TmplDecl || "",
-            TmplContent : envProps.TmplContent || ""
-        });
+        ];
+    },
+
+    getCreateResult : function(path, suffix, vars) {
+        var envProps = JSON.parse(process.env.__tests || '{}')[PATH.dirname(path)] || {};
+        return BEM.template.process(
+            this.getTemplate(),
+            {
+                BundleName : envProps.BundleName || vars.BlockName,
+                TmplDecl : envProps.TmplDecl || "",
+                TmplContent : envProps.TmplContent || ""
+            });
     },
 
     getCreateSuffixes : function() {
