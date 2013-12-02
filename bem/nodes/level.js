@@ -41,7 +41,7 @@ registry.decl('BemCreateLevelNode', 'GeneratedFileNode', {
     createLevel : function(opts, args) {
         return api.create.level(opts, args).then(function() {
             // NOTE: drops level path cache (for bem tech/v2)
-            createLevel(this.getPath(), { noCache : true });
+            createLevel(this.getPath(), { projectRoot : this.root, noCache : true });
         }.bind(this));
     },
 

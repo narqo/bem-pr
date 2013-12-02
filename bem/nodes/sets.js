@@ -348,8 +348,8 @@ registry.decl('SetNode', 'MagicNode', {
     createPath : function(o) {
         var level = typeof o.level === 'string'?
             createLevel(PATH.resolve(o.root, o.level), {
-                projectRoot: o.root
-            }) :
+                    projectRoot : o.root
+                }) :
             o.level;
 
         return level
@@ -360,8 +360,8 @@ registry.decl('SetNode', 'MagicNode', {
     createNodePrefix : function(o) {
         var level = typeof o.level === 'string'?
             createLevel(PATH.resolve(o.root, o.level), {
-                projectRoot: o.root
-            }) :
+                    projectRoot : o.root
+                }) :
             o.level;
 
         return PATH.relative(o.root, level.getByObj(o.item));
