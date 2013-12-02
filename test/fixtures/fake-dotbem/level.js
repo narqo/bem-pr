@@ -1,1 +1,1 @@
-exports.baseLevelPath = require.resolve('bem/lib/levels/project');
+exports.baseLevelName = 'project';

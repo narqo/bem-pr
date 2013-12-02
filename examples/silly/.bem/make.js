@@ -24,7 +24,7 @@ MAKE.decl('SetsNode', {
     getSets : function() {
         return {
             'desktop' : ['common.blocks', 'desktop.blocks'],
-            //'touch' : ['common.blocks', 'touch.blocks']
+            'touch' : ['common.blocks', 'touch.blocks']
         };
     },
 

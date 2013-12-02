@@ -1,8 +1,7 @@
-var util = require('bem/lib/util'),
-    commonLevel = require('./common.js');
+var BEM = require('bem');
 
 exports.baseLevelPath = require.resolve('bem/lib/levels/simple');
 
 exports.getTechs = function() {
-    return util.extend(commonLevel.getTechs(), { /* 'place_them': 'here' */ });
+    return BEM.util.extend(require('./common').getTechs() || {}, {});
 };

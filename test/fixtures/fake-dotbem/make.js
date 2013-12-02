@@ -6,10 +6,10 @@ require('../../../../bem-pr/bem/nodes')(MAKE);
 
 MAKE.decl('Arch', {
 
-    blocksLevelsRegexp: /^.+?\.blocks$/,
-    bundlesLevelsRegexp: /^.+?\.bundles$/,
+    blocksLevelsRegexp : /^.+?\.blocks$/,
+    bundlesLevelsRegexp : /^.+?\.bundles$/,
 
-    createCustomNodes: function() {
+    createCustomNodes : function() {
         var SetsNode = MAKE.getNodeClass('SetsNode');
         return SetsNode
             .create({ root : this.root, arch : this.arch })     // создаем экземпляр узла
@@ -22,7 +22,7 @@ MAKE.decl('SetsNode', {
 
     getSets : function() {
         return {
-            'desktop' : [ 'common.blocks', 'desktop.blocks' ],
+            'desktop' : ['common.blocks', 'desktop.blocks'],
             //'touch' : [ 'common.blocks', 'touch.blocks' ]
         };
     },
