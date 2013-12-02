@@ -38,7 +38,7 @@ registry.decl('TestsLevelNode', 'TargetsLevelNode', {
     },
 
     getProtoLevelName : function() {
-        return 'tests';
+        return 'tests-set';
     },
 
     getTestContent : function(item) {
@@ -63,7 +63,7 @@ registry.decl('TestsLevelNode', 'TargetsLevelNode', {
     createBundleNode : function(item, source) {
         var arch = this.ctx.arch,
             testContent = this.getTestContent(this.decl),
-            BundleNode = registry.getNodeClass(this.bundleNodeCls),
+            BundleNode = this.getBundleNodeClass(),
             bundleNode = new BundleNode({
                 root  : this.root,
                 level : this.path,
@@ -90,7 +90,7 @@ registry.decl('TestsLevelNode', 'TargetsLevelNode', {
                 var realLevel = PATH.join(level, '.bem/level.js'),
                     item = {
                         block : this.getTestBundleName(),
-                        tech  : 'bemjson.js'
+                        tech : 'bemjson.js'
                     },
                     source = U.extend({ level : this.path }, this.item),
                     bundleNode = this.createBundleNode(item, source);
@@ -104,7 +104,9 @@ registry.decl('TestsLevelNode', 'TargetsLevelNode', {
         };
     },
 
-    bundleNodeCls : 'TestNode'
+    getBundleNodeClass : function() {
+        return registry.getNodeClass('TestNode');
+    }
 
 });
 
@@ -121,8 +123,8 @@ registry.decl('TestNode', 'TargetBundleNode', {
                 'file://' + PATH.join(o.root, pageRelPath);
 
         testsEnv[testId] = U.extend(testsEnv[testId] || {}, {
-            consoleReporter: consoleReporter,
-            pageURL: pageURL
+            consoleReporter : consoleReporter,
+            pageURL : pageURL
         }, o.envData);
 
         // Data for 'test.bemjson.js' and 'phantomjs' technologies

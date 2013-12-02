@@ -19,7 +19,7 @@ registry.decl('ExamplesLevelNode', 'TargetsLevelNode', {
         return function() {
             return Q.when(base.call(this), function(level) {
                 var realLevel = PATH.join(level, '.bem/level.js'),
-                    BundleNode = registry.getNodeClass(this.bundleNodeCls);
+                    BundleNode = this.getBundleNodeClass();
 
                 this.scanSources().forEach(function(item) {
                     var bundleNode = new BundleNode({
@@ -38,7 +38,7 @@ registry.decl('ExamplesLevelNode', 'TargetsLevelNode', {
     },
 
     getProtoLevelName : function() {
-        return 'examples';
+        return 'examples-set';
     },
 
     getSourceItemTechs : function() {
@@ -54,7 +54,9 @@ registry.decl('ExamplesLevelNode', 'TargetsLevelNode', {
             );
     },
 
-    bundleNodeCls : 'ExampleNode'
+    getBundleNodeClass : function() {
+        return registry.getNodeClass('ExampleNode');
+    }
 
 });
 
@@ -121,12 +123,6 @@ registry.decl('ExampleNode', 'TargetBundleNode', {
         return node;
     }
 
-}, {
-
-    create : function(o) {
-        return new this(o);
-    }
-
 });
 
 
@@ -163,10 +159,6 @@ registry.decl('ExampleSourceNode', 'GeneratedFileNode', {
     }
 
 }, {
-
-    create : function(o) {
-        return new this(o);
-    },
 
     createPath : function(o) {
         var level = typeof o.level === 'string'?
