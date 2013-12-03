@@ -1,89 +1,69 @@
-var FS = require('fs'),
-    PATH = require('path'),
+var PATH = require('path'),
     BEM = require('bem'),
-    registry = require('bem/lib/nodesregistry'),
-    bundleNodes = require('bem/lib/nodes/bundle'),
-    LOGGER = require('bem/lib/logger'),
     Q = require('q'),
-    QFS = require('q-fs'),
-    fileNodes = require('bem/lib/nodes/file'),
-    commonNodes = require('./common'),
-    /* exports */
-    ExamplesLevelNodeName = exports.ExamplesLevelNodeName = 'ExamplesLevelNode',
-    ExampleNodeName = exports.ExampleNodeName = 'ExampleNode',
-    ExampleSourceNodeName = exports.ExampleSourceNodeName = 'ExampleSourceNode',
+    QFS = require('q-io/fs'),
     U = BEM.util,
+    logger = BEM.logger,
     createLevel = BEM.createLevel;
 
+module.exports = function(registry) {
 
-registry.decl(ExamplesLevelNodeName, commonNodes.GeneratedLevelNodeName, {
+var FileNode = registry.getNodeClass('FileNode');
 
-    /**
-     * @returns {Function}
-     */
+registry.decl('ExamplesLevelNode', 'TargetsLevelNode', {
+
     alterArch : function() {
+        var base = this.__base(),
+            arch = this.ctx.arch;
 
-        var base = this.__base();
         return function() {
+            return Q.when(base.call(this), function(level) {
+                var realLevel = PATH.join(level, '.bem/level.js'),
+                    BundleNode = this.getBundleNodeClass();
 
-            var _t = this,
-                arch = _t.ctx.arch;
-
-            return Q.when(base.call(_t), function(level) {
-                var realLevel = PATH.join(level, '.bem', 'level.js'),
-                    decls = _t.scanSources();
-
-                decls.forEach(function(item) {
-                    var bundleNode = registry.getNodeClass(this.bundleNodeCls).create({
+                this.scanSources().forEach(function(item) {
+                    var opts = {
                         root   : this.root,
                         level  : this.path,
                         item   : U.extend({}, item),
                         source : item
-                    });
+                    };
 
-                    arch.setNode(bundleNode, level, realLevel);
-                }, _t);
+                    if(!arch.hasNode(BundleNode.createId(opts))) {
+                        arch.setNode(new BundleNode(opts), level, [realLevel, this]);
+                    }
+                }, this);
 
-                return Q.when(_t.takeSnapshot('After ExamplesLevelNode alterArch ' + _t.getId()));
-            });
-
+                return Q.when(this.takeSnapshot('After ExamplesLevelNode alterArch ' + this.getId()));
+            }.bind(this));
         };
+    },
 
+    getProtoLevelName : function() {
+        return 'examples-set';
     },
 
     getSourceItemTechs : function() {
         return ['bemjson.js'];
     },
 
-    bundleNodeCls : ExampleNodeName
+    getLevels : function(tech) {
+        return this.__base.apply(this, arguments)
+            .concat(
+                this.rootLevel
+                    .getTech('blocks')
+                    .getPath(this.getSourceNodePrefix())
+            );
+    },
+
+    getBundleNodeClass : function() {
+        return registry.getNodeClass('ExampleNode');
+    }
 
 });
 
 
-registry.decl(ExampleNodeName, bundleNodes.BundleNodeName, {
-
-    __constructor : function(o) {
-        this.__base(o);
-
-        this.rootLevel = createLevel(this.root);
-        this.source = o.source;
-    },
-
-    getTechs : function() {
-        return this.__base.apply(this, arguments);
-    },
-
-    getSourceNodePrefix : function() {
-        if(!this._sourceNodePrefix) {
-            this._sourceNodePrefix = this.__self.createNodePrefix({
-                root  : this.root,
-                level : this.source.level,
-                item  : this.item
-            });
-        }
-
-        return this._sourceNodePrefix;
-    },
+registry.decl('ExampleNode', 'TargetBundleNode', {
 
     getLevels : function(tech) {
         return this.__base.apply(this, arguments)
@@ -102,7 +82,7 @@ registry.decl(ExampleNodeName, bundleNodes.BundleNodeName, {
     },
 
     setSourceItemNode : function(tech, bundleNode, magicNode) {
-        LOGGER.fdebug('Going to create source node for tech %s', tech);
+        logger.fdebug('Going to create source node for tech %s', tech);
 
         var arch = this.ctx.arch,
             node = this.createSourceNode(),
@@ -116,12 +96,13 @@ registry.decl(ExampleNodeName, bundleNodes.BundleNodeName, {
     },
 
     createSourceNode : function() {
-        var node = this.useFileOrBuild(registry.getNodeClass(ExampleSourceNodeName).create({
-                root   : this.root,
-                level  : this.level,
-                item   : this.item,
-                source : this.source
-            }));
+        var node = this.useFileOrBuild(
+                registry.getNodeClass('ExampleSourceNode').create({
+                    root   : this.root,
+                    level  : this.level,
+                    item   : this.item,
+                    source : this.source
+                }));
 
         this.ctx.arch.setNode(node);
 
@@ -129,38 +110,25 @@ registry.decl(ExampleNodeName, bundleNodes.BundleNodeName, {
     },
 
     createUpstreamNode : function() {
-        var filePath = registry.getNodeClass(ExampleSourceNodeName).createPath({
+        var filePath = registry.getNodeClass('ExampleSourceNode').createPath({
                 root  : this.root,
                 level : this.source.level,
                 item  : this.source
+            }),
+            node = new FileNode({
+                root: this.root,
+                path: filePath
             });
-
-        // FIXME: `fileNodes#FileNode` сам проверяет, что файла не существует (?)
-//        if(!FS.existsSync(PATH.resolve(this.root, filePath))) {
-//            LOGGER.error('Upstream does not exists', filePath);
-//            return;
-//        }
-
-        var node = new fileNodes.FileNode({
-            root: this.root,
-            path: filePath
-        });
 
         this.ctx.arch.setNode(node);
 
         return node;
     }
 
-}, {
-
-    create : function(o) {
-        return new this(o);
-    }
-
 });
 
 
-registry.decl(ExampleSourceNodeName, fileNodes.GeneratedFileNodeName, {
+registry.decl('ExampleSourceNode', 'GeneratedFileNode', {
 
     __constructor : function(o) {
         var self = this.__self;
@@ -194,10 +162,6 @@ registry.decl(ExampleSourceNodeName, fileNodes.GeneratedFileNodeName, {
 
 }, {
 
-    create : function(o) {
-        return new this(o);
-    },
-
     createPath : function(o) {
         var level = typeof o.level === 'string'?
                 createLevel(PATH.resolve(o.root, o.level)) :
@@ -217,3 +181,5 @@ registry.decl(ExampleSourceNodeName, fileNodes.GeneratedFileNodeName, {
     }
 
 });
+
+};

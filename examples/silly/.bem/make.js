@@ -1,6 +1,6 @@
 /*global MAKE */
 
-var setsNodes = require('../../../bem/nodes/sets');
+require('../../../bem/nodes')(MAKE);
 
 // import some globals
 require('../../.bem/nodes')(MAKE);
@@ -8,7 +8,9 @@ require('../../.bem/nodes')(MAKE);
 MAKE.decl('Arch', {
 
     createCustomNodes : function() {
-        return new setsNodes.SetsNode({
+        var SetsNode = MAKE.getNodeClass('SetsNode');
+
+        return new SetsNode({
                 root : this.root,
                 arch : this.arch
             })
@@ -24,14 +26,12 @@ MAKE.decl('SetsNode', {
             'desktop' : ['common.blocks', 'desktop.blocks'],
             'touch' : ['common.blocks', 'touch.blocks']
         };
-    }
+    },
 
-});
-
-MAKE.decl('SetsLevelNode', {
-
-    getSourceItemTechs : function() {
-        return ['test.js', 'examples'];
+    getSourceTechs : function(setName) {
+        //return ['examples'];
+        //return ['tests'];
+        return ['examples', 'tests'];
     }
 
 });

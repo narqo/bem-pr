@@ -3,3 +3,4 @@
 .bem/snapshots
 .bem/cache
 node_modules
+test/bem-core

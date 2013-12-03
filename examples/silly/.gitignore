@@ -3,5 +3,7 @@
 *.bundles/*/*
 !*.bundles/*/*.bemjson.js
 !*.bundles/.bem/*
-*.sets/*
-!*.sets/.bem
+
+/*.examples
+/*.tests
+
