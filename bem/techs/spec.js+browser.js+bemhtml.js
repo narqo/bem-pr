@@ -8,7 +8,7 @@ exports.techMixin = {
 
     getBuildSuffixesMap : function() {
         return {
-            'test.js': ['test.js', 'vanilla.js', 'js', 'browser.js', 'bemhtml']
+            'spec.js': ['spec.js', 'vanilla.js', 'js', 'browser.js', 'bemhtml']
         };
     },
 
@@ -19,15 +19,15 @@ exports.techMixin = {
 
         return ctxOpts.declaration
             .then(function(decl) {
-                var testJsResults = _this.getTechBuildResults('test.js', decl, context, output, opts),
+                var specJsResults = _this.getTechBuildResults('spec.js', decl, context, output, opts),
                     browserJsResults = _this.getTechBuildResults('browser.js', decl, context, output, opts),
                     bemhtmlDecl = new DEPS.Deps(),
                     depsByTechs = decl.depsByTechs || {},
                     depsByTechsJs = depsByTechs.js || {},
-                    depsByTechsTestJs = depsByTechs['test.js'] || {};
+                    depsByTechsSpecJs = depsByTechs['spec.js'] || {};
 
                 bemhtmlDecl.parse(depsByTechsJs.bemhtml || []);
-                bemhtmlDecl.parse(depsByTechsTestJs.bemhtml || []);
+                bemhtmlDecl.parse(depsByTechsSpecJs.bemhtml || []);
 
                 bemhtmlDecl = { deps : (bemhtmlDecl.serialize()['bemhtml'] || {})['bemhtml'] || [] };
 
@@ -35,11 +35,11 @@ exports.techMixin = {
                     _this.getTechBuildResults('bemhtml', bemhtmlDecl, context, output, opts) :
                     '';
 
-                return Q.all([testJsResults, browserJsResults, bemhtmlResults])
-                    .spread(function(testJsResults, browserJsResults, bemhtmlResults) {
+                return Q.all([specJsResults, browserJsResults, bemhtmlResults])
+                    .spread(function(specJsResults, browserJsResults, bemhtmlResults) {
                         return [
                             browserJsResults['js'].join(''),
-                            testJsResults['test.js'].join(''),
+                            specJsResults['spec.js'].join(''),
                             bemhtmlResults['bemhtml.js']
                         ].join('');
                     });
@@ -67,18 +67,20 @@ exports.techMixin = {
 
 };
 
+// THE CODE BELOW WORKS ONLY \W BEM-TOOS=1.0.0
+
 /*
 exports.techMixin = {
 
     API_VER : 2,
 
     getBuildSuffixesMap:function(){
-        return { 'test.js' : ['test.js', 'browser.js', 'js'] };
+        return { 'spec.js' : ['spec.js', 'browser.js', 'js'] };
     },
 
     getWeakBuildSuffixesMap: function() {
         return {
-            'test.js': ['test.js', 'vanilla.js', 'js', 'browser.js', 'bemhtml']
+            'spec.js': ['spec.js', 'vanilla.js', 'js', 'browser.js', 'bemhtml']
         };
     },
 
@@ -102,7 +104,7 @@ exports.techMixin = {
     getBuildResult: function(files, suffix, output, opts) {
         var bemhtmlTech = this.context.createTech('bemhtml'),
             browserTech = this.context.createTech('browser.js'),
-            testJSTech = this.context.createTech('test.js'),
+            testJSTech = this.context.createTech('spec.js'),
             decl = this.transformBuildDecl(this.context.opts.declaration);
 
         if(!(browserTech.API_VER === 2 && bemhtmlTech.API_VER === 2 && testJSTech.API_VER === 2)){
@@ -125,7 +127,7 @@ exports.techMixin = {
                     this.context.getLevels(),output,opts)])
             .spread(function(bemhtml, browser, test){
                 var result = browser.js;
-                result.push(test['test.js'] + '\n');
+                result.push(test['spec.js'] + '\n');
                 result.push(bemhtml['bemhtml.js']+'\n');
                 return result;
             });

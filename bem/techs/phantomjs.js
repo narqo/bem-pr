@@ -10,7 +10,7 @@ exports.API_VER = 2;
 exports.techMixin = {
 
     getDependencies : function() {
-        return ['html', 'test.js'];
+        return ['html', 'spec.js'];
     },
 
     storeCreateResult : function(path, suffix, res, force) {

@@ -1,4 +1,5 @@
 var PATH = require('path'),
+    VM = require('vm'),
     QFS = require('q-io/fs'),
     DEPS = require('bem/lib/techs/v2/deps.js');
 
@@ -7,9 +8,9 @@ exports.API_VER = 2;
 exports.techMixin = {
 
     /**
-     * Если в testbundle.bemjson.js есть декларация блока "test", и в поле "decl" блока
+     * Если в <bundle>.bemjson.js есть декларация блока "spec", и в поле "decl" блока
      * перечислены конкретные БЭМ-сущности, то строим декларацию таким образом,
-     * чтобы в файл testbundle.test.js попали только тесты этих БЭМ-сущностей.
+     * чтобы в файл <bundle>.spec.js попали **только** тесты этих БЭМ-сущностей.
      *
      * @param {Object} decl
      * @returns {Object}
@@ -24,18 +25,18 @@ exports.techMixin = {
         var output = PATH.resolve(opts.outputDir, opts.outputName);
 
         return QFS.read(output + '.bemjson.js', { charset: 'utf8' }).then(function(bemjson) {
-            var tests = [];
+            var specs = [];
 
-            JSON.stringify(require('vm').runInThisContext(bemjson), function(key, val) {
-                if(key === 'block' && val === 'test') {
-                    tests = tests.concat(this.decl || []);
+            JSON.stringify(VM.runInThisContext(bemjson), function(key, val) {
+                if(key === 'block' && val === 'spec') {
+                    specs = specs.concat(this.decl || []);
                 }
                 return val;
             });
 
-            if(tests.length) {
+            if(specs.length) {
                 var deps = new DEPS.Deps();
-                deps.parse(tests);
+                deps.parse(specs);
                 return { deps : deps.serialize()[''][''] };
             } else {
                 return decl;
@@ -52,7 +53,7 @@ exports.techMixin = {
     },
 
     getSuffixes : function() {
-        return ['test.js'];
+        return ['spec.js'];
     }
 
 };
