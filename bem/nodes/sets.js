@@ -172,7 +172,7 @@ registry.decl('SetNode', 'MagicNode', {
      */
     createCollectionNode : function() {
         var arch = this.ctx.arch,
-            TargetNode = registry.getNodeClass('TargetFileNode'),
+            TargetNode = registry.getNodeClass('TargetNode'),
             nodeid = TargetNode.createId(this);
 
         if(arch.hasNode(nodeid)) {

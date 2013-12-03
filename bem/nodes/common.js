@@ -126,7 +126,7 @@ registry.decl('GeneratedLevelNode', 'MagicNode', {
 });
 
 
-registry.decl('TargetFileNode', 'GeneratedFileNode', {
+registry.decl('TargetNode', 'GeneratedFileNode', {
 
     make : function() {
         var path = this.getPath();
