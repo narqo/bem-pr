@@ -1,3 +1,32 @@
+0.5.0 / 2013-12-03
+==================
+
+NOTE: this release breaks backward compability with previous versions
+
+  * no more `<setName>.sets` levels needed, all building process are made
+    in `<setName>.<tech>` direcotories, e.g. `desktop.examples` (#36)
+  * teches are declared with `SetsNode#getSoutceTechs`
+  * no more default teches declared — user should always use `getSoutceTechs`
+    in `make.js` to specify sets' teches
+  * all tests related stuff renamed to `specs` (#62)
+
+    - tests -> specs
+    - test.js -> spec.js
+    - test-tmpl -> spec.bemjson.js
+    - TestNode -> SpecNode
+
+  * SpecNode in no longer inherits from ExampleNode, so
+    `SpecNode#getTechs` and `SpecNode#getLevels` should be defined explicitly
+  * default test's bundle is <spec-tech-name> instead of `default`,
+    for example `desktop.specs/dom/spec-js`
+  * bug fixed
+
+
+0.3.6 / 2013-10-29
+==================
+
+  * fix race when running tests from bem-server (@SevInf) #57
+
 0.3.5 / 2013-08-23
 ==================
 

@@ -259,11 +259,11 @@ MAKE.decl('SpecNode', {
 
 exports.getTechs = function() {
     return {
-        'spec.js+browser.js+bemhtml' : PATH.join(PRJ_ROOT, 'bem-pr/bem/techs/spec.js.js'),
+        'spec.js+browser.js+bemhtml' : PATH.join(PRJ_ROOT, 'bem-pr/bem/techs/spec.js+browser.js+bemhtml'),
         'spec.js'                    : PATH.join(PRJ_ROOT, 'bem-pr/bem/techs/spec.js.js'),
         'bemhtml'                    : PATH.join(PRJ_ROOT, 'bem-core/.bem/techs/bemhtml.js'),
         'browser.js'                 : PATH.join(PRJ_ROOT, 'bem-core/.bem/techs/browser.js.js'),
-        'spec.bemjson.js'            : PATH.join(PRJ_ROOT, 'bem-pr/bem/techs/spec-tmpl.js'),
+        'spec.bemjson.js'            : PATH.join(PRJ_ROOT, 'bem-pr/bem/techs/spec.bemjson.js'),
         'phantomjs'                  : PATH.join(PRJ_ROOT, 'bem-pr/bem/techs/phantomjs.js'),
 
         'bemdecl.js'                 : 'v2/bemdecl.js',
@@ -292,7 +292,7 @@ exports.getTechs = function() {
     › bem make <setName>.specs
 
 Если в процесс сборки тестовых бандлов была добавлена технология `phantomjs`, то в конце сборки тесты
-прогонятся через [PhantomJS][http://phantomjs.org/], вы увидите результаты их выполнения прямо в консоли.
+прогонятся через [PhantomJS](http://phantomjs.org/), вы увидите результаты их выполнения прямо в консоли.
 
 Собранный тестовый бандл можно открыть в браузере, там тоже будут показаны результаты выполнения тестов.
 
