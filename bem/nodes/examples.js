@@ -22,14 +22,16 @@ registry.decl('ExamplesLevelNode', 'TargetsLevelNode', {
                     BundleNode = this.getBundleNodeClass();
 
                 this.scanSources().forEach(function(item) {
-                    var bundleNode = new BundleNode({
+                    var opts = {
                         root   : this.root,
                         level  : this.path,
                         item   : U.extend({}, item),
                         source : item
-                    });
+                    };
 
-                    arch.setNode(bundleNode, level, realLevel);
+                    if(!arch.hasNode(BundleNode.createId(opts))) {
+                        arch.setNode(new BundleNode(opts), level, [realLevel, this]);
+                    }
                 }, this);
 
                 return Q.when(this.takeSnapshot('After ExamplesLevelNode alterArch ' + this.getId()));

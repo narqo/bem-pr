@@ -64,7 +64,7 @@ registry.decl('TestsLevelNode', 'TargetsLevelNode', {
         var arch = this.ctx.arch,
             testContent = this.getTestContent(this.decl),
             BundleNode = this.getBundleNodeClass(),
-            bundleNode = new BundleNode({
+            opts = {
                 root  : this.root,
                 level : this.path,
                 item  : item,
@@ -74,8 +74,13 @@ registry.decl('TestsLevelNode', 'TargetsLevelNode', {
                     TmplDecl : JSON.stringify(this.decl),
                     TmplContent : JSON.stringify(testContent)
                 }
-            });
+            };
 
+        if(arch.hasNode(BundleNode.createId(opts))) {
+            return null;
+        }
+
+        var bundleNode = new BundleNode(opts);
         arch.setNode(bundleNode);
 
         return bundleNode;
@@ -95,9 +100,11 @@ registry.decl('TestsLevelNode', 'TargetsLevelNode', {
                     source = U.extend({ level : this.path }, this.item),
                     bundleNode = this.createBundleNode(item, source);
 
-                arch
-                    .addParents(bundleNode, level)
-                    .addChildren(bundleNode, realLevel);
+                if(bundleNode) {
+                    arch
+                        .addParents(bundleNode, level)
+                        .addChildren(bundleNode, [realLevel, this]);
+                }
 
                 return Q.when(this.takeSnapshot('After TestsLevelNode alterArch ' + this.getId()));
             }.bind(this));
