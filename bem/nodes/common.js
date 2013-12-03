@@ -195,8 +195,6 @@ registry.decl('TargetsLevelNode', 'GeneratedLevelNode', {
             })
             .map(function(item) {
                 item.level = relativize(level.dir);
-                // XXX: key?
-                //item.key = serializeBemItem(item.level, item);
                 return item;
             });
     },

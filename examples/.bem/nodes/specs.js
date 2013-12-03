@@ -2,7 +2,7 @@ var PATH = require('path');
 
 module.exports = function(registry) {
 
-registry.decl('TestNode', {
+registry.decl('SpecNode', {
 
     getTechs : function() {
         return [
@@ -11,13 +11,13 @@ registry.decl('TestNode', {
             'deps.js',
             'css',
             'js',
-            'test.js'
+            'spec.js'
         ];
     },
 
     getLevels : function() {
         var levels = this.__base.apply(this, arguments);
-        levels.push(PATH.resolve(__dirname, '../../../test.blocks'));
+        levels.push(PATH.resolve(__dirname, '../../../spec.blocks'));
         return levels;
     }
 

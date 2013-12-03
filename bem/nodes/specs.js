@@ -5,10 +5,10 @@ var PATH = require('path'),
 
 module.exports = function(registry) {
 
-registry.decl('TestsLevelNode', 'TargetsLevelNode', {
+registry.decl('SpecsLevelNode', 'TargetsLevelNode', {
 
     __constructor : function(o) {
-        this.__base(U.extend({}, o, { item : this.getTestsLevelItem(o.item) }));
+        this.__base(U.extend({}, o, { item : this.getSpecsLevelItem(o.item) }));
 
         var item = this.item,
             decl = this.decl = {};
@@ -19,29 +19,25 @@ registry.decl('TestsLevelNode', 'TargetsLevelNode', {
         }, decl);
     },
 
-    getTestsLevelItem : function(item) {
-        var tech = this.getTestsLevelTechName();
+    getSpecsLevelItem : function(item) {
+        var tech = this.getSpecsLevelTechName();
 
         // TODO: use `Tech#getSuffix()`
         return U.extend({}, item, {
             suffix : '.' + tech,
-            tech   : tech
+            tech : tech
         });
     },
 
-    getTestBundleName : function() {
-        return this.techName.replace(/\./g, '-');
-    },
-
-    getTestsLevelTechName : function() {
-        return 'tests';
+    getSpecsLevelTechName : function() {
+        return 'specs';
     },
 
     getProtoLevelName : function() {
-        return 'tests-set';
+        return 'specs-set';
     },
 
-    getTestContent : function(item) {
+    getSpecContent : function(item) {
         var normalized = {
                 block : item.block
             },
@@ -60,9 +56,9 @@ registry.decl('TestsLevelNode', 'TargetsLevelNode', {
         return normalized;
     },
 
-    createBundleNode : function(item, source) {
+    createBundleNode : function(item, bundleName, source) {
         var arch = this.ctx.arch,
-            testContent = this.getTestContent(this.decl),
+            content = this.getSpecContent(this.decl),
             BundleNode = this.getBundleNodeClass(),
             opts = {
                 root  : this.root,
@@ -70,9 +66,9 @@ registry.decl('TestsLevelNode', 'TargetsLevelNode', {
                 item  : item,
                 source : source,
                 envData: {
-                    BundleName : this.getTestBundleName(),
+                    BundleName : bundleName,
                     TmplDecl : JSON.stringify(this.decl),
-                    TmplContent : JSON.stringify(testContent)
+                    TmplContent : JSON.stringify(content)
                 }
             };
 
@@ -93,12 +89,13 @@ registry.decl('TestsLevelNode', 'TargetsLevelNode', {
         return function() {
             return Q.when(base.call(this), function(level) {
                 var realLevel = PATH.join(level, '.bem/level.js'),
+                    bundleName = this.techName.replace(/\./g, '-'),
                     item = {
-                        block : this.getTestBundleName(),
-                        tech : 'bemjson.js'
+                        block : bundleName,
+                        tech : 'bemjson.js' // FIXME: hardcode
                     },
                     source = U.extend({ level : this.path }, this.item),
-                    bundleNode = this.createBundleNode(item, source);
+                    bundleNode = this.createBundleNode(item, bundleName, source);
 
                 if(bundleNode) {
                     arch
@@ -106,19 +103,19 @@ registry.decl('TestsLevelNode', 'TargetsLevelNode', {
                         .addChildren(bundleNode, [realLevel, this]);
                 }
 
-                return Q.when(this.takeSnapshot('After TestsLevelNode alterArch ' + this.getId()));
+                return Q.when(this.takeSnapshot('After SpecsLevelNode alterArch ' + this.getId()));
             }.bind(this));
         };
     },
 
     getBundleNodeClass : function() {
-        return registry.getNodeClass('TestNode');
+        return registry.getNodeClass('SpecNode');
     }
 
 });
 
 
-registry.decl('TestNode', 'TargetBundleNode', {
+registry.decl('SpecNode', 'TargetBundleNode', {
 
     __constructor: function(o) {
         var testsEnv = JSON.parse(process.env.__tests || '{}'),
@@ -140,16 +137,8 @@ registry.decl('TestNode', 'TargetBundleNode', {
         this.__base(o);
     },
 
-    // DEBUG
-    /*
-    make : function() {
-        console.log(this.ctx.arch.toString());
-        return this.__base();
-    },
-    */
-
     getAutogenTechName : function() {
-        return 'test.bemjson.js';
+        return 'spec.bemjson.js';
     },
 
     createTechNode : function(tech, bundleNode, magicNode) {
@@ -162,11 +151,11 @@ registry.decl('TestNode', 'TargetBundleNode', {
     createSourceItemNode : function(tech, bundleNode, magicNode) {
         tech = this.getAutogenTechName();
         return this.setBemCreateNode(
-                tech,
-                this.level.resolveTech(tech),
-                bundleNode,
-                magicNode,
-                true);
+            tech,
+            this.level.resolveTech(tech),
+            bundleNode,
+            magicNode,
+            true);
     },
 
     'create-phantomjs-node': function(tech, bundleNode, magicNode) {
@@ -179,21 +168,21 @@ registry.decl('TestNode', 'TargetBundleNode', {
             !true);    // FIXME: bem/bem-tools#527
     },
 
-    'create-test.js+browser.js+bemhtml-node' : function(tech, bundleNode, magicNode) {
+    'create-spec.js+browser.js+bemhtml-node' : function(tech, bundleNode, magicNode) {
         return this.setBemBuildNode(
             tech,
             this.level.resolveTech(tech),
             this.getBundlePath('deps.js'),
             bundleNode,
             magicNode,
-            true);
+            true);      // NOTE: <- override
     },
 
-    'create-test.js-optimizer-node': function(tech, sourceNode, bundleNode) {
+    'create-spec.js-optimizer-node': function(tech, sourceNode, bundleNode) {
         return this.createBorschikOptimizerNode('js', sourceNode, bundleNode);
     },
 
-    'create-test.js+browser.js+bemhtml-optimizer-node': function(tech, sourceNode, bundleNode) {
+    'create-spec.js+browser.js+bemhtml-optimizer-node': function(tech, sourceNode, bundleNode) {
         return this.createBorschikOptimizerNode('js', sourceNode, bundleNode);
     }
 

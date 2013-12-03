@@ -101,7 +101,7 @@ registry.decl('SetsNode', 'Node', {
      * Tech names list for sources in `setName` set
      *
      * - `['examples']` for `common.blocks/b1/b1.examples` source of `desktop` set
-     * - `['test.js']` for `desktop.blocks/b2/b2.test.js` source of `desktop` set
+     * - `['specs']` for `desktop.blocks/b2/b2.spec.js` source of `desktop` set
      *
      * @param {String} setName
      * @returns {Array}
@@ -259,12 +259,17 @@ registry.decl('SetNode', 'MagicNode', {
     getTechs : function(techName) {
         switch(techName) {
 
-        case 'tests':
-        case 'tests.js':
-            return ['tests', 'test.js'];
+        case 'specs':
+            return ['specs', 'spec.js'];
 
         case 'docs':
             return ['md', 'wiki'];
+
+//        case 'tests':
+//            return ['tests'];
+//
+//        case 'examples':
+//            return ['examples'];
 
         }
 
@@ -327,16 +332,16 @@ registry.decl('SetNode', 'MagicNode', {
         return this.createLevelNode(item, sourceNode, collectionNode, 'ExamplesLevelNode');
     },
 
-    'create-tests-node' : function(item, sourceNode, collectionNode) {
-        return this.createLevelNode(item, sourceNode, collectionNode, 'TestsLevelNode');
+    'create-specs-node' : function(item, sourceNode, collectionNode) {
+        return this.createLevelNode(item, sourceNode, collectionNode, 'SpecsLevelNode');
     },
 
-    'create-test.js-node' : function(item, sourceNode, collectionNode) {
-        return this['create-tests-node'].apply(this, arguments);
+    'create-spec.js-node' : function(item, sourceNode, collectionNode) {
+        return this['create-specs-node'].apply(this, arguments);
     },
 
-    'create-test.js+browser.js+bemhtml-node' : function(item, sourceNode, collectionNode) {
-        return this['create-tests-node'].apply(this, arguments);
+    'create-spec.js+browser.js+bemhtml-node' : function(item, sourceNode, collectionNode) {
+        return this['create-specs-node'].apply(this, arguments);
     }
 
 }, {

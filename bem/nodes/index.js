@@ -6,7 +6,7 @@ function rollRegistry(registry) {
         'level',
         'common',
         'examples',
-        'tests',
+        'specs',
         'sets'
     ].map(function(mod) {
         return PATH.join(__dirname, mod);
