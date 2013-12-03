@@ -5,5 +5,6 @@
 !*.bundles/.bem/*
 
 /*.examples
+/*.specs
 /*.tests
 

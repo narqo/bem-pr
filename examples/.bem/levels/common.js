@@ -13,6 +13,7 @@ exports.getTechs = function() {
         'bundles' : 'level-proto',
         'examples' : 'level-proto',
         'tests' : 'level-proto',
+        'specs' : 'level-proto',
         'bemjson.js' : 'bem/lib/tech/v2',
 
         'bemdecl.js' : 'v2/bemdecl.js',
@@ -27,8 +28,8 @@ exports.getTechs = function() {
     };
 
     [
-        'test.bemjson.js',
-        'test.js',
+        'spec.bemjson.js',
+        'spec.js',
         'phantomjs'
     ].forEach(resolveTechs(techs, BEMPR_TECHS));
 
