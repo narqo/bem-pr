@@ -1,10 +1,10 @@
 Как использовать библиотеку
 ===========================
 
-Для корректной работы библиотеки требуются
+Для корректной работы библиотеки требуются:
 
-  - Node.js >= 0.8.x,
-  - bem-tools >= 0.5.30
+  - Node.js >= 0.10.x,
+  - bem-tools >= 0.7.2
 
 Для того чтобы собирать примеры блоков в своей библиотеки, достаточно выполнить «несколько условий».
 
@@ -17,19 +17,26 @@
 
     'bem-pr' : {
         type : 'git',
-        url  : 'git://github.com/narqo/bem-pr.git',
-        npmPackages : false
+        url  : 'git://github.com/narqo/bem-pr.git'
     }
 
 **NOTE** Рекомендуется на этом же этапе «скачать» библиотеку, выполнив
 
     › bem make bem-pr
 
-Дальнейшие описание предполагает, что bem-pr скачан и установлен в корень проекта.
+В качестве альтернативного способа подключения, можно воспользоваться утилитой [bower][bower.io]:
+
+    // bower.json
+
+    "devDependencies" : {
+      "bem-pr" : "narqo/bem-pr#0.5.0"
+    }
+
+Дальнейшие описание предполагает, что bem-pr скачан и установлен.
 
 ### 2. Добавляем цель sets в процесс сборки
 
-bem-pr расширяет стандартный класс `Arch`, добавляя в процесс сборки узлы отвечающие за сборку наборов (sets).
+bem-pr расширяет стандартный класс `Arch`, добавляя в процесс сборки узлы отвечающие за сборку наборов.
 
 Для добавления в процесс сборки собственных узлов, в новых версиях bem-tools, в класс `Arch` добавлен метод
 `createCustomNodes`.
@@ -38,30 +45,32 @@ bem-pr расширяет стандартный класс `Arch`, добавл
 
     // PRJ/.bem/make.js
 
-    var setsNodes = require('../bem-pr/bem/nodes/sets');
+    require('<путь/до/bem-pr>/bem/nodes')(MAKE);
 
     MAKE.decl('Arch', {
 
         // ...
 
-        createCustomNodes : function(common, libs, blocks) {
+        createCustomNodes : function() {
+            var SetsNode = MAKE.getNodeClass('SetsNode');
 
-            return setsNodes.SetsNode
-                .create({ root : this.root, arch : this.arch })     // создаем экземпляр узла
-                .alterArch();                                       // расширяем процесс сборки новыми узлами из bem-pr
-
+            // создаем экземпляр узла
+            // и расширяем процесс сборки новыми узлами из bem-pr
+            return new SetsNode({ root : this.root, arch : this.arch }).alterArch();
         }
 
     }
 
 ### 3. Настраиваем сборку примеров
 
-Класс **SetsNode** описывает настройки для наборов уровней, они же сэты (sets). Для описания собственных наборов
-необходимо определить метод `SetsNode#getSets`.
+Класс **SetsNode** описывает наборов уровней, они же сэты (sets).
 
-Метод возращает объект, ключи которого — это название набора, должно совпадать с уровнем переопределения в котором
-будут собираться примеры (для набора `desktop`, уровень должен называть `desktop.sets`), а значение — список уровней
-переопределения из которых состоит набор, т.е. на котором нужно искать примеры.
+Для описания собственных наборов необходимо определить метод `SetsNode#getSets()`, который возращает
+объект, ключи которого — это название набора (например `desktop`),
+а значение — список уровней переопределения из которых состоит набор, т.е. на котором нужно искать примеры.
+
+Метод `SetsNode#getSourceTechs()` описывает технологии, для которых мы будем собирать наботы.
+В bem-pr вресии 0.5.0 реализованы технологии: `examples`, `tests`, `specs`.
 
     // PRJ/.bem/make.js
 
@@ -69,13 +78,20 @@ bem-pr расширяет стандартный класс `Arch`, добавл
 
         getSets : function() {
             return {
-                'desktop' : [ 'desktop.blocks' ]
+                'desktop' : [ 'common.blocks', 'desktop.blocks' ]
              };
+        },
+
+        getSourceTechs : function() {
+            return ['examples'];
         }
 
     });
 
-Дополнительно можно настроить сборку примеров, описав используемые в них уровни переопределения и список технологий.
+В итоге, в корне проекта будет собираться набор `desktop` для технологий `examples` (в директории `desktop.examples`).
+
+Настраиваем сборку примеров, описав используемые в них уровни переопределения и список технологий.
+
 Для этого служит класс `ExampleNode`.
 
 Класс `ExampleNode` расширяет класс `BundleNode` из стандарного набора bem-tools, и описывается теми же методами:
@@ -86,53 +102,48 @@ bem-pr расширяет стандартный класс `Arch`, добавл
     // PRJ/.bem/make.js
 
     try {
-        var setsNodes = require('../bem-pr/bem/nodes/sets');
+        require('<path/to/bem-pr>/bem/nodes')(MAKE);
     } catch (e) {
         if(e.code !== 'MODULE_NOT_FOUND')
             throw e;
-        setsNodes = false;
     }
-
 
     MAKE.dec('Arch', {
 
         getLibraries : function() {
-
             return {
                 'bem-pr' : {
                     type : 'git',
-                    url  : 'git://github.com/narqo/bem-pr.git',
-                    npmPackages : false
+                    url  : 'git://github.com/narqo/bem-pr.git'
                 }
                 // остальные библиотеки
             }
-
         },
 
         createCustomNodes : function(common, libs, blocks) {
+            var SetsNode = MAKE.getNodeClass('SetsNode');
 
-            if(setsNodes === false) {
-                LOGGER.warn('"bem-pr" is not installed');
+            // При первом запуске `bem-make`, `SetsNode` будет еще не доступен
+            if(typeof SetsNode.createId === 'undefined') {
                 return;
             }
 
-            return setsNodes.SetsNode
-                .create({ root : this.root, arch : this.arch })
-                .alterArch(common, libs.concat(blocks));    // собираем примеры после того как соберутся библиотеки и блоки
-
+            // собираем примеры после того как соберутся библиотеки и блоки
+            return new SetsNode({ root : this.root, arch : this.arch }).alterArch(common, libs);
         }
 
     });
 
-
     MAKE.decl('SetsNode', {
 
         getSets : function() {
-
             return {
-                'desktop' : ['desktop.blocks']
-            };
+                'desktop' : [ 'common.blocks', 'desktop.blocks' ]
+             };
+        },
 
+        getSourceTechs : function() {
+            return ['examples'];
         }
 
     });
@@ -144,7 +155,6 @@ bem-pr расширяет стандартный класс `Arch`, добавл
          * Технологии сборки примера
          */
         getTechs : function() {
-
             return [
                 'bemjson.js',
                 'bemdecl.js',
@@ -154,14 +164,12 @@ bem-pr расширяет стандартный класс `Arch`, добавл
                 'bemhtml',
                 'html'
             ];
-
         },
 
         /**
          * Уровни переопределения используемые для сборки примера
          */
         getLevels : function() {
-
             var resolve = require('path').resolve.bind(null, this.root);
             return [
                 'bem-bl/blocks-common',
@@ -171,86 +179,37 @@ bem-pr расширяет стандартный класс `Arch`, добавл
                 'desktop.blocks'
             ]
             .concat([this.rootLevel.getTech('blocks').getPath(this.getSourceNodePrefix())])     // у каждого примера может быть дополнительно свой уровень переопределения
-            .map(resolve);
-
+            .map(function(path) {
+                return resolve(path);
+            });
         }
 
     });
 
-Создаем уровень наборов, в котором у нас будут собираться примеры:
-
-    › bem make desktop.sets
-
-**NOTE** Технология `sets` должна быть задекларирована в списке технологий _корневого_ конфига уровня:
+**NOTE** Убедеждаемся, что _корневой_ конфиг уровня, файл `PRJ/.bem/level.js`, описан правильно:
 
     // PRJ/.bem/level.js
 
-    exports.baseLevelPath = require.resolve('bem/lib/levels/simple');
-
-    exports.getTechs = function() {
-
-        return {
-            'blocks'  : 'bem/lib/techs/blocks',
-            'bundles' : 'bem/lib/techs/bundles',
-            'sets'    : '../bem-pr/bem/techs/sets'
-        };
-
-    };
-
-Либо, если очень хочется «проявить знания утилиты bem»
-
-    › bem create level desktop.sets --level=bem-pr/bem/levels/sets.js --force
+    exports.baseLevelName = 'project';  // <- этим мы говорим bem-tools, что это корень проекта
 
 _Осталось немного_ :)
 
 ### 4. Технология examples
 
+Примеры это обычные страницы, которые собираются на специальном уровне `desktop.examples/<block-name>`.
+
 В процессе сборки примеров, bem-pr достраивает недостающие уровни на файловой структуры. Но для того, что в уровнях
-примеров использовались правильные конфиги, level.js, нужно определить технологию `examples.js`.
+примеров использовались правильные технологии сборки, нужно в добавить в проект базовый конфиг
+уровня `.bem/levels/example-set.js`.
 
-Создаем модуль технологии `.bem/techs/examples.js` и наследуем его от базовой технологии в bem-pr
+В большенстве случаев, этот конфиг ничем не отличается от конфига бандлов, `.bem/levels/bundles.js`, поэтому
+его можно безболезненно отнаследовать от него:
 
-    // PRJ/.bem/techs/examples.js
+    // PRJ/.bem/levels/example-set.js
 
-    var PATH = require('path');
+    exports.baseLevelPath = require.resolve('./bundles.js');
 
-    // путь до базовой технологии
-    exports.baseTechPath = require.resolve('../../bem-pr/bem/techs/examples.js');
-
-    // пеопределяем метод `getBaseLevel`, указываем, что в качестве уровня
-    // для собранных примеров нужно использовать уровень бандлов
-    exports.getBaseLevel = function() {
-        return PATH.resolve(__dirname, '../levels/bundles.js');
-    };
-
-В конфиге созданного в конце шага (3), уровня `desktop.sets/.bem/level.js` указываем путь до нашей
-технологии `examples`:
-
-    // PRJ/desktop.sets/.bem/level.js
-
-    exports.baseLevelPath = require.resolve('../../bem-pr/bem/levels/sets.js');
-
-    exports.getTechs = function() {
-
-        return require('bem').util.extend(this.__base() || {}, {
-            'examples' : '../../.bem/techs/examples.js'
-        });
-
-    };
-
-**UPDATE, bem-pr@0.0.4**
-
-Рекомендуется _доопределять_ список технологий, через вызов `bem.util.extend(this.__base(), {...})`,
-чтобы конфиги проекта могли наследовать изменения базовых конфигов bem-pr.
-
----
-
-Примеры это обычные страницы, которые собираются на специальном уровне `desktop.sets/<block-name>.examples/`.
-
-По аналогии со страницами (уровень `*.bundles`), уровням `*.examples` необходим конфиг с мапингом имен технологий
-и их реализаций. В общем случае, этот конфиг может совпадать с конфигом страниц.
-
-**NOTE** Обратите внимание, что уровени `<blocks>/block/block.examples` и `<sets>/block.examples` скорее всего должны
+**NOTE** Обратите внимание, что уровени `<blocks>/block/block.examples` и `<set>.examles/block` скорее всего должны
 иметь разные конфиги, поскольку у них чаще всего отличается способ именования БЭМ-сущностей.
 
 Примеры в `<blocks>/block/block.examples` обычно складываются плоским списком (уровень «simple»):
@@ -265,41 +224,40 @@ _Осталось немного_ :)
       ├── 20-complex.bemjson.js
       └── 20-complex.title.txt
 
-На данный момент, bem-tools (версия 0.5.23) не умеет собирать бандлы с плоской структурой. Поэтому структура собранных
+На данный момент, bem-tools (версия 0.7.2) не умеет собирать бандлы с плоской структурой. Поэтому структура собранных
 примеров должна выглядит как у обычной страницы (бандла):
 
     › tree -a <sets>
-    <sets>/
-      ├── .bem/level.js
-      ├── block.examples/
+    <set>.examples/
+     ├── block/
            ├── .bem/
-                └── level.js        // exports.baseLevelPath = require.resolve('../../.bem/levels/bundles.js');
+               └── level.js        // exports.baseLevelPath = require.resolve('../../.bem/levels/example-set.js');
            ├── 10-simple/
                 └── 10-simple.bemjson.js
            └── 20-comples/
                 └── 10-comples.bemjson.js
 
-где `<sets>` — уровень наборов, созданный в конце шага (3).
+где `<sets>` — уровень наборов, задекларированный на шаге (3)
 
 Вот и все!
 
-Для сборки всех примеров, запускаем
+Для сборки всех наборов, запускаем
 
     › bem make sets
 
 Но на это может потребоваться много времени, поэтому, для сборки конкретного примера, `10example`,
 в блоке `block`, запускаем
 
-    › bem make desktop.sets/block.examples/10example/10example
+    › bem make desktop.examples/block/10example/10example
 
 Либо для пересборки конкретной технологии:
 
-    › bem make desktop.sets/block.examples/10example/10example.css
+    › bem make desktop.examples/block/10example/10example.css
 
 А еще можно запустить `bem server` и пересобирать пример по запросу:
 
     › bem server
 
-в браузере открываем (http://localhost:8080/desktop.sets/block.examples/10example/10example.html).
+в браузере открываем (http://localhost:8080/desktop.examples/block/10example/10example.html).
 
-Пример использования можно посмотреть в репозитории (http://github.com/narqo/bl-controls), ветка `feature/bem-pr`.
+Пример использования можно посмотреть в директории `examples/silly`.
