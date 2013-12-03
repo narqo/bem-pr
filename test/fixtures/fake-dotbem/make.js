@@ -23,12 +23,12 @@ MAKE.decl('SetsNode', {
     getSets : function() {
         return {
             'desktop' : ['common.blocks', 'desktop.blocks'],
-            //'touch' : [ 'common.blocks', 'touch.blocks' ]
+            'touch' : [ 'common.blocks', 'touch.blocks' ]
         };
     },
 
     getSourceTechs : function() {
-        return ['tests'];
+        return ['specs'];
     }
 
 });
@@ -92,19 +92,19 @@ MAKE.decl('ExampleNode', {
 
 });
 
-MAKE.decl('TestNode', {
+MAKE.decl('SpecNode', {
 
     getTechs : function() {
         return this.__base()
             .concat([
-                'test.js+browser.js+bemhtml',
+                'spec.js+browser.js+bemhtml',
                 'phantomjs'
             ]);
     },
 
     getLevels : function() {
         return this.__base.apply(this, arguments)
-            .concat(PATH.resolve(__dirname, '../../../test.blocks'));
+            .concat(PATH.resolve(__dirname, '../../../spec.blocks'));
     }
 
 });

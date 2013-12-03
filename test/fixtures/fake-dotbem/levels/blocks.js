@@ -20,10 +20,11 @@ exports.getTechs = function() {
         'blocks'     : 'level-proto',
         'bundles'    : 'level-proto',
         'examples'   : 'level-proto',
+        'specs'      : 'level-proto',
         'tests'      : 'level-proto'
     };
 
-    ['test.js', 'test.js+browser.js+bemhtml'].forEach(
+    ['spec.js', 'spec.js+browser.js+bemhtml'].forEach(
         resolveTechs(techs, PATH.resolve(__dirname, '../../../../../bem-pr/bem/techs')));
 
     [
