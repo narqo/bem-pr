@@ -1,7 +1,7 @@
 {
   "name": "bem-pr",
   "description": "A set of bem-make extensions to wrap common infrastructure tasks",
-  "version": "0.5.0-beta1",
+  "version": "0.5.0",
   "repository": {
     "type": "git",
     "url": "git://github.com/narqo/bem-pr.git"
