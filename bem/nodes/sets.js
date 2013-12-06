@@ -214,12 +214,14 @@ registry.decl('SetNode', 'MagicNode', {
                 root : this.root,
                 level : this.path,
                 item : item,
-                techName : item.tech
+                techName : item.tech,
+                sources : []
             },
-            nodeid = LevelNode.createId(opts);
+            nodeid = LevelNode.createId(opts),
+            levelNode;
 
         if(arch.hasNode(nodeid)) {
-            return arch.getNode(nodeid);
+            levelNode = arch.getNode(nodeid);
         }
 
         var source = sourceNode.level.getPathByObj(item, item.tech);
@@ -227,7 +229,12 @@ registry.decl('SetNode', 'MagicNode', {
             opts.sources = [PATH.relative(this.root, source)];
         }
 
-        var levelNode = new LevelNode(opts);
+        if(levelNode) {
+            Array.prototype.push.apply(levelNode.sources, opts.sources);
+            return levelNode;
+        }
+
+        levelNode = new LevelNode(opts);
         arch.setNode(levelNode);
 
         return levelNode;
