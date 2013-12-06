@@ -30,8 +30,8 @@ MAKE.decl('SetsNode', {
 
     getSourceTechs : function(setName) {
         //return ['examples'];
-        return ['specs'];
-        //return ['examples', 'specs'];
+//        return ['specs'];
+        return ['examples', 'specs'];
     }
 
 });
