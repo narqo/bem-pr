@@ -1,1 +1,1 @@
-exports.baseLevelPath = require.resolve('./bundles');
+exports.baseLevelPath = require.resolve('./bundles.js');

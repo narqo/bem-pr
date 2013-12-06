@@ -11,9 +11,12 @@ MAKE.decl('Arch', {
 
     createCustomNodes : function() {
         var SetsNode = MAKE.getNodeClass('SetsNode');
-        return SetsNode
-            .create({ root : this.root, arch : this.arch })     // создаем экземпляр узла
-            .alterArch();                                       // расширяем процесс сборки новыми узлами из bem-pr
+
+        if(typeof SetsNode.createId === 'undefined') {
+            return;
+        }
+
+        return new SetsNode({ root : this.root, arch : this.arch }).alterArch();
     }
 
 });

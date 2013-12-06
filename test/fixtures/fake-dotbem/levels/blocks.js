@@ -1,4 +1,5 @@
-var PATH = require('path');
+var PATH = require('path'),
+    PRJ_TECHS = PATH.resolve(__dirname, '../techs');
 
 var resolveTechs = exports.resolveTechs = function(registry, prefix) {
     return function(name) {
@@ -24,8 +25,11 @@ exports.getTechs = function() {
         'tests'      : 'level-proto'
     };
 
-    ['spec.js', 'spec.js+browser.js+bemhtml'].forEach(
-        resolveTechs(techs, PATH.resolve(__dirname, '../../../../../bem-pr/bem/techs')));
+    [
+        'spec.js',
+        'spec.js+browser.js+bemhtml',
+        'spec.bemjson.js'
+    ].forEach(resolveTechs(techs, PATH.resolve(__dirname, '../../../../../bem-pr/bem/techs')));
 
     [
         'bemhtml',
@@ -35,7 +39,7 @@ exports.getTechs = function() {
         'browser.js',
         'node.js',
         'browser.js+bemhtml'
-    ].forEach(resolveTechs(techs, PATH.resolve(__dirname, '../techs')));
+    ].forEach(resolveTechs(techs, PRJ_TECHS));
 
     return techs;
 };
