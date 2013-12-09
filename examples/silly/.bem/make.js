@@ -1,4 +1,4 @@
-/*global MAKE */
+/* global MAKE */
 
 require('../../../bem/nodes')(MAKE);
 
@@ -29,10 +29,13 @@ MAKE.decl('SetsNode', {
     },
 
     getSourceTechs : function(setName) {
-        //return ['examples'];
-        return ['tests'];
-//        return ['specs'];
-//        return ['examples', 'specs'];
+        return [
+            'examples',
+            'tests',
+            'specs',
+            'doc',
+            'jsdoc',
+        ];
     }
 
 });
@@ -63,3 +66,4 @@ MAKE.decl('SetsNode', {
 //    }
 //
 //});
+

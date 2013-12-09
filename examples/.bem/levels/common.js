@@ -15,10 +15,12 @@ exports.getTechs = function() {
         'tests' : 'v2/level-proto',
         'specs' : 'v2/level-proto',
         'bemjson.js' : 'bem/lib/tech/v2',
+        'md' : 'bem/lib/tech/v2',
 
         'bemdecl.js' : 'v2/bemdecl.js',
         'deps.js' : 'v2/deps.js',
         'js' : 'v2/js-i',
+        'vanilla.js' : 'bem/lib/tech/v2',
         'css' : 'v2/css',
         'ie.css' : 'v2/ie.css',
         'ie6.css' : 'v2/ie6.css',

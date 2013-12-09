@@ -5,10 +5,20 @@ var PATH = require('path'),
 
 module.exports = function(registry) {
 
-registry.decl('SpecsLevelNode', 'TargetsLevelNode', {
+registry.decl('SetNode', {
+
+    'create-specs-node' : function(item, sourceNode, setNode) {
+        return this.createLevelNode(item, sourceNode, setNode, 'SpecsLevelNode');
+    }
+
+});
+
+registry.decl('SpecsLevelNode', 'TargetLevelNode', {
 
     __constructor : function(o) {
-        this.__base(U.extend({}, o, { item : this.getSpecsLevelItem(o.item) }));
+        U.extend({}, o.item, { suffix : '.specs', tech : 'spec' });
+
+        this.__base(o);
 
         var item = this.item,
             decl = this.decl = {};
@@ -17,20 +27,6 @@ registry.decl('SpecsLevelNode', 'TargetsLevelNode', {
             item[name] && (decl[name] = item[name]);
             return decl;
         }, decl);
-    },
-
-    getSpecsLevelItem : function(item) {
-        var tech = this.getSpecsLevelTechName();
-
-        // TODO: use `Tech#getSuffix()`
-        return U.extend({}, item, {
-            suffix : '.' + tech,
-            tech : tech
-        });
-    },
-
-    getSpecsLevelTechName : function() {
-        return 'specs';
     },
 
     getProtoLevelName : function() {
@@ -76,7 +72,7 @@ registry.decl('SpecsLevelNode', 'TargetsLevelNode', {
             return null;
         }
 
-        var bundleNode = new BundleNode(opts);
+        var bundleNode = BundleNode.create(opts);
         arch.setNode(bundleNode);
 
         return bundleNode;
@@ -88,18 +84,22 @@ registry.decl('SpecsLevelNode', 'TargetsLevelNode', {
 
         return function() {
             return Q.when(base.call(this), function(level) {
-                var realLevel = PATH.join(level, '.bem/level.js'),
-                    item = {
-                        block : this.techName.replace(/\./g, '-')
-                    },
-                    source = U.extend({ level : this.path }, this.item),
-                    bundleNode = this.createBundleNode(item, source);
+                var realLevel = PATH.join(level, '.bem/level.js');
 
-                if(bundleNode) {
-                    arch
-                        .addParents(bundleNode, level)
-                        .addChildren(bundleNode, [realLevel, this]);
-                }
+                this.sources.forEach(function(source) {
+                    var suffix = source.suffix.slice(1),
+                        item = {
+                            block : suffix.replace(/\./g, '-')
+                        },
+                        sourceItem = U.extend({ level : this.path }, this.item),
+                        bundleNode = this.createBundleNode(item, sourceItem);
+
+                    if(bundleNode) {
+                        arch
+                            .addParents(bundleNode, level)
+                            .addChildren(bundleNode, [realLevel, this]);
+                    }
+                }, this);
 
                 return Q.when(this.takeSnapshot('After SpecsLevelNode alterArch ' + this.getId()));
             }.bind(this));
@@ -111,7 +111,6 @@ registry.decl('SpecsLevelNode', 'TargetsLevelNode', {
     }
 
 });
-
 
 registry.decl('SpecNode', 'TargetBundleNode', {
 
@@ -176,7 +175,7 @@ registry.decl('SpecNode', 'TargetBundleNode', {
             this.getBundlePath('deps.js'),
             bundleNode,
             magicNode,
-            true);      // NOTE: <- override
+            true);      // NOTE: override
     },
 
     'create-spec.js-optimizer-node' : function(tech, sourceNode, bundleNode) {
