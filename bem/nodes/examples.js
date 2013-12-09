@@ -8,8 +8,6 @@ var PATH = require('path'),
 
 module.exports = function(registry) {
 
-var FileNode = registry.getNodeClass('FileNode');
-
 registry.decl('ExamplesLevelNode', 'TargetsLevelNode', {
 
     alterArch : function() {
@@ -65,6 +63,15 @@ registry.decl('ExamplesLevelNode', 'TargetsLevelNode', {
 
 registry.decl('ExampleNode', 'TargetBundleNode', {
 
+/*
+    make : function() {
+        var _this = this;
+        return this.__base.apply(this, arguments).then(function() {
+            console.log(_this.ctx.arch.toString());
+        });
+    },
+*/
+
     getLevels : function(tech) {
         return this.__base.apply(this, arguments)
             .concat(
@@ -76,6 +83,7 @@ registry.decl('ExampleNode', 'TargetBundleNode', {
 
     createTechNode : function(tech, bundleNode, magicNode) {
         if(tech === this.item.tech) {
+            console.log(tech === this.item.tech, tech, this.item.tech);
             return this.setSourceItemNode(tech, bundleNode, magicNode);
         }
         return this.__base.apply(this, arguments);
@@ -90,19 +98,21 @@ registry.decl('ExampleNode', 'TargetBundleNode', {
 
         bundleNode && arch.addParents(node, bundleNode);
         magicNode && arch.addChildren(node, magicNode);
-        upstreamNode && arch.addChildren(node, upstreamNode);
+
+        upstreamNode &&
+            arch.addChildren(node, upstreamNode).addChildren(bundleNode, upstreamNode);
 
         return node;
     },
 
     createSourceNode : function() {
-        var node = this.useFileOrBuild(
-                registry.getNodeClass('ExampleSourceNode').create({
-                    root   : this.root,
-                    level  : this.level,
-                    item   : this.item,
-                    source : this.source
-                }));
+        var sourceNode = new (registry.getNodeClass('ExampleSourceNode'))({
+                root   : this.root,
+                level  : this.level,
+                item   : this.item,
+                source : this.source
+            }),
+            node = this.useFileOrBuild(sourceNode);
 
         this.ctx.arch.setNode(node);
 
@@ -110,7 +120,8 @@ registry.decl('ExampleNode', 'TargetBundleNode', {
     },
 
     createUpstreamNode : function() {
-        var filePath = registry.getNodeClass('ExampleSourceNode').createPath({
+        var FileNode = registry.getNodeClass('FileNode'),
+            filePath = registry.getNodeClass('ExampleSourceNode').createPath({
                 root  : this.root,
                 level : this.source.level,
                 item  : this.source

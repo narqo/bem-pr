@@ -7,8 +7,6 @@ var FS = require('fs'),
 
 module.exports = function(registry) {
 
-var FileNode = registry.getNodeClass('FileNode');
-
 registry.decl('GeneratedLevelNode', 'MagicNode', {
 
     __constructor : function(o) {
@@ -43,7 +41,8 @@ registry.decl('GeneratedLevelNode', 'MagicNode', {
 
         return function() {
             var arch = ctx.arch,
-                path = this.path;
+                path = this.path,
+                FileNode = registry.getNodeClass('FileNode');
 
             if(arch.hasNode(path)) {
                 return arch.getNode(path).getId();
@@ -73,7 +72,7 @@ registry.decl('GeneratedLevelNode', 'MagicNode', {
 
     useFileOrBuild : function(node) {
         if(FS.existsSync(node.getLevelPath())) {
-            return new FileNode({
+            return new (registry.getNodeClass('FileNode'))({
                 root : this.root,
                 path : node.levelPath
             });

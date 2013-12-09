@@ -9,8 +9,6 @@ var FS = require('fs'),
 module.exports = function(registry) {
 
 var Node = registry.getNodeClass('Node'),
-    FileNode = registry.getNodeClass('FileNode'),
-    BlockNode = registry.getNodeClass('BlockNode'),
     /** Id главного узла сборки наборов */
     SETS_NODE_ID = 'sets';
 
@@ -245,7 +243,8 @@ registry.decl('SetNode', 'MagicNode', {
      * e.g. `desktop.examples/block1` -> `desktop.blocks/block1`
      */
     createSourceBlockNode : function(item) {
-        var arch = this.ctx.arch,
+        var BlockNode = registry.getNodeClass('BlockNode'),
+            arch = this.ctx.arch,
             opts = {
                 root : this.root,
                 item : item,
