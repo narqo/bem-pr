@@ -83,7 +83,6 @@ registry.decl('ExampleNode', 'TargetBundleNode', {
 
     createTechNode : function(tech, bundleNode, magicNode) {
         if(tech === this.item.tech) {
-            console.log(tech === this.item.tech, tech, this.item.tech);
             return this.setSourceItemNode(tech, bundleNode, magicNode);
         }
         return this.__base.apply(this, arguments);
