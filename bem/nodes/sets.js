@@ -208,32 +208,36 @@ registry.decl('SetNode', 'MagicNode', {
 
         var arch = this.ctx.arch,
             LevelNode = registry.getNodeClass(levelNodeClass),
+            sources = [],
             opts = {
                 root : this.root,
                 level : this.path,
                 item : item,
                 techName : item.tech,
-                sources : []
+                sources : sources
             },
             nodeid = LevelNode.createId(opts),
             levelNode;
 
         if(arch.hasNode(nodeid)) {
             levelNode = arch.getNode(nodeid);
+        } else {
+            levelNode = LevelNode.create(opts);
+            arch.setNode(levelNode);
         }
 
-        var source = sourceNode.level.getPathByObj(item, item.tech);
-        if(FS.existsSync(source)) {
-            opts.sources = [PATH.relative(this.root, source)];
+        var sourcePath = sourceNode.level.getPathByObj(item, item.tech),
+            levelSources = levelNode.sources || [];
+
+        if(FS.existsSync(sourcePath)) {
+            sources = [PATH.relative(this.root, sourcePath)];
         }
 
-        if(levelNode) {
-            Array.prototype.push.apply(levelNode.sources, opts.sources);
-            return levelNode;
-        }
-
-        levelNode = new LevelNode(opts);
-        arch.setNode(levelNode);
+        sources.forEach(function(source) {
+            if(levelSources.indexOf(source) === -1) {
+                levelSources.push(source);
+            }
+        });
 
         return levelNode;
     },
