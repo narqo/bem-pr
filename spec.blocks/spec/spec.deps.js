@@ -1,5 +1,4 @@
-([
-{
+[{
     tech : ['spec.js', 'js'],
     mustDeps : [
         { block : 'i-bem', tech : 'bemhtml' },
@@ -13,5 +12,4 @@
         'sinon',
         'sinon-chai'
     ]
-}
-])
+}]

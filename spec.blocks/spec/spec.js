@@ -1,8 +1,15 @@
-modules.require(['mocha', 'chai', 'sinon', 'sinon-chai'], function(mocha, chai, sinon, sinonChai) {
-    mocha.ui('bdd');
+modules.define(
+    'spec',
+    ['mocha', 'chai', 'sinon', 'sinon-chai'],
+    function(provide, mocha, chai, sinon, sinonChai) {
 
-    chai.use(sinonChai);
-    chai.should();
+mocha.ui('bdd');
+
+chai.use(sinonChai);
+chai.should();
+
+provide();
+
 });
 
 (function() {
