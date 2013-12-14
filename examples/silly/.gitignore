@@ -1,0 +1,10 @@
+.bem/cache
+.bem/snapshots
+*.bundles/*/*
+!*.bundles/*/*.bemjson.js
+!*.bundles/.bem/*
+
+/*.examples
+/*.specs
+/*.tests
+
