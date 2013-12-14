@@ -56,7 +56,7 @@ registry.decl('SpecsLevelNode', 'TargetsLevelNode', {
         return normalized;
     },
 
-    createBundleNode : function(item, bundleName, source) {
+    createBundleNode : function(item, source) {
         var arch = this.ctx.arch,
             content = this.getSpecContent(this.decl),
             BundleNode = this.getBundleNodeClass(),
@@ -66,7 +66,7 @@ registry.decl('SpecsLevelNode', 'TargetsLevelNode', {
                 item  : item,
                 source : source,
                 envData: {
-                    BundleName : bundleName,
+                    BundleName : item.block,
                     TmplDecl : JSON.stringify(this.decl),
                     TmplContent : JSON.stringify(content)
                 }
@@ -89,13 +89,11 @@ registry.decl('SpecsLevelNode', 'TargetsLevelNode', {
         return function() {
             return Q.when(base.call(this), function(level) {
                 var realLevel = PATH.join(level, '.bem/level.js'),
-                    bundleName = this.techName.replace(/\./g, '-'),
                     item = {
-                        block : bundleName,
-                        tech : 'bemjson.js' // FIXME: hardcode
+                        block : this.techName.replace(/\./g, '-')
                     },
                     source = U.extend({ level : this.path }, this.item),
-                    bundleNode = this.createBundleNode(item, bundleName, source);
+                    bundleNode = this.createBundleNode(item, source);
 
                 if(bundleNode) {
                     arch
@@ -118,6 +116,8 @@ registry.decl('SpecsLevelNode', 'TargetsLevelNode', {
 registry.decl('SpecNode', 'TargetBundleNode', {
 
     __constructor: function(o) {
+        o.item.tech = 'bemjson.js';
+
         var testsEnv = JSON.parse(process.env.__tests || '{}'),
             testId = PATH.join(o.root, o.level, o.item.block),
             pageRelPath = PATH.join(o.level, o.item.block, o.item.block + '.html'),
@@ -131,25 +131,26 @@ registry.decl('SpecNode', 'TargetBundleNode', {
             pageURL : pageURL
         }, o.envData);
 
-        // Data for 'test.bemjson.js' and 'phantomjs' technologies
+        // Data for 'spec.bemjson.js' and 'phantomjs' technologies
         process.env.__tests = JSON.stringify(testsEnv);
 
         this.__base(o);
     },
 
-    getAutogenTechName : function() {
-        return 'spec.bemjson.js';
-    },
-
     createTechNode : function(tech, bundleNode, magicNode) {
         if(tech === this.item.tech) {
+            // Use `spec.bemjson.js` tech instead of `bemjson.js`
             return this.createSourceItemNode(tech, bundleNode, magicNode);
         }
         return this.__base.apply(this, arguments);
     },
 
     createSourceItemNode : function(tech, bundleNode, magicNode) {
-        tech = this.getAutogenTechName();
+        tech = 'spec.bemjson.js';
+        return this['create-' + tech + '-node'](tech, bundleNode, magicNode);
+    },
+
+    'create-spec.bemjson.js-node' : function(tech, bundleNode, magicNode) {
         return this.setBemCreateNode(
             tech,
             this.level.resolveTech(tech),
@@ -158,7 +159,7 @@ registry.decl('SpecNode', 'TargetBundleNode', {
             true);
     },
 
-    'create-phantomjs-node': function(tech, bundleNode, magicNode) {
+    'create-phantomjs-node' : function(tech, bundleNode, magicNode) {
         return this.setBemCreateNode(
             tech,
             this.level.resolveTech(tech),
@@ -178,11 +179,11 @@ registry.decl('SpecNode', 'TargetBundleNode', {
             true);      // NOTE: <- override
     },
 
-    'create-spec.js-optimizer-node': function(tech, sourceNode, bundleNode) {
+    'create-spec.js-optimizer-node' : function(tech, sourceNode, bundleNode) {
         return this.createBorschikOptimizerNode('js', sourceNode, bundleNode);
     },
 
-    'create-spec.js+browser.js+bemhtml-optimizer-node': function(tech, sourceNode, bundleNode) {
+    'create-spec.js+browser.js+bemhtml-optimizer-node' : function(tech, sourceNode, bundleNode) {
         return this.createBorschikOptimizerNode('js', sourceNode, bundleNode);
     }
 

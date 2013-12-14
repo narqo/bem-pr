@@ -208,6 +208,7 @@ registry.decl('TargetsLevelNode', 'GeneratedLevelNode', {
 
 });
 
+
 registry.decl('TargetBundleNode', 'BundleNode', {
 
     __constructor : function(o) {
