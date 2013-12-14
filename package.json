@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "phantomjs": "~1.9.1",
-    "mocha-phantomjs": "~2.0.2",
+    "mocha-phantomjs": "~3.2.0",
     "q": "~0.9.6",
     "q-io": "~1.10.6"
   },
