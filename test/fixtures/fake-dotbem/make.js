@@ -98,11 +98,16 @@ MAKE.decl('ExampleNode', {
 MAKE.decl('SpecNode', {
 
     getTechs : function() {
-        return this.__base()
-            .concat([
-                'spec.js+browser.js+bemhtml',
-                'phantomjs'
-            ]);
+        return [
+            'bemjson.js',
+            'bemdecl.js',
+            'deps.js',
+            'css',
+            'spec.js+browser.js+bemhtml',
+            'bemhtml',
+            'html',
+            'phantomjs'
+        ];
     },
 
     getLevels : function() {
