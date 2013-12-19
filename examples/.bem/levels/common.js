@@ -9,11 +9,11 @@ function resolveTechs(registry, prefix) {
 
 exports.getTechs = function() {
     var techs = {
-        'blocks' : 'level-proto',
-        'bundles' : 'level-proto',
-        'examples' : 'level-proto',
-        'tests' : 'level-proto',
-        'specs' : 'level-proto',
+        'blocks' : 'v2/level-proto',
+        'bundles' : 'v2/level-proto',
+        'examples' : 'v2/level-proto',
+        'tests' : 'v2/level-proto',
+        'specs' : 'v2/level-proto',
         'bemjson.js' : 'bem/lib/tech/v2',
 
         'bemdecl.js' : 'v2/bemdecl.js',
