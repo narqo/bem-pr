@@ -342,6 +342,10 @@ registry.decl('SetNode', 'MagicNode', {
         return this.createLevelNode(item, sourceNode, collectionNode, 'ExamplesLevelNode');
     },
 
+    'create-tests-node' : function(item, sourceNode, collectionNode) {
+        return this.createLevelNode(item, sourceNode, collectionNode, 'TestsLevelNode');
+    },
+
     'create-specs-node' : function(item, sourceNode, collectionNode) {
         return this.createLevelNode(item, sourceNode, collectionNode, 'SpecsLevelNode');
     },
