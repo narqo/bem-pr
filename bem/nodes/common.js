@@ -151,8 +151,8 @@ registry.decl('TargetsLevelNode', 'GeneratedLevelNode', {
         this.__base(o);
     },
 
-    getBundleNodeClass : function() {
-        return registry.getNodeClass('TargetBundleNode');
+    getBundleNodeClassName : function() {
+        return 'TargetBundleNode';
     },
 
     getSourceItemTechs : function() {

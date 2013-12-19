@@ -59,7 +59,7 @@ registry.decl('SpecsLevelNode', 'TargetsLevelNode', {
     createBundleNode : function(item, source) {
         var arch = this.ctx.arch,
             content = this.getSpecContent(this.decl),
-            BundleNode = this.getBundleNodeClass(),
+            BundleNode = registry.getNodeClass(this.getBundleNodeClassName()),
             opts = {
                 root  : this.root,
                 level : this.path,
@@ -106,8 +106,8 @@ registry.decl('SpecsLevelNode', 'TargetsLevelNode', {
         };
     },
 
-    getBundleNodeClass : function() {
-        return registry.getNodeClass('SpecNode');
+    getBundleNodeClassName : function() {
+        return 'SpecNode';
     }
 
 });

@@ -17,7 +17,7 @@ registry.decl('ExamplesLevelNode', 'TargetsLevelNode', {
         return function() {
             return Q.when(base.call(this), function(level) {
                 var realLevel = PATH.join(level, '.bem/level.js'),
-                    BundleNode = this.getBundleNodeClass();
+                    BundleNode = registry.getNodeClass(this.getBundleNodeClassName());
 
                 this.scanSources().forEach(function(item) {
                     var opts = {
@@ -54,8 +54,8 @@ registry.decl('ExamplesLevelNode', 'TargetsLevelNode', {
             );
     },
 
-    getBundleNodeClass : function() {
-        return registry.getNodeClass('ExampleNode');
+    getBundleNodeClassName : function() {
+        return 'ExampleNode';
     }
 
 });
