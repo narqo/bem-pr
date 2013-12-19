@@ -30,8 +30,9 @@ MAKE.decl('SetsNode', {
 
     getSourceTechs : function(setName) {
         //return ['examples'];
+        return ['tests'];
 //        return ['specs'];
-        return ['examples', 'specs'];
+//        return ['examples', 'specs'];
     }
 
 });
@@ -47,6 +48,15 @@ MAKE.decl('SetsNode', {
 
 // TODO: configure tests building process
 //MAKE.decl('SpecNode', {
+//
+//    getLevels : function() {
+//        return [];
+//    }
+//
+//});
+
+// TODO: configure tests building process
+//MAKE.decl('TestNode', {
 //
 //    getLevels : function() {
 //        return [];
