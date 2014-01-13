@@ -45,15 +45,6 @@ registry.decl('ExamplesLevelNode', 'TargetsLevelNode', {
         return ['bemjson.js'];
     },
 
-    getLevels : function(tech) {
-        return this.__base.apply(this, arguments)
-            .concat(
-                this.rootLevel
-                    .getTech('blocks')
-                    .getPath(this.getSourceNodePrefix())
-            );
-    },
-
     getBundleNodeClassName : function() {
         return 'ExampleNode';
     }
@@ -72,12 +63,13 @@ registry.decl('ExampleNode', 'TargetBundleNode', {
     },
 */
 
-    getLevels : function(tech) {
+    getLevels : function() {
         return this.__base.apply(this, arguments)
-            .concat(
+            .concat(PATH.resolve(
+                this.root,
                 this.rootLevel
                     .getTech('blocks')
-                    .getPath(this.getSourceNodePrefix())
+                    .getPath(this.getSourceNodePrefix()))
             );
     },
 
