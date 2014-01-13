@@ -1,3 +1,12 @@
+0.6.0 / 2014-01-13
+==================
+
+HAPPY (NEW) YEAR RELEASE
+
+  * add nodes for "tests"-building (#61, #64)
+  * [mocha-phantomjs](https://github.com/metaskills/mocha-phantomjs) was updated to 3.2.x
+  * minor bugs fixed
+
 0.5.3 / 2013-12-12
 ==================
 
