@@ -22,7 +22,16 @@ registry.decl('JsdocLevelNode', 'DocsLevelNode', {
 registry.decl('JsdocSourceNode', 'DocsSourceNode', {
 
     processContent : function(content) {
-        return JSON.stringify(JSDOC(content), null, 2);
+        try {
+            return JSON.stringify(JSDOC(content), null, 2);
+        } catch(e) {
+            if(e.message) {
+                e.message = 'Error while processing files:\n' +
+                    this.sources.join('\n') + '\n\n' +
+                    e.message;
+            }
+            throw e;
+        }
     }
 
 }, {
