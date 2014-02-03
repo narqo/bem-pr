@@ -8,7 +8,15 @@ var PATH = require('path'),
 
 module.exports = function(registry) {
 
-registry.decl('ExamplesLevelNode', 'TargetsLevelNode', {
+registry.decl('SetNode', {
+
+    'create-examples-node' : function(item, sourceNode, setNode) {
+        return this.createLevelNode(item, sourceNode, setNode, 'ExamplesLevelNode');
+    }
+
+});
+
+registry.decl('ExamplesLevelNode', 'TargetLevelNode', {
 
     alterArch : function() {
         var base = this.__base(),
@@ -28,7 +36,7 @@ registry.decl('ExamplesLevelNode', 'TargetsLevelNode', {
                     };
 
                     if(!arch.hasNode(BundleNode.createId(opts))) {
-                        arch.setNode(new BundleNode(opts), level, [realLevel, this]);
+                        arch.setNode(BundleNode.create(opts), level, [this, realLevel]);
                     }
                 }, this);
 
@@ -47,21 +55,56 @@ registry.decl('ExamplesLevelNode', 'TargetsLevelNode', {
 
     getBundleNodeClassName : function() {
         return 'ExampleNode';
+    },
+
+    getSources : function() {
+        if(!this._sourcesPaths) {
+            var absolutivize = PATH.resolve.bind(null, this.root);
+            this._sourcesPaths = this.sources.map(function(item) {
+                var level = item.prefix + item.suffix;
+                return createLevel(absolutivize(level));
+            });
+        }
+
+        return this._sourcesPaths;
+    },
+
+    getTechSuffixesForLevel : function(level) {
+        return this.getSourceItemTechs()
+            .reduce(function(techs, tech) {
+                return techs.concat(level.getTech(tech).getSuffixes());
+            }, [])
+            .map(function(suffix) {
+                return '.' + suffix;
+            });
+    },
+
+    scanSourceLevel : function(level) {
+        var relativize = PATH.relative.bind(null, this.root),
+            suffixes = this.getTechSuffixesForLevel(level);
+
+        // TODO: Level#scanFiles()
+        return level.getItemsByIntrospection()
+            .filter(function(item) {
+                return ~suffixes.indexOf(item.suffix);
+            })
+            .map(function(item) {
+                item.level = relativize(level.dir);
+                return item;
+            });
+    },
+
+    scanSources : function() {
+        return this.getSources()
+            .map(this.scanSourceLevel.bind(this))
+            .reduce(function(decls, item) {
+                return decls.concat(item);
+            }, []);
     }
 
 });
 
-
 registry.decl('ExampleNode', 'TargetBundleNode', {
-
-/*
-    make : function() {
-        var _this = this;
-        return this.__base.apply(this, arguments).then(function() {
-            console.log(_this.ctx.arch.toString());
-        });
-    },
-*/
 
     getLevels : function() {
         return this.__base.apply(this, arguments)
@@ -128,7 +171,6 @@ registry.decl('ExampleNode', 'TargetBundleNode', {
     }
 
 });
-
 
 registry.decl('ExampleSourceNode', 'GeneratedFileNode', {
 

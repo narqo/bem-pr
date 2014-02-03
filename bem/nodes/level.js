@@ -46,23 +46,22 @@ registry.decl('BemCreateLevelNode', 'GeneratedFileNode', {
     },
 
     make : function() {
-        return QFS.exists(this.getLevelPath())
-            .then(function(exists) {
-                if(exists && !this.ctx.force) return;
+        return QFS.exists(this.getLevelPath()).then(function(exists) {
+            if(exists && !this.ctx.force) return;
 
-                var opts = U.extend({}, {
-                        force : this.force,
-                        level : this.getLevelProtoPath(),
-                        outputDir : this.getOutputDir()
-                    }),
-                    args = { names : [this.name] };
+            var opts = U.extend({}, {
+                    force : this.force,
+                    level : this.getLevelProtoPath(),
+                    outputDir : this.getOutputDir()
+                }),
+                args = { names : [this.name] };
 
-                this.log('bem.create.level(%s %s)',
-                    JSON.stringify(opts, null, 4),
-                    JSON.stringify(args, null, 4));
+            this.log('bem.create.level(%s %s)',
+                JSON.stringify(opts, null, 4),
+                JSON.stringify(args, null, 4));
 
-                return this.createLevel(opts, args);
-            }.bind(this));
+            return this.createLevel(opts, args);
+        }.bind(this));
     }
 
 }, {

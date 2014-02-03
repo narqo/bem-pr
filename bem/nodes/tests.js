@@ -1,5 +1,13 @@
 module.exports = function(registry) {
 
+registry.decl('SetNode', {
+
+    'create-tests-node' : function(item, sourceNode, setNode) {
+        return this.createLevelNode(item, sourceNode, setNode, 'TestsLevelNode');
+    }
+
+});
+
 registry.decl('TestsLevelNode', 'ExamplesLevelNode', {
 
     getProtoLevelName : function() {
@@ -12,8 +20,6 @@ registry.decl('TestsLevelNode', 'ExamplesLevelNode', {
 
 });
 
-registry.decl('TestNode', 'ExampleNode', {
-
-});
+registry.decl('TestNode', 'ExampleNode', {});
 
 };
