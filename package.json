@@ -11,7 +11,7 @@
     "mocha-phantomjs": "~3.2.0",
     "q": "~0.9.6",
     "q-io": "~1.10.6",
-    "bem-jsd": "~1.0.4",
+    "bem-jsd": "~1.2.0",
     "marked": "~0.3.0"
   },
   "devDependencies": {
