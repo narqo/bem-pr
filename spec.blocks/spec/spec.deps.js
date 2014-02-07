@@ -1,5 +1,9 @@
 [{
-    tech : ['spec.js', 'js'],
+    tech : 'spec.js',
+    mustDeps : { block: 'spec', tech : 'js' }
+},
+{
+    tech : 'js',
     mustDeps : [
         { block : 'i-bem', tech : 'bemhtml' },
         { block : 'spec', tech : 'bemhtml' }
@@ -11,5 +15,8 @@
         'chai',
         'sinon',
         'sinon-chai'
+    ],
+    shouldDeps : [
+        'jquery'
     ]
 }]
