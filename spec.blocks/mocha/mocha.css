@@ -1,1 +1,7 @@
 @import url(__v1-17/mocha__v1-17.css);
+
+/* NOTE: hide mocha html-reporter, so it doesn't affect viewport's dimensions (#72) */
+#mocha
+{
+    display: none;
+}
