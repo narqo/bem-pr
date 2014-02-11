@@ -1,6 +1,7 @@
 var PATH = require('path'),
     BEM = require('bem'),
     Q = require('q'),
+    QFS = require('q-io/fs'),
     U = BEM.util,
     createLevel = BEM.createLevel;
 
@@ -8,29 +9,57 @@ module.exports = function(registry) {
 
 registry.decl('MetadocLevelNode', 'TargetLevelNode', {
 
-    alterArch : function() {
-        var base = this.__base(),
-            arch = this.ctx.arch;
+    __constructor : function(o) {
+        this.__base(o);
+        this._bundleNodeClass = registry.getNodeClass(this.getBundleNodeClass());
+        this._fileNodeClass = registry.getNodeClass('FileNode');
+    },
 
+//    make : function() {
+//        return this.__base.apply(this, arguments)
+//            .then(function() { console.log(this.ctx.arch.toString()) }.bind(this));
+//    },
+
+    alterArch : function() {
+        var base = this.__base();
         return function() {
             return Q.when(base.call(this), function(level) {
-                var realLevel = PATH.join(level, '.bem/level.js'),
-                    opts = {
-                        root : this.root,
-                        level : this.path,
-                        item : this.item,
-                        sources : this.sources
-                    },
-                    BundleNode = registry.getNodeClass(this.getBundleNodeClass()),
-                    bundleNodeId = BundleNode.createId(opts);
-
-                if(!arch.hasNode(bundleNodeId)) {
-                    arch.setNode(BundleNode.create(opts), level, [this, realLevel]);
-                }
+                this.sources.forEach(function(item) {
+                    this.createBundleNode(item, level);
+                }, this);
 
                 return Q.when(this.takeSnapshot('After SpecsLevelNode alterArch ' + this.getId()));
             }.bind(this));
         };
+    },
+
+    createBundleNode : function(item, level) {
+        var arch = this.ctx.arch,
+            opts = {
+                root : this.root,
+                level : this.path,
+                item : item
+            },
+            BundleNode = this._bundleNodeClass,
+            bundleNode = BundleNode.createId(opts);
+
+        if(arch.hasNode(bundleNode)) {
+            bundleNode = arch.getNode(bundleNode);
+        } else {
+            bundleNode = BundleNode.create(opts);
+            arch.setNode(bundleNode, level, [this, PATH.join(level, '.bem/level.js')]);
+        }
+
+        var source = item.prefix + item.suffix;
+        bundleNode.sources.push(source);
+
+        if(!arch.hasNode(source)) {
+            arch.setNode(
+                this._fileNodeClass.create({ root : this.root, path : source }),
+                bundleNode);
+        }
+
+        return bundleNode;
     },
 
     getBundleNodeClass : function() {
@@ -45,6 +74,57 @@ registry.decl('MetadocLevelNode', 'TargetLevelNode', {
 
 });
 
+registry.decl('MetadocSourceNode', 'GeneratedFileNode', {
+
+    __constructor : function(o) {
+        this.__base(U.extend({ path : this.__self.createPath(o) }, o));
+        this.rootLevel = createLevel(o.root);
+        this.sources = o.sources || [];
+    },
+
+    make : function() {
+        var path = this.getPath();
+        return this.getSourceContent()
+            .then(this.processContent.bind(this))
+            .then(function(content) { return U.writeFile(path, content) });
+        //.then(function() { console.log(this.ctx.arch.toString() )}.bind(this));
+    },
+
+    getSourceContent : function() {
+        var content = this.sources.map(function(path) {
+            return QFS
+                .read(PATH.resolve(this.root, path))
+                .then(function(source) { return source });
+        }, this);
+
+        return Q.all(content).then(function(content) {
+            return content.join('\n');
+        });
+    },
+
+    processContent : function(content) {
+        return content;
+    }
+
+}, {
+
+    createId : function(o) {
+        return this.createPath(o);
+    },
+
+    createPath : function(o) {
+        return PATH.join(o.level, this.createNodePrefix(o.item) + '.metadoc.json');
+    },
+
+    createNodePrefix : function(o) {
+        return o.block +
+            (o.elem? '__' + o.elem : '') +
+            (o.mod? '_' + o.mod + (o.val? '_' + o.val : '') : '');
+    }
+
+});
+
+/*
 registry.decl('MetadocSourceNode', 'DocsSourceNode', {
 
     make : function() {
@@ -153,5 +233,7 @@ registry.decl('MetadocSourceNode', 'DocsSourceNode', {
     }
 
 });
+*/
 
 };
+

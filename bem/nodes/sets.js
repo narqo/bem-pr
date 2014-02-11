@@ -148,7 +148,7 @@ registry.decl('SetNode', 'MagicNode', {
 
             this.scanSources().forEach(function(item) {
                 var blockNode = this.createSourceBlockNode(item),
-                    targetLevelNode = this.createTargetLevelNode(item, blockNode, setNode);
+                    targetLevelNode = this.createTargetLevelNode(item, blockNode, setNode, aliasSetNode);
 
                 arch
                     .addParents(targetLevelNode, aliasSetNode)
@@ -183,14 +183,14 @@ registry.decl('SetNode', 'MagicNode', {
      * Creates level node for target `item`,
      * e.g. `desktop.examples/block1`
      */
-    createTargetLevelNode : function(item, sourceNode, setNode) {
+    createTargetLevelNode : function(item, sourceNode, setNode, aliasSetNode) {
         var createLevelNodeFn = 'create-' + this.tech + '-node';
 
         if(typeof this[createLevelNodeFn] !== 'function') {
             createLevelNodeFn = 'createLevelNode';
         }
 
-        return this[createLevelNodeFn].call(this, item, sourceNode, setNode);
+        return this[createLevelNodeFn].call(this, item, sourceNode, setNode, aliasSetNode);
     },
 
     /**
@@ -260,8 +260,8 @@ registry.decl('SetNode', 'MagicNode', {
         case 'examples':
             return ['examples'];
 
-        case 'docs':
-            return ['md'];
+        case 'site':
+            return ['vanilla.js', 'js'];
 
         case 'jsdoc':
             return ['vanilla.js', 'js'];

@@ -11,7 +11,7 @@ registry.decl('SetNode', {
 
 });
 
-registry.decl('JsdocLevelNode', 'DocsLevelNode', {
+registry.decl('JsdocLevelNode', 'MetadocLevelNode', {
 
     getBundleNodeClass : function() {
         return 'JsdocSourceNode';
@@ -19,7 +19,7 @@ registry.decl('JsdocLevelNode', 'DocsLevelNode', {
 
 });
 
-registry.decl('JsdocSourceNode', 'DocsSourceNode', {
+registry.decl('JsdocSourceNode', 'MetadocSourceNode', {
 
     processContent : function(content) {
         try {

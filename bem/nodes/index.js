@@ -8,9 +8,9 @@ module.exports = function rollRegistry(registry) {
         'examples',
         'tests',
         'specs',
-        'docs',
+        'metadoc',
         'jsdoc',
-        //'metadoc'
+        'site'
     ]
     .forEach(function(mod) {
         require('./' + mod)(registry);
