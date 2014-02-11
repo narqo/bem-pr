@@ -71,7 +71,7 @@ registry.decl('SiteLevelNode', 'GeneratedLevelNode', {
                         root   : this.root,
                         level  : this.path,
                         item   : { block : 'index' },
-                        sources : this.sources
+                        sources : this.getSources()
                     };
 
                 if(!arch.hasNode(BundleNode.createId(opts))) {
@@ -81,6 +81,40 @@ registry.decl('SiteLevelNode', 'GeneratedLevelNode', {
                 return;
             }.bind(this));
         };
+    },
+
+    getSources : function() {
+        var keys = {},
+            key,
+            index,
+            item,
+            tech;
+
+        return this.sources.reduce(function(sources, t) {
+            key = U.bemKey(t);
+
+            if(!keys[key]) {
+                item = {
+                    block : t.block,
+                    elem : t.elem,
+                    mod : t.mod,
+                    val : t.val,
+                    techs : [],
+                    suffixes : []
+                };
+                keys[key] = (index = sources.push(item) - 1);
+            }
+
+            item = sources[keys[key]];
+            tech = t.tech;
+
+            if(!~item.techs.indexOf(tech)) {
+                item.techs.push(tech);
+                item.suffixes.push(t.suffix);
+            }
+
+            return sources;
+        }, []);
     },
 
     getBundleNodeClassName : function() {
