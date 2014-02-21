@@ -8,9 +8,9 @@ exports.API_VER = 2;
 exports.techMixin = {
 
     /**
-     * Если в <bundle>.bemjson.js есть декларация блока "spec", и в поле "decl" блока
-     * перечислены конкретные БЭМ-сущности, то строим декларацию таким образом,
-     * чтобы в файл <bundle>.spec.js попали **только** тесты этих БЭМ-сущностей.
+     * Перестраиваем декларацию таким образом, чтобы в файл <bundle>.spec.js
+     * попали **только** тесты БЭМ-сущностей, перечисленных в контенте
+     * блока `spec` в <bundle>.bemjson.js
      *
      * @param {Object} decl
      * @returns {Object}
@@ -22,14 +22,17 @@ exports.techMixin = {
         // например из bem/lib/nodes/build.js
         if(!opts.outputDir || !opts.outputName) return decl;
 
-        var output = PATH.resolve(opts.outputDir, opts.outputName);
+        var _this = this,
+            output = PATH.resolve(opts.outputDir, opts.outputName);
 
         return QFS.read(output + '.bemjson.js', { charset: 'utf8' }).then(function(bemjson) {
-            var specs = [];
+            var specs = [],
+                newDecl;
 
             JSON.stringify(VM.runInThisContext(bemjson), function(key, val) {
                 if(key === 'block' && val === 'spec') {
-                    specs = specs.concat(this.decl || []);
+                    newDecl = _this.buildBemdeclByBemjson(this.content);
+                    newDecl && (specs = specs.concat(newDecl));
                 }
                 return val;
             });
@@ -42,6 +45,27 @@ exports.techMixin = {
                 return decl;
             }
         });
+    },
+
+    buildBemdeclByBemjson : function(bemjson) {
+        var decl = {
+                block : bemjson.block
+            },
+            mods, m;
+
+        bemjson.elem && (decl.elem = bemjson.elem);
+
+        if(mods = bemjson.mods || bemjson.elemMods) {
+            for(m in mods) {
+                if(mods.hasOwnProperty(m)) {
+                    decl.mod = m;
+                    mods[m] && (decl.val = mods[m]);
+                    break;
+                }
+            }
+        }
+
+        return decl;
     },
 
     getBuildResultChunk : function(relPath, path, suffix) {
