@@ -11,7 +11,6 @@ exports.techMixin = {
             '"<!DOCTYPE html>",',
             '{"tag": "html", "content": [',
             '  {"tag": "head", "content": [',
-            '    {"tag": "title", "content": "{{bemBundleName}}"},',
             '    {"tag": "meta", "attrs": {"charset": "utf-8"}},',
             '    {"tag": "link", "attrs": {"href": "_{{bemBundleName}}.css", "rel": "stylesheet"}},',
             '    {"tag": "script", "attrs": {"src": "_{{bemBundleName}}.spec.js"}}',
@@ -19,7 +18,6 @@ exports.techMixin = {
             '  {"tag": "body", "content":',
             '    {',
             '      "block": "spec",',
-            '      "decl": {{bemTmplDecl}},',
             '      "content": {{bemTmplContent}}',
             '    }',
             '  }',
@@ -34,7 +32,6 @@ exports.techMixin = {
             this.getTemplate(),
             {
                 BundleName : envProps.BundleName || vars.BlockName,
-                TmplDecl : envProps.TmplDecl || "",
                 TmplContent : envProps.TmplContent || ""
             });
     },

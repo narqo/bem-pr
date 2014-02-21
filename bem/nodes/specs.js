@@ -8,15 +8,8 @@ module.exports = function(registry) {
 registry.decl('SpecsLevelNode', 'TargetsLevelNode', {
 
     __constructor : function(o) {
-        this.__base(U.extend({}, o, { item : this.getSpecsLevelItem(o.item) }));
-
-        var item = this.item,
-            decl = this.decl = {};
-
-        ['block', 'elem', 'mod', 'val'].reduce(function(decl, name) {
-            item[name] && (decl[name] = item[name]);
-            return decl;
-        }, decl);
+        U.extend({}, o.item, { suffix : '.specs', tech : 'spec' });
+        this.__base(o);
     },
 
     getSpecsLevelItem : function(item) {
@@ -58,17 +51,15 @@ registry.decl('SpecsLevelNode', 'TargetsLevelNode', {
 
     createBundleNode : function(item, source) {
         var arch = this.ctx.arch,
-            content = this.getSpecContent(this.decl),
             BundleNode = registry.getNodeClass(this.getBundleNodeClassName()),
             opts = {
                 root  : this.root,
                 level : this.path,
                 item  : item,
                 source : source,
-                envData: {
+                envData : {
                     BundleName : item.block,
-                    TmplDecl : JSON.stringify(this.decl),
-                    TmplContent : JSON.stringify(content)
+                    TmplContent : JSON.stringify(this.getSpecContent(this.item))
                 }
             };
 
@@ -119,17 +110,9 @@ registry.decl('SpecNode', 'TargetBundleNode', {
         o.item.tech = 'bemjson.js';
 
         var testsEnv = JSON.parse(process.env.__tests || '{}'),
-            testId = PATH.join(o.root, o.level, o.item.block),
-            pageRelPath = PATH.join(o.level, o.item.block, o.item.block + '.html'),
-            consoleReporter = this.consoleReporter || '',
-            pageURL = this.webRoot?
-                this.webRoot + pageRelPath :
-                'file://' + PATH.join(o.root, pageRelPath);
+            testId = PATH.join(o.root, o.level, o.item.block);
 
-        testsEnv[testId] = U.extend(testsEnv[testId] || {}, {
-            consoleReporter : consoleReporter,
-            pageURL : pageURL
-        }, o.envData);
+        testsEnv[testId] = U.extend(testsEnv[testId] || {}, o.envData);
 
         // Data for 'spec.bemjson.js' and 'phantomjs' technologies
         process.env.__tests = JSON.stringify(testsEnv);
@@ -166,7 +149,7 @@ registry.decl('SpecNode', 'TargetBundleNode', {
             bundleNode,
             magicNode,
             true,
-            !true);    // FIXME: bem/bem-tools#527
+            false);    // FIXME: false because of http://github.com/bem/bem-tools#527
     },
 
     'create-spec.js+browser.js+bemhtml-node' : function(tech, bundleNode, magicNode) {
