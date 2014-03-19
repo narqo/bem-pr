@@ -1,4 +1,5 @@
-var PATH = require('path'),
+var FS = require('fs'),
+    PATH = require('path'),
     BEM = require('bem'),
     Q = require('q'),
     U = BEM.util;
@@ -120,17 +121,39 @@ registry.decl('SpecNode', 'TargetBundleNode', {
         this.__base(o);
     },
 
+    createSourceItemNode : function(tech, bundleNode, magicNode) {
+        tech = 'spec.bemjson.js';
+        return this['create-' + tech + '-node'](tech, bundleNode, magicNode);
+    },
+
+    createPhantomJsNode : function(tech, bundleNode, magicNode) {
+        var arch = this.ctx.arch,
+            PhantomJsNode = registry.getNodeClass('PhantomJsNode'),
+            bundlePath = this.getBundlePath(tech),
+            opts = {
+                root : this.root,
+                path : bundlePath
+            };
+
+        if(arch.hasNode(PhantomJsNode.createId(opts))) {
+            return null;
+        }
+
+        var phantomJsNode = new PhantomJsNode(opts);
+        arch.setNode(phantomJsNode, null, arch.getNode(bundlePath));
+
+        bundleNode && arch.addParents(phantomJsNode, bundleNode);
+        magicNode && arch.addChildren(phantomJsNode, magicNode);
+
+        return phantomJsNode;
+    },
+
     createTechNode : function(tech, bundleNode, magicNode) {
         if(tech === this.item.tech) {
             // Use `spec.bemjson.js` tech instead of `bemjson.js`
             return this.createSourceItemNode(tech, bundleNode, magicNode);
         }
         return this.__base.apply(this, arguments);
-    },
-
-    createSourceItemNode : function(tech, bundleNode, magicNode) {
-        tech = 'spec.bemjson.js';
-        return this['create-' + tech + '-node'](tech, bundleNode, magicNode);
     },
 
     'create-spec.bemjson.js-node' : function(tech, bundleNode, magicNode) {
@@ -143,13 +166,7 @@ registry.decl('SpecNode', 'TargetBundleNode', {
     },
 
     'create-phantomjs-node' : function(tech, bundleNode, magicNode) {
-        return this.setBemCreateNode(
-            tech,
-            this.level.resolveTech(tech),
-            bundleNode,
-            magicNode,
-            true,
-            false);    // FIXME: false because of http://github.com/bem/bem-tools#527
+        return this.createPhantomJsNode('html', bundleNode, magicNode);
     },
 
     'create-spec.js+browser.js+bemhtml-node' : function(tech, bundleNode, magicNode) {

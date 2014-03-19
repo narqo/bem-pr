@@ -2,6 +2,7 @@ module.exports = function rollRegistry(registry) {
     [
         'monkey',
         'level',
+        'phantomjs',
         'common',
         'examples',
         'tests',
