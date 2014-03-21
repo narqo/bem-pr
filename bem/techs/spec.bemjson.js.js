@@ -11,7 +11,6 @@ exports.techMixin = {
             '"<!DOCTYPE html>",',
             '{"tag": "html", "content": [',
             '  {"tag": "head", "content": [',
-            '    {"tag": "title", "content": "{{bemBundleName}}"},',
             '    {"tag": "meta", "attrs": {"charset": "utf-8"}},',
             '    {"tag": "link", "attrs": {"href": "_{{bemBundleName}}.css", "rel": "stylesheet"}},',
             '    {"tag": "script", "attrs": {"src": "_{{bemBundleName}}.spec.js"}}',
@@ -19,7 +18,6 @@ exports.techMixin = {
             '  {"tag": "body", "content":',
             '    {',
             '      "block": "spec",',
-            '      "decl": {{bemTmplDecl}},',
             '      "content": {{bemTmplContent}}',
             '    }',
             '  }',
@@ -29,13 +27,12 @@ exports.techMixin = {
     },
 
     getCreateResult : function(path, suffix, vars) {
-        var envProps = JSON.parse(process.env.__tests || '{}')[PATH.dirname(path)] || {};
+        var envProps = (global.__bempr || {})[PATH.dirname(path)] || {};
         return BEM.template.process(
             this.getTemplate(),
             {
-                BundleName : envProps.BundleName || vars.BlockName,
-                TmplDecl : envProps.TmplDecl || "",
-                TmplContent : envProps.TmplContent || ""
+                BundleName : envProps.bundleName || vars.BlockName,
+                TmplContent : envProps.bundleContent || '""'
             });
     },
 
