@@ -13,9 +13,9 @@ exports.techMixin = {
     },
 
     getBuildResult : function(files, suffix, output, opts) {
-        var context = this.context,
-            ctxOpts = context.opts,
-            _this = this;
+        var _this = this,
+            context = this.context,
+            ctxOpts = context.opts;
 
         return ctxOpts.declaration
             .then(function(decl) {
@@ -51,7 +51,7 @@ exports.techMixin = {
         opts.force = true;
         var tech = context.createTech(techName);
 
-        if (tech.API_VER < 2) {
+        if(tech.API_VER < 2) {
             return Q.reject(new Error(this.getTechName() +
                 ' can’t use v1 ' + techName + ' tech to concat ' + techName + ' content. ' +
                 'Configure level to use v2 ' + techName + '.'));

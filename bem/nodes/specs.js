@@ -17,16 +17,19 @@ registry.decl('SpecsLevelNode', 'TargetLevelNode', {
 
     __constructor : function(o) {
         U.extend({}, o.item, { suffix : '.specs', tech : 'spec' });
-
         this.__base(o);
+    },
 
-        var item = this.item,
-            decl = this.decl = {};
+    getSpecsLevelItem : function(item) {
+        var tech = this.getSpecsLevelTechName();
+        return U.extend({}, item, {
+            suffix : '.' + tech,
+            tech : tech
+        });
+    },
 
-        ['block', 'elem', 'mod', 'val'].reduce(function(decl, name) {
-            item[name] && (decl[name] = item[name]);
-            return decl;
-        }, decl);
+    getSpecsLevelTechName : function() {
+        return 'specs';
     },
 
     getProtoLevelName : function() {
@@ -54,18 +57,14 @@ registry.decl('SpecsLevelNode', 'TargetLevelNode', {
 
     createBundleNode : function(item, source) {
         var arch = this.ctx.arch,
-            content = this.getSpecContent(this.decl),
             BundleNode = registry.getNodeClass(this.getBundleNodeClassName()),
             opts = {
                 root  : this.root,
                 level : this.path,
                 item  : item,
                 source : source,
-                envData: {
-                    BundleName : item.block,
-                    TmplDecl : JSON.stringify(this.decl),
-                    TmplContent : JSON.stringify(content)
-                }
+                bundleName : item.block,
+                bundleContent : JSON.stringify(this.getSpecContent(this.item))
             };
 
         if(arch.hasNode(BundleNode.createId(opts))) {
@@ -84,22 +83,18 @@ registry.decl('SpecsLevelNode', 'TargetLevelNode', {
 
         return function() {
             return Q.when(base.call(this), function(level) {
-                var realLevel = PATH.join(level, '.bem/level.js');
+                var realLevel = PATH.join(level, '.bem/level.js'),
+                    item = {
+                        block : this.techName.replace(/\./g, '-')
+                    },
+                    source = U.extend({ level : this.path }, this.item),
+                    bundleNode = this.createBundleNode(item, source);
 
-                this.sources.forEach(function(source) {
-                    var suffix = source.suffix.slice(1),
-                        item = {
-                            block : suffix.replace(/\./g, '-')
-                        },
-                        sourceItem = U.extend({ level : this.path }, this.item),
-                        bundleNode = this.createBundleNode(item, sourceItem);
-
-                    if(bundleNode) {
-                        arch
-                            .addParents(bundleNode, level)
-                            .addChildren(bundleNode, [realLevel, this]);
-                    }
-                }, this);
+                if(bundleNode) {
+                    arch
+                        .addParents(bundleNode, level)
+                        .addChildren(bundleNode, [realLevel, this]);
+                }
 
                 return Q.when(this.takeSnapshot('After SpecsLevelNode alterArch ' + this.getId()));
             }.bind(this));
@@ -117,21 +112,13 @@ registry.decl('SpecNode', 'TargetBundleNode', {
     __constructor: function(o) {
         o.item.tech = 'bemjson.js';
 
-        var testsEnv = JSON.parse(process.env.__tests || '{}'),
-            testId = PATH.join(o.root, o.level, o.item.block),
-            pageRelPath = PATH.join(o.level, o.item.block, o.item.block + '.html'),
-            consoleReporter = this.consoleReporter || '',
-            pageURL = this.webRoot?
-                this.webRoot + pageRelPath :
-                'file://' + PATH.join(o.root, pageRelPath);
+        var env = global.__bempr || (global.__bempr = {});
+        this.testId = PATH.join(o.root, o.level, o.item.block);
 
-        testsEnv[testId] = U.extend(testsEnv[testId] || {}, {
-            consoleReporter : consoleReporter,
-            pageURL : pageURL
-        }, o.envData);
-
-        // Data for 'spec.bemjson.js' and 'phantomjs' technologies
-        process.env.__tests = JSON.stringify(testsEnv);
+        env[this.testId] = {
+            bundleName : o.bundleName,
+            bundleContent : o.bundleContent
+        };
 
         this.__base(o);
     },
