@@ -159,13 +159,29 @@ registry.decl('SpecNode', 'TargetBundleNode', {
     },
 
     'create-phantomjs-node' : function(tech, bundleNode, magicNode) {
-        return this.setBemCreateNode(
-            tech,
-            this.level.resolveTech(tech),
-            bundleNode,
-            magicNode,
-            true,
-            !true);    // FIXME: bem/bem-tools#527
+        var arch = this.ctx.arch,
+            nodes = this.setBemCreateNode(
+                tech,
+                this.level.resolveTech(tech),
+                bundleNode,
+                magicNode,
+                true,
+                false);
+
+        function getBorchikNodeId(file) {
+            return PATH.join(PATH.dirname(file), '_' + PATH.basename(file));
+        }
+
+        ['css', 'spec.js'].forEach(function(tech) {
+            var bundlePath = this.getBundlePath(tech);
+            if(!arch.hasNode(bundlePath)) return;
+
+            // NOTE: linking phantomjs node with optimised files, e.g. `_index.spec.js`,
+            // so they would be built before PhantomJS would run.
+            arch.link(getBorchikNodeId(bundlePath), nodes);
+        }, this);
+
+        return nodes;
     },
 
     'create-spec.js+browser.js+bemhtml-node' : function(tech, bundleNode, magicNode) {
