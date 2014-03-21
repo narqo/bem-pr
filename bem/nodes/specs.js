@@ -181,11 +181,15 @@ registry.decl('SpecNode', 'TargetBundleNode', {
     },
 
     'create-spec.js-optimizer-node' : function(tech, sourceNode, bundleNode) {
-        return this.createBorschikOptimizerNode('js', sourceNode, bundleNode);
+        return this.createBorschikOptimizerNode(
+            process.env.ISTANBUL_COVERAGE?
+                require.resolve('../borschik/istanbul') :
+                'js',
+            sourceNode, bundleNode);
     },
 
-    'create-spec.js+browser.js+bemhtml-optimizer-node' : function(tech, sourceNode, bundleNode) {
-        return this.createBorschikOptimizerNode('js', sourceNode, bundleNode);
+    'create-spec.js+browser.js+bemhtml-optimizer-node' : function() {
+        return this['create-spec.js-optimizer-node'].apply(this, arguments);
     }
 
 });
