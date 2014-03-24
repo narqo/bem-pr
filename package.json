@@ -15,7 +15,7 @@
     "marked": "~0.3.0"
   },
   "devDependencies": {
-    "bem": "~0.7.2"
+    "bem": "~0.7.8"
   },
   "keywords": [
     "bem",
