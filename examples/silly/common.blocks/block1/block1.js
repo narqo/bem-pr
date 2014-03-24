@@ -2,7 +2,7 @@
  * @module events
  */
 
-modules.define(
+typeof modules === 'object' && modules.define(
     'events',
     ['identify', 'inherit', 'functions'],
     function(provide, identify, inherit, functions) {
