@@ -14,9 +14,7 @@
         'mocha',
         'chai',
         'sinon',
-        'sinon-chai'
-    ],
-    shouldDeps : [
+        'sinon-chai',
         'jquery'
     ]
 }]

@@ -7,6 +7,10 @@ exports.API_VER = 2;
 
 exports.techMixin = {
 
+    getBuildSuffixesMap : function() {
+        return { 'spec.js': ['spec.js'] };
+    },
+
     /**
      * Перестраиваем декларацию таким образом, чтобы в файл <bundle>.spec.js
      * попали **только** тесты БЭМ-сущностей, перечисленных в контенте
@@ -74,10 +78,6 @@ exports.techMixin = {
 
     getDependencies : function() {
         return ['bemjson.js'];
-    },
-
-    getSuffixes : function() {
-        return ['spec.js'];
     }
 
 };
