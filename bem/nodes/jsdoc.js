@@ -1,4 +1,5 @@
 var PATH = require('path'),
+    UTIL = require('util'),
     JSDOC = require('bem-jsd');
 
 module.exports = function(registry) {
@@ -25,11 +26,7 @@ registry.decl('JsdocSourceNode', 'MetadocSourceNode', {
         try {
             return JSON.stringify(JSDOC(content), null, 2);
         } catch(e) {
-            if(e.message) {
-                e.message = 'Error while processing files:\n' +
-                    this.sources.join('\n') + '\n\n' +
-                    e.message;
-            }
+            e.message = UTIL.format('Error while processing files:\n%s\n\n', this.sources.join('\n')) + e.message;
             throw e;
         }
     }

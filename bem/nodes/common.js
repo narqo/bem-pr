@@ -15,6 +15,9 @@ registry.decl('GeneratedLevelNode', 'MagicNode', {
 
         this.__base(U.extend({ path : this.__self.createPath(o) }, o));
 
+        this._realLevelNode = null;
+        this.levelPath = null;
+
         this.outputDir = o.level;
         this.outputName = this.__self.createName(o);
     },
@@ -28,30 +31,19 @@ registry.decl('GeneratedLevelNode', 'MagicNode', {
 
         return function() {
             var arch = ctx.arch,
-                path = this.path,
-                FileNode = registry.getNodeClass('FileNode');
+                path = this.path;
 
             if(arch.hasNode(path)) {
                 return arch.getNode(path).getId();
             }
 
-            var levelNode = new FileNode({
-                root : this.root,
-                path : path
-            });
+            var levelNode = registry
+                .getNodeClass('FileNode')
+                .create({ root : this.root, path : path });
 
-            arch.setNode(levelNode, arch.getParents(this));
-
-            var opts = {
-                    root : this.root,
-                    output : this.outputDir,
-                    name : this.outputName,
-                    proto : this.getProtoLevelPath()
-                },
-                realLevelNode = this.useFileOrBuild(
-                    registry.getNodeClass('BemCreateLevelNode').create(opts));
-
-            arch.setNode(realLevelNode, levelNode);
+            arch
+                .setNode(levelNode, arch.getParents(this))
+                .setNode(this.getRealLevelNode(), levelNode);
 
             return levelNode.getId();
         };
@@ -59,13 +51,33 @@ registry.decl('GeneratedLevelNode', 'MagicNode', {
 
     useFileOrBuild : function(node) {
         if(FS.existsSync(node.getLevelPath())) {
-            return new (registry.getNodeClass('FileNode'))({
+            var fileNode = registry.getNodeClass('FileNode').create({
                 root : this.root,
                 path : node.levelPath
             });
+
+            // FIXME: we're simulate `BemCreateLevelNode`'s API for `FileNode`'s instance here
+            fileNode.levelPath = node.levelPath;
+            fileNode.getLevelPath = fileNode.getPath.bind(fileNode);
+
+            return fileNode;
         }
 
         return node;
+    },
+
+    getRealLevelNode : function() {
+        if(!this._realLevelNode) {
+            this._realLevelNode = this.useFileOrBuild(
+                registry.getNodeClass('BemCreateLevelNode').create({
+                    root : this.root,
+                    output : this.outputDir,
+                    name : this.outputName,
+                    proto : this.getProtoLevelPath()
+                }));
+            this.levelPath = this._realLevelNode.levelPath;
+        }
+        return this._realLevelNode;
     },
 
     getProtoLevelName : function() {
@@ -74,7 +86,9 @@ registry.decl('GeneratedLevelNode', 'MagicNode', {
 
     getProtoLevelPath : function() {
         return PATH.join(
-            U.findLevel(this.getPath(), 'project'), '.bem/levels', this.getProtoLevelName());
+            U.findLevel(this.getPath(), 'project'),
+            '.bem/levels',
+            this.getProtoLevelName());
     }
 
 }, {

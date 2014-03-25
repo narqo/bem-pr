@@ -33,7 +33,6 @@ MAKE.decl('SetsNode', {
             'examples',
             'tests',
             'specs',
-            'site',
             'jsdoc',
         ];
     }
