@@ -1,6 +1,7 @@
 var PATH = require('path'),
     UTIL = require('util'),
-    JSDOC = require('bem-jsd');
+    JSDOC = require('bem-jsd'),
+    JSDTMD = require('../../vendor/jsdtmd.xjst.js').JSDTMD;
 
 module.exports = function(registry) {
 
@@ -24,7 +25,8 @@ registry.decl('JsdocSourceNode', 'MetadocSourceNode', {
 
     processContent : function(content) {
         try {
-            return JSON.stringify(JSDOC(content), null, 2);
+            return JSDTMD.apply(JSDOC(content));
+            //return JSON.stringify(JSDOC(content), null, 2);
         } catch(e) {
             e.message = UTIL.format('Error while processing files:\n%s\n\n', this.sources.join('\n')) + e.message;
             throw e;
@@ -34,7 +36,7 @@ registry.decl('JsdocSourceNode', 'MetadocSourceNode', {
 }, {
 
     createPath : function(o) {
-        return PATH.join(o.level, this.createNodePrefix(o.item) + '.jsdoc.json');
+        return PATH.join(o.level, this.createNodePrefix(o.item) + '.md');
     }
 
 });
