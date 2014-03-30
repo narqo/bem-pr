@@ -1,5 +1,10 @@
 var PATH = require('path'),
-    JSDOC = require('bem-jsd');
+    UTIL = require('util'),
+    BEM = require('bem'),
+    QFS = require('q-io/fs'),
+    JSD = require('bem-jsd'),
+    JSDTMD = require('jsdtmd'),
+    U = BEM.util;
 
 module.exports = function(registry) {
 
@@ -11,7 +16,20 @@ registry.decl('SetNode', {
 
 });
 
-registry.decl('JsdocLevelNode', 'DocsLevelNode', {
+registry.decl('JsdocLevelNode', 'MetadocLevelNode', {
+
+    createBundleNode : function(level, item) {
+        var arch = this.ctx.arch,
+            sourceNode = this.__base.apply(this, arguments),
+            jsdtNode = registry.getNodeClass('JsdtmdNode').create({
+                root : this.root,
+                input : sourceNode
+            });
+
+        arch.setNode(jsdtNode, level, sourceNode);
+
+        return sourceNode;
+    },
 
     getBundleNodeClass : function() {
         return 'JsdocSourceNode';
@@ -19,17 +37,13 @@ registry.decl('JsdocLevelNode', 'DocsLevelNode', {
 
 });
 
-registry.decl('JsdocSourceNode', 'DocsSourceNode', {
+registry.decl('JsdocSourceNode', 'MetadocSourceNode', {
 
     processContent : function(content) {
         try {
-            return JSON.stringify(JSDOC(content), null, 2);
+            return JSON.stringify(JSD(content), null, 2);
         } catch(e) {
-            if(e.message) {
-                e.message = 'Error while processing files:\n' +
-                    this.sources.join('\n') + '\n\n' +
-                    e.message;
-            }
+            e.message = UTIL.format('Error while processing files:\n%s\n\n', this.sources.join('\n')) + e.message;
             throw e;
         }
     }
@@ -38,6 +52,32 @@ registry.decl('JsdocSourceNode', 'DocsSourceNode', {
 
     createPath : function(o) {
         return PATH.join(o.level, this.createNodePrefix(o.item) + '.jsdoc.json');
+    }
+
+});
+
+registry.decl('JsdtmdNode', 'GeneratedFileNode', {
+
+    __constructor : function(o) {
+        this.input = typeof o.input === 'string'?
+            o.input : o.input.getId();
+        this.output = PATH.join(
+            PATH.dirname(this.input),
+            PATH.basename(this.input, '.json') + '.md');
+
+        this.__base(U.extend({ path : this.output }, o));
+    },
+
+    make : function() {
+        var output = PATH.resolve(this.root, this.output);
+        return QFS
+            .read(PATH.resolve(this.root, this.input))
+            .then(function(json) {
+                return JSDTMD(JSON.parse(json));
+            })
+            .then(function(md) {
+                return U.writeFile(output, md);
+            });
     }
 
 });
