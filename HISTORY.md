@@ -1,7 +1,25 @@
+0.7.0 / 2014-04-01
+==================
+
+APRIL FOOLS DAY RELEASE
+
+  * allow specs to be written in environment were no [ym](http://github.com/ymaps/ym) used (#79)
+  * generate code coverage for specs (#77)<br/>
+    If environment variable `ISTANBUL_COVERAGE` is set, specs would be processed with
+    [istanbul](http://github.com/gotwarlost/istanbul) code coverage tool. Final coverage information would be stored
+    in the `coverage.json` file in the project's root.<br/>
+    See istanbul's documentation for more info about code coverage
+  * spec building process simplified to fix some rare issues with Travis CI (see #74, #76)
+  * update [chai](http://chaijs.com/) to 1.9.0 (#81)
+  * add nodes to build jsdoc (#70)<br/>
+    NOTE: we're using [bem-jsd](http://github.com/bem/bem-jsd) tool, so your JSDoc should be written the way bem-jsd
+    could parse it
+  * build markdown files from jsdoc.json (#82)
+
 0.6.4 / 2014-03-19
 ==================
 
-   * bem-jsd version updated to 1.3.1
+  * bem-jsd version updated to 1.3.1
 
 0.6.3 / 2014-03-19
 ==================
