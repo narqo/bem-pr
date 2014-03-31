@@ -83,8 +83,7 @@ registry.decl('SpecsLevelNode', 'TargetLevelNode', {
 
         return function() {
             return Q.when(base.call(this), function(level) {
-                var realLevel = PATH.join(level, '.bem/level.js'),
-                    item = {
+                var item = {
                         block : this.techName.replace(/\./g, '-')
                     },
                     source = U.extend({ level : this.path }, this.item),
@@ -93,7 +92,7 @@ registry.decl('SpecsLevelNode', 'TargetLevelNode', {
                 if(bundleNode) {
                     arch
                         .addParents(bundleNode, level)
-                        .addChildren(bundleNode, [realLevel, this]);
+                        .addChildren(bundleNode, [this.getRealLevelNode().levelPath, this]);
                 }
 
                 return Q.when(this.takeSnapshot('After SpecsLevelNode alterArch ' + this.getId()));
