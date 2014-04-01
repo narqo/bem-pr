@@ -15,6 +15,9 @@ if(typeof modules === 'object') {
 
 function define(mocha, chai, sinon, sinonChai) {
     mocha.ui('bdd');
+    mocha.timeout(5000);
+    mocha.bail(true);
+
     chai.use(sinonChai);
     chai.should();
 }
