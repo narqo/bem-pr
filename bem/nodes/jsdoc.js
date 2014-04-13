@@ -40,10 +40,18 @@ registry.decl('JsdocLevelNode', 'MetadocLevelNode', {
 registry.decl('JsdocSourceNode', 'MetadocSourceNode', {
 
     processContent : function(content) {
+        var sources = this.sources;
+        content = content
+            .map(function(data, i) {
+                var srcPath = sources[i];
+                return '/** @file ' + srcPath + ' */\n' + data;
+            })
+            .join('\n');
+
         try {
             return JSON.stringify(JSD(content), null, 2);
         } catch(e) {
-            e.message = UTIL.format('Error while processing files:\n%s\n\n', this.sources.join('\n')) + e.message;
+            e.message = UTIL.format('Error while processing files:\n%s\n\n', sources.join('\n')) + e.message;
             throw e;
         }
     }

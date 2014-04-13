@@ -219,7 +219,8 @@ registry.decl('SetNode', 'MagicNode', {
             arch.setNode(levelNode);
         }
 
-        levelNode.sources.push(item);
+        ~levelNode.sources.indexOf(item) ||
+            levelNode.sources.push(item);
 
         return levelNode;
     },
