@@ -9,7 +9,7 @@ var FS = require('fs'),
     MOCHA_PHANTOM_BIN = require.resolve('mocha-phantomjs/bin/mocha-phantomjs'),
     MOCHA_PHANTOM_HOOK = PATH.resolve(__dirname, '../hooks/mocha-phantomjs.js'),
     MOCHA_PHANTOM_REPORTER = process.env.MOCHA_PHANTOM_REPORTER || 'spec',
-    MOCHA_PHANTOM_MAX_COUNT = parseInt(process.env.MOCHA_PHANTOM_MAX_COUNT, 10) || 7,
+    MOCHA_PHANTOM_MAX_COUNT = parseInt(process.env.MOCHA_PHANTOM_MAX_COUNT, 10) || 5,
     phantomCount = 0,
     phantomQueue = [],
     NEED_COVERAGE = process.env.ISTANBUL_COVERAGE,
@@ -51,7 +51,7 @@ exports.techMixin = {
             covBufFile = PATH.join(root, UTIL.format(
                 '__coverage-%s-%s-%s.json',
                 relPrefix.replace(/[^A-Za-z0-9_. ]/g, '_'),
-                    Date.now()-0,
+                Date.now()-0,
                 covIdx++));
 
             LOGGER.fdebug('Store coverage buffer for "%s" into "%s"', relPrefix, covBufFile);
@@ -74,10 +74,16 @@ exports.techMixin = {
 
             if(exists) {
                 data = JSON.parse(FS.readFileSync(covBufFile, 'utf8'));
-                FS.unlinkSync(covBufFile);
+                dropCovBuffer();
             }
 
             return data;
+        }
+
+        function dropCovBuffer() {
+            try {
+                FS.unlinkSync(covBufFile);
+            } catch(e) {}
         }
 
         function runMochaPhantom() {
@@ -95,13 +101,16 @@ exports.techMixin = {
                 if(passed) {
                     if(NEED_COVERAGE) {
                         LOGGER.fdebug('Going to read coverage buffer for "%s"', relPrefix);
-                        covCollector.add(getCovData());
 
+                        covCollector.add(getCovData());
                         phantomCount || _this.storeFinalCoverage();
                     }
                     defer.resolve();
                 } else {
                     LOGGER.error('Tests failed:', err);
+
+                    NEED_COVERAGE && dropCovBuffer();
+
                     defer.reject(err);
                 }
             });
