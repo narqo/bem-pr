@@ -1,7 +1,14 @@
+0.8.0 / 2014-04-14
+==================
+
+  * remove temporary coverage reports if specs fail (#84)
+  * add @file tag during JSDoc generation (#85)
+  * fix duplicates of JSDoc nodes invocation
+
 0.7.1 / 2014-04-02
 ==================
 
-  * mocha's timeout is set to 2000ms for spec
+  * mocha's timeout is set to 5000ms for spec
 
 0.7.0 / 2014-04-01
 ==================
