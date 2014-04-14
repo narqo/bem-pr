@@ -11,8 +11,8 @@
     "mocha-phantomjs": "~3.2.0",
     "q": "~0.9.6",
     "q-io": "~1.10.6",
-    "bem-jsd": "~1.3.1",
-    "jsdtmd": "0.0.4",
+    "bem-jsd": "~1.4.0",
+    "jsdtmd": "0.0.7",
     "marked": "~0.3.0",
     "istanbul": "~0.2.6",
     "bem-environ": "~1.4.0"

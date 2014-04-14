@@ -52,11 +52,11 @@ registry.decl('MetadocLevelNode', 'TargetLevelNode', {
             arch.setNode(
                 bundleNode,
                 level,
-                [this, this.getRealLevelNode().levelPath]);
+                [this.getRealLevelNode().levelPath]);
         }
 
         var source = item.prefix + item.suffix;
-        bundleNode.sources.push(source);
+        ~bundleNode.sources.indexOf(source) || bundleNode.sources.push(source);
 
         if(!arch.hasNode(source)) {
             arch.setNode(
@@ -101,12 +101,12 @@ registry.decl('MetadocSourceNode', 'GeneratedFileNode', {
         }, this);
 
         return Q.all(content).then(function(content) {
-            return content.join('\n');
+            return content;
         });
     },
 
     processContent : function(content) {
-        return content;
+        return content.join('\n');
     }
 
 }, {
