@@ -20,7 +20,8 @@ exports.techMixin = {
             '      "block": "spec",',
             '      "content": {{bemTmplContent}}',
             '    }',
-            '  }',
+            '  },',
+            '  {"block": "spec-runner"}',
             ']}',
             '])'
         ];
