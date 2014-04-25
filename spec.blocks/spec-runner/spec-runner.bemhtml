@@ -8,9 +8,9 @@ block spec-runner {
         '  }) : ',
         '  init(this, this.jQuery, this.mocha);',
         'function init(global, $, mocha) {',
-        '  global.mochaPhantomJS? global.mochaPhantomJS.run(cb) : mocha.run(cb);',
+        '  global.mochaPhantomJS? global.mochaPhantomJS.run(done) : mocha.run(done);',
+        '  function done() { $("#mocha").show() }',
         '}',
-        'function cb() { $("#mocha").show() }',
         '}());'
     ]
 }
