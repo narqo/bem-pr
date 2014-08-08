@@ -1,3 +1,13 @@
+0.9.0 / 2014-08-09
+==================
+
+  * update [mocha](https://github.com/visionmedia/mocha) to 1.21.4
+  * update [sinon](http://sinonjs.org) to 1.10.3
+  * update [mocha-phantomjs](https://github.com/metaskills/mocha-phantomjs) to 3.5.0
+  * remove `mocha.bail` option from `spec`
+  * fix global variable `global` occurrence from mocha.js<1.20
+  * fix spec-runner `init` function call to work properly with mocha>=1.20
+
 0.8.0 / 2014-04-14
 ==================
 
