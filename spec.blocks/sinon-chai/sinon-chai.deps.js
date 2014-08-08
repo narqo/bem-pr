@@ -1,5 +1,3 @@
 ({
-    mustDeps : [
-        'chai'
-    ]
+    mustDeps : 'chai'
 })

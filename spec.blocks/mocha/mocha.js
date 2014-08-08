@@ -5,7 +5,7 @@
         (ctx[name] = module);
 }('mocha', this, function() {
 
-/*borschik:include:__v1-17/mocha__v1-17.js*/;
+/*borschik:include:__v1-21/mocha__v1-21.js*/;
 return this.mocha;
 
 }));
