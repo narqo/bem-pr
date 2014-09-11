@@ -1,3 +1,8 @@
+0.10.0 / 2014-09-11
+==================
+
+  * fix spec.js+browser.js+bemhtml.js tech to properly work with "js to spec.js" relation in depsByTech (#89)
+
 0.9.0 / 2014-08-09
 ==================
 
