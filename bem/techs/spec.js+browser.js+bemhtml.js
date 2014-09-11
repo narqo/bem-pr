@@ -20,14 +20,26 @@ exports.techMixin = {
         return ctxOpts.declaration
             .then(function(decl) {
                 var specJsResults = _this.getTechBuildResults('spec.js', decl, context, output, opts),
-                    browserJsResults = _this.getTechBuildResults('browser.js', decl, context, output, opts),
                     bemhtmlDecl = new DEPS.Deps(),
                     depsByTechs = decl.depsByTechs || {},
                     depsByTechsJs = depsByTechs.js || {},
-                    depsByTechsSpecJs = depsByTechs['spec.js'] || {};
+                    depsByTechsSpecJs = depsByTechs['spec.js'] || {},
+                    browserJsDecl = (new DEPS.Deps())
+                        .parse(decl.deps)
+                        .parse((depsByTechsSpecJs.js || []).map(function(i) {
+                            delete i.tech;
+                            return i;
+                        })),
+                    browserJsResults = _this.getTechBuildResults(
+                        'browser.js',
+                        { deps : (browserJsDecl.serialize()[''] || {})[''] || [] },
+                        context,
+                        output,
+                        opts);
 
-                bemhtmlDecl.parse(depsByTechsJs.bemhtml || []);
-                bemhtmlDecl.parse(depsByTechsSpecJs.bemhtml || []);
+                bemhtmlDecl
+                    .parse(depsByTechsJs.bemhtml || [])
+                    .parse(depsByTechsSpecJs.bemhtml || []);
 
                 bemhtmlDecl = { deps : (bemhtmlDecl.serialize()['bemhtml'] || {})['bemhtml'] || [] };
 
@@ -43,7 +55,6 @@ exports.techMixin = {
                             bemhtmlResults['bemhtml.js']
                         ].join('');
                     });
-
             });
     },
 
