@@ -1,11 +1,11 @@
-(function(name, ctx, define) {
+(function(ctx, define) {
     var module = define.call(ctx);
     typeof modules === 'object'?
-        modules.define(name, function(provide) { provide(module); }) :
-        (ctx[name] = module);
-}('sinon', this, function() {
+        modules.define('sinon', function(provide) { provide(module); }) :
+        (ctx.sinon = module);
+}(this, function() {
 
-/*borschik:include:__v1-10/sinon__v1-10.js*/;
+/* borschik:include:../../vendor/sinon/index.js */
 return this.sinon;
 
 }));

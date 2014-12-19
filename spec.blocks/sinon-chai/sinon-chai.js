@@ -2,13 +2,13 @@
     var module = define.call(ctx);
     typeof modules === 'object'?
         modules.define('sinon-chai', deps, function(provide) { provide(module); }) :
-        (ctx['sinonChai'] = module);
+        (ctx.sinonChai = module);
 }(this, ['chai'], function() {
 
 var sinonChai;
 
 (function(chai) {
-/*borschik:include:__v2-5/sinon-chai__v2-5.js*/;
+/* borschik:include:../../vendor/sinon-chai/lib/sinon-chai.js */
 }.call(this, { use : function(module) { sinonChai = module; }}));
 
 return sinonChai;
