@@ -6,9 +6,6 @@
   * update [chai](http://chaijs.com/) to 1.10.0
   * update [sinon](http://sinonjs.org) to 1.12.2
   * update [sinon-chai](https://github.com/domenic/sinon-chai) to 2.6.0
-
-  Extra stuff:
-
   * move vendor stuff out of spec.blocks
   * add bh version of spec.blocks
 
