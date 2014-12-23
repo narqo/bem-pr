@@ -1,5 +1,19 @@
+0.11.0 / 2014-12-23
+===================
+
+  * add [simulate-dom-event](https://github.com/yiminghe/simulate-dom-event) 1.0.3
+  * update [mocha](https://github.com/mochajs/mocha) to 2.0.0
+  * update [chai](http://chaijs.com/) to 1.10.0
+  * update [sinon](http://sinonjs.org) to 1.12.2
+  * update [sinon-chai](https://github.com/domenic/sinon-chai) to 2.6.0
+
+  Extra stuff:
+
+  * move vendor stuff out of spec.blocks
+  * add bh version of spec.blocks
+
 0.10.0 / 2014-09-11
-==================
+===================
 
   * fix spec.js+browser.js+bemhtml.js tech to properly work with "js to spec.js" relation in depsByTech (#89)
 
