@@ -1,11 +1,11 @@
-(function(name, ctx, define) {
+(function(ctx, define) {
     var module = define.call(ctx);
     typeof modules === 'object'?
-        modules.define(name, function(provide) { provide(module); }) :
-        (ctx[name] = module);
-}('chai', this, function() {
+        modules.define('chai', function(provide) { provide(module); }) :
+        (ctx.chai = module);
+}(this, function() {
 
-/*borschik:include:__v1-9/chai__v1-9.js*/;
+/* borschik:include:../../vendor/chai/chai.js */
 return this.chai;
 
 }));

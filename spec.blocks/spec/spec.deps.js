@@ -15,6 +15,7 @@
         'chai',
         'sinon',
         'sinon-chai',
+        'simulate-dom-event',
         'jquery'
     ]
 }]

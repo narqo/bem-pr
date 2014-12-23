@@ -1,0 +1,10 @@
+{
+  "name": "bem-pr-dependencies",
+  "devDependencies": {
+    "chai": "^1.10.0",
+    "mocha": "^2.0.0",
+    "simulate-dom-event": "^1.0.3",
+    "sinon": "http://sinonjs.org/releases/sinon-1.12.2.js",
+    "sinon-chai": "^2.6.0"
+  }
+}
