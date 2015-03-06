@@ -16,6 +16,7 @@
         'sinon',
         'sinon-chai',
         'simulate-dom-event',
-        'jquery'
+        'jquery',
+        { elem : 'utils' }
     ]
 }]
