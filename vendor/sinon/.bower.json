@@ -1,14 +1,14 @@
 {
   "name": "sinon",
   "_cacheHeaders": {
-    "ETag": "\"2081f4-2cdb8-50a0a3729f2c0\"",
-    "Last-Modified": "Fri, 12 Dec 2014 19:51:15 GMT",
-    "Content-Length": "183736",
+    "ETag": "\"208239-30978-51dc27a767dc0\"",
+    "Last-Modified": "Thu, 20 Aug 2015 18:39:59 GMT",
+    "Content-Length": "199032",
     "Content-Type": "application/javascript"
   },
-  "_release": "e-tag:2081f4-2c",
+  "_release": "e-tag:208239-30",
   "main": "index.js",
-  "_source": "http://sinonjs.org/releases/sinon-1.12.2.js",
+  "_source": "http://sinonjs.org/releases/sinon-1.16.1.js",
   "_target": "*",
-  "_originalSource": "http://sinonjs.org/releases/sinon-1.12.2.js"
+  "_originalSource": "http://sinonjs.org/releases/sinon-1.16.1.js"
 }
