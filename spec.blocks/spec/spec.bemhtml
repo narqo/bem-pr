@@ -1,1 +1,3 @@
-block spec, default: applyCtx({ block: 'mocha' })
+block('spec').replace()(function() {
+    return { block: 'mocha' };
+});
