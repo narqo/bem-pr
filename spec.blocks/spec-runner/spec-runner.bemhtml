@@ -1,6 +1,7 @@
-block spec-runner {
-    tag: 'script'
-    content: [
+block('spec-runner')(
+    tag()('script'),
+
+    content()([
         '(function() {',
         'var global = this;',
         'typeof modules === "object"?',
@@ -13,5 +14,5 @@ block spec-runner {
         '  function done() { $("#mocha").show() }',
         '}',
         '}());'
-    ]
-}
+    ])
+);
