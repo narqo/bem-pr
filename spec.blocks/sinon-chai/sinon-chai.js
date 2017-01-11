@@ -8,7 +8,7 @@
 var sinonChai;
 
 (function(chai) {
-/* borschik:include:../../vendor/sinon-chai/lib/sinon-chai.js */
+/* borschik:include:../../node_modules/sinon-chai/lib/sinon-chai.js */
 }.call(this, { use : function(module) { sinonChai = module; }}));
 
 return sinonChai;

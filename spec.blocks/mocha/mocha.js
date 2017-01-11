@@ -6,7 +6,7 @@
 }('mocha', this, function(global) {
 
 // NOTE: prevent global variable `global` to appear from mocha.js
-/*borschik:include:../../vendor/mocha/mocha.js*/;
+/*borschik:include:../../node_modules/mocha/mocha.js*/;
 
 return global.mocha;
 
