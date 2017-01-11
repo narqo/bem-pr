@@ -1,3 +1,13 @@
+0.14.0 / 2017-01-11
+===================
+
+SUDDEN (4th) ANNIVERSARY RELEASE
+
+  * update vendored dependencies (#99)
+    * update [mocha](https://mochajs.org/) to 2.5.3
+    * update [sinon](http://sinonjs.org) to lattest release
+    * update [sinon-chai](https://github.com/domenic/sinon-chai) to 2.8.0
+
 0.13.0 / 2016-04-12
 ===================
 
