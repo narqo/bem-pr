@@ -7,7 +7,7 @@
 
 var module = { exports : {} };
 
-/* borschik:include:../../vendor/simulate-dom-event/index.js */
+/* borschik:include:../../node_modules/simulate-dom-event/index.js */
 
 return function simulateDomEvent(domElem, type, opts) {
     var target = 'jquery' in Object(domElem)? domElem[0] : domElem;

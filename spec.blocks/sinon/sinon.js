@@ -5,7 +5,7 @@
         (ctx.sinon = module);
 }(this, function() {
 
-/* borschik:include:../../vendor/sinon/index.js */
+/* borschik:include:../../node_modules/sinon/pkg/sinon.js */
 return this.sinon;
 
 }));

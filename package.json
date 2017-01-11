@@ -7,15 +7,20 @@
     "url": "git://github.com/narqo/bem-pr.git"
   },
   "dependencies": {
-    "phantomjs": "~1.9.1",
-    "mocha-phantomjs": "~3.5.0",
-    "q": "~0.9.6",
-    "q-io": "~1.10.6",
+    "bem-environ": "~1.4.0",
     "bem-jsd": "~1.4.0",
+    "chai": "3.5.0",
+    "istanbul": "0.2.6",
     "jsdtmd": "0.0.7",
     "marked": "~0.3.0",
-    "istanbul": "~0.2.6",
-    "bem-environ": "~1.4.0"
+    "mocha": "^3.2.0",
+    "mocha-phantomjs": "~3.5.0",
+    "phantomjs": "~1.9.1",
+    "q": "~0.9.6",
+    "q-io": "~1.10.6",
+    "simulate-dom-event": "1.0.3",
+    "sinon": "1.17.7",
+    "sinon-chai": "2.8.0"
   },
   "devDependencies": {
     "bem": "~0.8.0"

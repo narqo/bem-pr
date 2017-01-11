@@ -5,7 +5,7 @@
         (ctx.chai = module);
 }(this, function() {
 
-/* borschik:include:../../vendor/chai/chai.js */
+/* borschik:include:../../node_modules/chai/chai.js */
 return this.chai;
 
 }));
