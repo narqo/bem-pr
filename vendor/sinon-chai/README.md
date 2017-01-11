@@ -127,6 +127,17 @@ For more information on the behavior of each assertion, see
 [the documentation for the corresponding spy methods][spymethods]. These of course work on not only spies, but
 individual spy calls, stubs, and mocks as well.
 
+Note that you can negate any assertion with Chai's `.not`. E. g. for `notCalled` use `spy.should.have.not.been.called`.
+
+For `assert` interface there is no need for this library. You can install [Sinon.JS assertions][sinonassertions] right into Chai's `assert` object with `expose`:
+
+```javascript
+var chai = require("chai");
+var sinon = require("sinon");
+
+sinon.assert.expose(chai.assert, { prefix: "" });
+```
+
 ## Examples
 
 Using Chai's `should`:
@@ -229,6 +240,7 @@ Thanks to [Cymen Vig][], there's now [a Ruby gem][] of Sinon–Chai that integra
 [Sinon.JS]: http://sinonjs.org/
 [Chai]: http://chaijs.com/
 [spymethods]: http://sinonjs.org/docs/#spies-api
+[sinonassertions]: http://sinonjs.org/docs/#assertions
 [Mocha]: http://visionmedia.github.com/mocha/
 [fixturedemo]: https://github.com/domenic/sinon-chai/tree/master/test/
 [AMD]: https://github.com/amdjs/amdjs-api/wiki/AMD
