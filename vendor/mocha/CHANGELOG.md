@@ -1,3 +1,408 @@
+# 3.5.0 / 2017-07-31
+
+## :newspaper: News
+
+- Mocha now has a [code of conduct](https://github.com/mochajs/mocha/blob/master/.github/CODE_OF_CONDUCT.md) (thanks [@kungapal]!).
+- Old issues and PRs are now being marked "stale" by [Probot's "Stale" plugin](https://github.com/probot/stale).  If an issue is marked as such, and you would like to see it remain open, simply add a new comment to the ticket or PR.
+- **WARNING**: Support for non-ES5-compliant environments will be dropped starting with version 4.0.0 of Mocha!
+
+## :lock: Security Fixes
+
+- [#2860]: Address [CVE-2015-8315](https://nodesecurity.io/advisories/46) via upgrade of [debug](https://npm.im/debug) ([@boneskull])
+
+## :tada: Enhancements
+
+- [#2696]: Add `--forbid-only` and `--forbid-pending` flags.  Use these in CI or hooks to ensure tests aren't accidentally being skipped! ([@charlierudolph])
+- [#2813]: Support Node.js 8's `--napi-modules` flag ([@jupp0r])
+
+## :nut_and_bolt: Other
+
+- Various CI-and-test-related fixes and improvements ([@boneskull], [@dasilvacontin], [@PopradiArpad], [@Munter], [@ScottFreeCode])
+- "Officially" support Node.js 8 ([@elergy])
+
+[#2860]: https://github.com/mochajs/mocha/pulls/2860
+[#2696]: https://github.com/mochajs/mocha/pulls/2696
+[#2813]: https://github.com/mochajs/mocha/pulls/2813
+[@charlierudolph]: https://github.com/charlierudolph
+[@PopradiArpad]: https://github.com/PopradiArpad
+[@kungapal]: https://github.com/kungapal
+[@elergy]: https://github.com/elergy
+[@jupp0r]: https://github.com/jupp0r
+
+# 3.4.2 / 2017-05-24
+
+## :bug: Fixes
+
+- [#2802]: Remove call to deprecated `os.tmpDir` ([@makepanic])
+- [#2820]: Eagerly set `process.exitCode` ([@chrisleck])
+
+## :nut_and_bolt: Other
+
+- [#2778]: Move linting into an npm script ([@Munter])
+
+[@chrisleck]: https://github.com/chrisleck
+[@makepanic]: https://github.com/makepanic
+[@Munter]: https://github.com/Munter
+
+[#2778]: https://github.com/mochajs/mocha/pulls/2778
+[#2802]: https://github.com/mochajs/mocha/issues/2802
+[#2820]: https://github.com/mochajs/mocha/pull/2820
+
+# 3.4.1 / 2017-05-14
+
+Fixed a publishing mishap with git's autocrlf settings.
+
+# 3.4.0 / 2017-05-14
+
+Mocha is now moving to a quicker release schedule: when non-breaking changes are merged, a release should happen that week.
+
+This week's highlights:
+
+- `allowUncaught` added to commandline as `--allow-uncaught` (and bugfixed)
+- warning-related Node flags
+
+## :tada: Enhancements
+
+- [#2793], [#2697]: add --allowUncaught to Node.js ([@lrowe])
+- [#2733]: Add `--no-warnings` and `--trace-warnings` flags ([@sonicdoe])
+
+## :bug: Fixes
+
+- [#2793], [#2697]: fix broken allowUncaught ([@lrowe])
+
+## :nut_and_bolt: Other
+
+- [#2778]: Add license report and scan status ([@xizhao])
+- [#2794]: no special case for macOS running Karma locally ([@boneskull])
+- [#2795]: reverts use of semistandard directly ([#2648]) ([@boneskull])
+
+[@lrowe]: https://github.com/lrowe
+[@sonicdoe]: https://github.com/sonicdoe
+[@xizhao]: https://github.com/xizhao
+[@boneskull]: https://github.com/boneskull
+
+[#2795]: https://github.com/mochajs/mocha/pull/2795
+[#2733]: https://github.com/mochajs/mocha/pull/2733
+[#2793]: https://github.com/mochajs/mocha/pull/2793
+[#2697]: https://github.com/mochajs/mocha/pull/2697
+[#2778]: https://github.com/mochajs/mocha/pull/2778
+[#2794]: https://github.com/mochajs/mocha/pull/2794
+
+# 3.3.0 / 2017-04-24
+
+Thanks to all our contributors, maintainers, sponsors, and users! ❤️
+
+As highlights:
+
+- We've got coverage now!
+- Testing is looking less flaky \o/.
+- No more nitpicking about "mocha.js" build on PRs.
+
+## :tada: Enhancements
+
+- [#2659]: Adds support for loading reporter from an absolute or relative path ([@sul4bh])
+- [#2769]: Support `--inspect-brk` on command-line ([@igwejk])
+
+## :bug: Fixes
+
+- [#2662]: Replace unicode chars w/ hex codes in HTML reporter ([@rotemdan])
+
+## :mag: Coverage
+
+- [#2672]: Add coverage for node tests ([@c089], [@Munter])
+- [#2680]: Increase tests coverage for base reporter ([@epallerols])
+- [#2690]: Increase tests coverage for doc reporter ([@craigtaub])
+- [#2701]: Increase tests coverage for landing, min, tap and list reporters ([@craigtaub])
+- [#2691]: Increase tests coverage for spec + dot reporters ([@craigtaub])
+- [#2698]: Increase tests coverage for xunit reporter ([@craigtaub])
+- [#2699]: Increase tests coverage for json-stream, markdown and progress reporters ([@craigtaub])
+- [#2703]: Cover .some() function in utils.js with tests ([@seppevs])
+- [#2773]: Add tests for loading reporters w/ relative/absolute paths ([@sul4bh])
+
+## :nut_and_bolt: Other
+
+- Remove bin/.eslintrc; ensure execs are linted ([@boneskull])
+- [#2542]: Expand CONTRIBUTING.md ([@boneskull])
+- [#2660]: Double timeouts on integration tests ([@Munter])
+- [#2653]: Update copyright year ([@Scottkao85], [@Munter])
+- [#2621]: Update dependencies to enable Greenkeeper ([@boneskull], [@greenkeeper])
+- [#2625]: Use trusty container in travis-ci; use "artifacts" addon ([@boneskull])
+- [#2670]: doc(CONTRIBUTING): fix link to org members ([@coderbyheart])
+- Add Mocha propaganda to README.md ([@boneskull])
+- [#2470]: Avoid test flake in "delay" test ([@boneskull])
+- [#2675]: Limit browser concurrency on sauce ([@boneskull])
+- [#2669]: Use temporary test-only build of mocha.js for browsers tests ([@Munter])
+- Fix "projects" link in README.md ([@boneskull])
+- [#2678]: Chore(Saucelabs): test on IE9, IE10 and IE11 ([@coderbyheart])
+- [#2648]: Use `semistandard` directly ([@kt3k])
+- [#2727]: Make the build reproducible ([@lamby])
+
+[@boneskull]: https://github.com/boneskull
+[@c089]: https://github.com/c089
+[@coderbyheart]: https://github.com/coderbyheart
+[@craigtaub]: https://github.com/craigtaub
+[@epallerols]: https://github.com/epallerols
+[@greenkeeper]: https://github.com/greenkeeper
+[@igwejk]: https://github.com/igwejk
+[@kt3k]: https://github.com/kt3k
+[@lamby]: https://github.com/lamby
+[@Munter]: https://github.com/Munter
+[@rotemdan]: https://github.com/rotemdan
+[@seppevs]: https://github.com/seppevs
+[@sul4bh]: https://github.com/sul4bh
+
+[#2470]: https://github.com/mochajs/mocha/pull/2470
+[#2542]: https://github.com/mochajs/mocha/issues/2542
+[#2621]: https://github.com/mochajs/mocha/pull/2621
+[#2625]: https://github.com/mochajs/mocha/pull/2625
+[#2648]: https://github.com/mochajs/mocha/pull/2648
+[#2653]: https://github.com/mochajs/mocha/pull/2653
+[#2659]: https://github.com/mochajs/mocha/pull/2659
+[#2660]: https://github.com/mochajs/mocha/pull/2660
+[#2662]: https://github.com/mochajs/mocha/pull/2662
+[#2669]: https://github.com/mochajs/mocha/pull/2669
+[#2670]: https://github.com/mochajs/mocha/pull/2670
+[#2672]: https://github.com/mochajs/mocha/pull/2672
+[#2675]: https://github.com/mochajs/mocha/pull/2675
+[#2678]: https://github.com/mochajs/mocha/pull/2678
+[#2680]: https://github.com/mochajs/mocha/pull/2680
+[#2690]: https://github.com/mochajs/mocha/pull/2690
+[#2691]: https://github.com/mochajs/mocha/pull/2691
+[#2698]: https://github.com/mochajs/mocha/pull/2698
+[#2699]: https://github.com/mochajs/mocha/pull/2699
+[#2701]: https://github.com/mochajs/mocha/pull/2701
+[#2703]: https://github.com/mochajs/mocha/pull/2703
+[#2727]: https://github.com/mochajs/mocha/pull/2727
+[#2769]: https://github.com/mochajs/mocha/pull/2769
+[#2773]: https://github.com/mochajs/mocha/pull/2773
+
+# 3.2.0 / 2016-11-24
+
+## :newspaper: News
+
+### Mocha is now a JS Foundation Project!
+
+Mocha is proud to have joined the [JS Foundation](https://js.foundation).  For more information, [read the announcement](https://js.foundation/announcements/2016/10/17/Linux-Foundation-Unites-JavaScript-Community-Open-Web-Development/).
+
+### Contributor License Agreement
+
+Under the foundation, all contributors to Mocha must sign the [JS Foundation CLA](https://js.foundation/CLA/) before their code can be merged.  When sending a PR--if you have not already signed the CLA--a friendly bot will ask you to do so.
+
+Mocha remains licensed under the [MIT license](https://github.com/mochajs/mocha/blob/master/LICENSE).
+
+## :bug: Bug Fix
+
+- [#2535]: Fix crash when `--watch` encounters broken symlinks ([@villesau])
+- [#2593]: Fix (old) regression; incorrect symbol shown in `list` reporter ([@Aldaviva])
+- [#2584]: Fix potential error when running XUnit reporter ([@vobujs])
+
+## :tada: Enhancement
+
+- [#2294]: Improve timeout error messaging ([@jeversmann], [@boneskull])
+- [#2520]: Add info about `--inspect` flag to CLI help ([@ughitsaaron])
+
+## :nut_and_bolt: Other
+
+- [#2570]: Use [karma-mocha](https://npmjs.com/package/karma-mocha) proper ([@boneskull])
+- Licenses updated to reflect new copyright, add link to license and browser matrix to `README.md` ([@boneskull], [@ScottFreeCode], [@dasilvacontin])
+
+[#2294]: https://github.com/mochajs/mocha/issues/2294
+[#2535]: https://github.com/mochajs/mocha/issues/2535
+[#2520]: https://github.com/mochajs/mocha/pull/2520
+[#2593]: https://github.com/mochajs/mocha/pull/2593
+[#2584]: https://github.com/mochajs/mocha/issues/2584
+[#2570]: https://github.com/mochajs/mocha/issues/2570
+[@Aldaviva]: https://github.com/Aldaviva
+[@jeversmann]: https://github.com/jeversmann
+[@ughitsaaron]: https://github.com/ughitsaaron
+[@villesau]: https://github.com/villesau
+[@vobujs]: https://github.com/vobujs
+
+Thanks to all our contributors, sponsors and backers!  Keep on the lookout for a public roadmap and new contribution guide coming soon.
+
+# 3.1.2 / 2016-10-10
+
+## :bug: Bug Fix
+
+- [#2528]: Recovery gracefully if an `Error`'s `stack` property isn't writable ([@boneskull])
+
+[#2528]: https://github.com/mochajs/mocha/issues/2528
+
+# 3.1.1 / 2016-10-09
+
+## :bug: Bug Fix
+
+- [#1417]: Don't report `done()` was called multiple times when it wasn't ([@frankleonrose])
+ 
+## :nut_and_bolt: Other
+
+- [#2490]: Lint with [semistandard](https://npmjs.com/package/semistandard) config ([@makepanic])
+- [#2525]: Lint all `.js` files ([@boneskull])
+- [#2524]: Provide workaround for developers unable to run browser tests on macOS Sierra ([@boneskull])
+
+[#1417]: https://github.com/mochajs/mocha/issues/1417
+[#2490]: https://github.com/mochajs/mocha/issues/2490
+[#2525]: https://github.com/mochajs/mocha/issues/2525
+[#2524]: https://github.com/mochajs/mocha/issues/2524
+[@makepanic]: https://github.com/makepanic
+[@frankleonrose]: https://github.com/frankleonrose
+
+# 3.1.0 / 2016-09-27
+
+## :tada: Enhancement
+
+- [#2357]: Support `--inspect` on command-line ([@simov])
+- [#2194]: Human-friendly error if no files are matched on command-line ([@Munter])
+- [#1744]: Human-friendly error if a Suite has no callback (BDD/TDD only) ([@anton])
+
+## :bug: Bug Fix
+
+- [#2488]: Fix case in which *variables beginning with lowercase "D"* may not have been reported properly as global leaks ([@JustATrick]) :laughing:
+- [#2465]: Always halt execution in async function when `this.skip()` is called ([@boneskull])
+- [#2445]: Exits with expected code 130 when `SIGINT` encountered; exit code can no longer rollover at 256 ([@Munter])
+- [#2315]: Fix uncaught TypeError thrown from callback stack ([@1999])
+- Fix broken `only()`/`skip()` in IE7/IE8 ([@boneskull])
+- [#2502]: Fix broken stack trace filter on Node.js under Windows ([@boneskull]) 
+- [#2496]: Fix diff output for objects instantiated with `String` constructor ([more](https://youtrack.jetbrains.com/issue/WEB-23383)) ([@boneskull])
+
+[#2496]: https://github.com/mochajs/mocha/issues/2496
+[#2502]: https://github.com/mochajs/mocha/issues/2502
+[#2315]: https://github.com/mochajs/mocha/issues/2315
+[#2445]: https://github.com/mochajs/mocha/pull/2445
+[#2465]: https://github.com/mochajs/mocha/issues/2465
+[#2488]: https://github.com/mochajs/mocha/issues/2488
+[#1744]: https://github.com/mochajs/mocha/issues/1744
+[#2194]: https://github.com/mochajs/mocha/issues/2194
+[#2357]: https://github.com/mochajs/mocha/issues/2357
+[@1999]: https://github.com/1999
+[@JustATrick]: https://github.com/JustATrick
+[@anton]: https://github.com/anton
+[@simov]: https://github.com/simov
+
+# 3.0.2 / 2016-08-08
+
+## :bug: Bug Fix
+
+- [#2424]: Fix error loading Mocha via Require.js ([@boneskull])
+- [#2417]: Fix execution of *deeply* nested `describe.only()` suites ([@not-an-aardvark])
+- Remove references to `json-cov` and `html-cov` reporters in CLI ([@boneskull]) 
+
+[#2417]: https://github.com/mochajs/mocha/issues/2417
+[#2424]: https://github.com/mochajs/mocha/issues/2424
+
+# 3.0.1 / 2016-08-03
+
+## :bug: Bug Fix
+
+- [#2406]: Restore execution of nested `describe.only()` suites ([@not-an-aardvark])
+
+[#2406]: https://github.com/mochajs/mocha/issues/2406
+[@not-an-aardvark]: https://github.com/not-an-aardvark
+
+# 3.0.0 / 2016-07-31
+
+## :boom: Breaking Changes
+
+- :warning: Due to the increasing difficulty of applying security patches made within its dependency tree, as well as looming incompatibilities with Node.js v7.0, **Mocha no longer supports Node.js v0.8**.
+- :warning: **Mocha may no longer be installed by versions of `npm` less than `1.4.0`.**  Previously, this requirement only affected Mocha's development dependencies.  In short, this allows Mocha to depend on packages which have dependencies fixed to major versions (`^`).
+- `.only()` is no longer "fuzzy", can be used multiple times, and generally just works like you think it should. :joy:
+- To avoid common bugs, when a test injects a callback function (suggesting asynchronous execution), calls it, *and* returns a `Promise`, Mocha will now throw an exception:
+
+  ```js
+  const assert = require('assert');
+
+  it('should complete this test', function (done) {
+    return new Promise(function (resolve) {
+      assert.ok(true);
+      resolve();
+    })
+      .then(done);
+  });
+  ```
+
+  The above test will fail with `Error: Resolution method is overspecified. Specify a callback *or* return a Promise; not both.`.
+- When a test timeout value *greater than* `2147483648` is specified in any context (`--timeout`, `mocha.setup()`, per-suite, per-test, etc.), the timeout will be *disabled* and the test(s) will be allowed to run indefinitely.  This is equivalent to specifying a timeout value of `0`.  See [MDN](https://developer.mozilla.org/docs/Web/API/WindowTimers/setTimeout#Maximum_delay_value) for reasoning.
+- The `dot` reporter now uses more visually distinctive characters when indicating "pending" and "failed" tests.
+- Mocha no longer supports [component](https://www.npmjs.com/package/component).
+- The long-forsaken `HTMLCov` and `JSONCov` reporters--and any relationship to the "node-jscoverage" project--have been removed.
+- `spec` reporter now omits leading carriage returns (`\r`) in non-TTY environment.
+
+## :tada: Enhancements
+
+- [#808]: Allow regular-expression-like strings in `--grep` and browser's `grep` querystring; enables flags such as `i` for case-insensitive matches and `u` for unicode. ([@a8m])
+- [#2000]: Use distinctive characters in `dot` reporter; `,` will denote a "pending" test and `!` will denote a "failing" test. ([@elliottcable])
+- [#1632]: Throw a useful exception when a suite or test lacks a title. ([@a8m])
+- [#1481]: Better `.only()` behavior. ([@a8m])
+- [#2334]: Allow `this.skip()` in async tests and hooks. ([@boneskull])
+- [#1320]: Throw a useful exception when test resolution method is overspecified. ([@jugglinmike])
+- [#2364]: Support `--preserve-symlinks`. ([@rosswarren])
+
+## :bug: Bug Fixes
+
+- [#2259]: Restore ES3 compatibility.  Specifically, support an environment lacking `Date.prototype.toISOString()`, `JSON`, or has a non-standard implementation of `JSON`. ([@ndhoule], [@boneskull])
+- [#2286]: Fix `after()` failing to execute if test skipped using `this.skip()` in `beforeEach()`; no longer marks the entire suite as "pending". ([@dasilvacontin], [@boneskull])
+- [#2208]: Fix function name display in `markdown` and `html` (browser) reporters. ([@ScottFreeCode])
+- [#2299]: Fix progress bar in `html` (browser) reporter. ([@AviVahl])
+- [#2307]: Fix `doc` reporter crashing when test fails. ([@jleyba])
+- [#2323]: Ensure browser entry point (`browser-entry.js`) is published to npm (for use with bundlers).  ([@boneskull])
+- [#2310]: Ensure custom reporter with an absolute path works in Windows. ([@silentcloud])
+- [#2311]: Fix problem wherein calling `this.slow()` without a value would blast any previously set value. ([@boneskull])
+- [#1813]: Ensure Mocha's own test suite will run in Windows. ([@tswaters], [@TimothyGu], [@boneskull])
+- [#2317]: Ensure all interfaces are displayed in `--help` on CLI.  ([@ScottFreeCode])
+- [#1644]: Don't exhibit undefined behavior when calling `this.timeout()` with very large values ([@callumacrae], [@boneskull])
+- [#2361]: Don't truncate name of thrown anonymous exception. ([@boneskull])
+- [#2367]: Fix invalid CSS. ([@bensontrent])
+- [#2401]: Remove carriage return before each test line in spec reporter. ([@Munter])
+
+## :nut_and_bolt: Other
+
+- Upgrade production dependencies to address security advisories (and because now we can): `glob`, `commander`, `escape-string-regexp`,
+and `supports-color`. ([@boneskull], [@RobLoach])
+- Add Windows to CI. ([@boneskull], [@TimothyGu])
+- Ensure appropriate `engines` field in `package.json`. ([@shinnn], [@boneskull])
+- [#2348]: Upgrade ESLint to v2 ([@anthony-redfox])
+
+We :heart: our [backers and sponsors](https://opencollective.com/mochajs)!
+
+:shipit:
+
+[#2401]: https://github.com/mochajs/mocha/pull/2401
+[#2348]: https://github.com/mochajs/mocha/issues/2348
+[#808]: https://github.com/mochajs/mocha/issues/808
+[#2361]: https://github.com/mochajs/mocha/pull/2361
+[#2367]: https://github.com/mochajs/mocha/pull/2367
+[#2364]: https://github.com/mochajs/mocha/pull/2364
+[#1320]: https://github.com/mochajs/mocha/pull/1320
+[#2307]: https://github.com/mochajs/mocha/pull/2307
+[#2259]: https://github.com/mochajs/mocha/pull/2259
+[#2208]: https://github.com/mochajs/mocha/pull/2208
+[#2299]: https://github.com/mochajs/mocha/pull/2299
+[#2286]: https://github.com/mochajs/mocha/issues/2286
+[#1644]: https://github.com/mochajs/mocha/issues/1644
+[#2310]: https://github.com/mochajs/mocha/issues/2310
+[#2311]: https://github.com/mochajs/mocha/issues/2311
+[#2323]: https://github.com/mochajs/mocha/issues/2323
+[#2000]: https://github.com/mochajs/mocha/pull/2000
+[#1632]: https://github.com/mochajs/mocha/issues/1632
+[#1813]: https://github.com/mochajs/mocha/issues/1813
+[#2334]: https://github.com/mochajs/mocha/issues/2334
+[#2317]: https://github.com/mochajs/mocha/issues/2317
+[#1481]: https://github.com/mochajs/mocha/issues/1481
+[@elliottcable]: https://github.com/elliottcable
+[@RobLoach]: https://github.com/robloach
+[@AviVahl]: https://github.com/avivahl
+[@silentcloud]: https://github.com/silentcloud
+[@tswaters]: https://github.com/tswaters
+[@jleyba]: https://github.com/jleyba
+[@TimothyGu]: https://github.com/timothygu
+[@callumacrae]: https://github.com/callumacrae
+[@shinnn]: https://github.com/shinnn
+[@bensontrent]: https://github.com/bensontrent
+[@jugglinmike]: https://github.com/jugglinmike
+[@rosswarren]: https://github.com/rosswarren
+[@anthony-redfox]: https://github.com/anthony-redfox
+[@Munter]: https://github.com/munter
+
 # 2.5.3 / 2016-05-25
 
 - [#2112] - Fix HTML reporter regression causing duplicate error output ([@danielstjules] via 6d24063)
