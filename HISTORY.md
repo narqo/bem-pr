@@ -1,3 +1,14 @@
+0.15.0 / 2017-08-25
+===================
+
+OMG! IT'S STILL HERE RELEASE
+
+  * update vendored dependencies (#100)
+    * update [mocha](https://mochajs.org/) to 3.5.0
+    * update [chai](http://chaijs.com) to 4.1.1
+    * update [sinon](http://sinonjs.org) to 3.2.1
+    * update [sinon-chai](https://github.com/domenic/sinon-chai) to 2.13.0
+
 0.14.0 / 2017-01-11
 ===================
 
